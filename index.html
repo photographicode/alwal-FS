@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
-    <!-- External Dependencies: Tailwind CSS, html2canvas, and jsPDF -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Supabase UMD Module -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -68,7 +67,7 @@
             outline: none;
         }
 
-        /* ---------------- S-4 STRICT STYLES ---------------- */
+        /* ---------------- S-4 STRICT PUBLIC VIEW STYLES ---------------- */
         #s4-container-wrapper {
             width: 100%; max-width: 834px; height: 625px; margin: 0 auto;
             position: relative; overflow: hidden; display: flex; justify-content: center;
@@ -79,140 +78,30 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden;
         }
         .s4-strict * { font-family: Arial, Helvetica, sans-serif !important; box-sizing: border-box; }
-        .s4-strict .title { position: absolute; top: 25px; left: 0; width: 834px; text-align: center; font-size: 32px; font-weight: bold; color: #000; }
+        .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
+        .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
+        .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
+        .s4-strict .identity-label { position: absolute; left: -107px; top: 14px; width: 100px; height: 35px; font-size: 29px; font-weight: 700; color: #000; }
+        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000000; background: transparent; font-size: 24px; color: #000; }
+        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #ffffff; color: #000; }
+        .s4-strict .report-table td { border: 1px solid #222222; vertical-align: middle; }
+        .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
         
-        .s4-strict .identity { position: absolute; left: 60px; top: 90px; width: 714px; }
-        .s4-strict .identity-row { display: flex; align-items: center; margin-bottom: 12px; }
-        .s4-strict .identity-label { width: 110px; font-size: 28px; font-weight: bold; color: #000; }
-        .s4-strict .identity-input { flex: 1; height: 40px; border: 0; border-bottom: 2px dotted #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; outline: none; }
-        
-        .s4-strict .report-table { position: absolute; left: 60px; top: 220px; width: 714px; border: 2px solid #000; border-collapse: collapse; font-size: 26px; background: #ffffff; color: #000; }
-        .s4-strict .report-table td { border: 1px solid #000; padding: 12px 15px; vertical-align: middle; }
-        .s4-strict .ministry-cell { position: relative; width: 100%; height: 90px; }
-        
-        .s4-strict .checkbox-wrapper { position: absolute; right: 20px; top: 20px; width: 45px; height: 45px; border: 2px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
+        /* Flexbox Checkmark for S-4 */
+        .s4-strict .checkbox-wrapper { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 2px solid #222222; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
         .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; margin: 0; }
-        .s4-strict .checkmark { font-size: 38px; color: #000; font-weight: bold; display: none; line-height: 1; margin-top: -6px; }
+        .s4-strict .checkmark { font-size: 34px; color: #000; font-weight: bold; display: none; line-height: 1; }
         .s4-strict .checkbox:checked + .checkmark { display: block; }
-        
-        .s4-strict .study-label { width: 530px; font-size: 24px; }
-        .s4-strict .study-value, .s4-strict .hours-value { width: 184px; padding: 0 !important; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 60px; border: 0; outline: none; background: transparent !important; font-size: 30px; text-align: center !important; color: #000; border-radius: 0; }
-        
-        .s4-strict .comments { position: absolute; left: 60px; top: 480px; width: 714px; height: 80px; border: 2px solid #000; background: #f1f4ff; display: flex; align-items: center; }
-        .s4-strict .comments-label { font-size: 28px; font-weight: bold; color: #000; padding: 0 15px; }
-        .s4-strict .comments-input { flex: 1; height: 100%; resize: none; border: 0; outline: none; background: transparent !important; font-size: 24px; color: #000; padding: 25px 10px 10px 10px; border-radius: 0; }
-        
-        .s4-strict .footer-code { position: absolute; left: 60px; top: 580px; font-size: 19px; color: #000; }
-        .s4-strict .footer-date { position: absolute; left: 130px; top: 580px; font-size: 19px; color: #000; }
 
-        /* ---------------- S-21 EXACT PIXEL-PERFECT TEMPLATE STYLES ---------------- */
-        .s21-wrapper { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%; 
-            padding: 20px 0; 
-        }
-        
-        .s21-page-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .s21-page {
-            --page-w: 1448px;
-            --page-h: 1025px;
-            --x: 40px;
-            --table-w: 1369px;
-            --c1: 206px;
-            --c2: 173px;
-            --c3: 172px;
-            --c4: 172px;
-            --c5: 173px;
-            --c6: 473px;
-            --header-h: 120px;
-            --row-h: 43px;
-            --line: #222222; /* Thickened */
-            --heavy: #000000; /* Thickened */
-
-            position: relative;
-            width: var(--page-w);
-            height: var(--page-h);
-            background: #fff;
-            color: #000;
-            font-family: Arial, Helvetica, sans-serif;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform-origin: top center;
-        }
-
-        .s21-page * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
-        .s21-page .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; color: #000; }
-        .s21-page .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; color: #000;}
-        .s21-page .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
-        .s21-page .detail.name { top: 0; }
-        .s21-page .detail.birth { top: 35px; }
-        .s21-page .detail.baptism { top: 70px; }
-        .s21-page .detail-label { flex: 0 0 205px; white-space: nowrap; }
-        .s21-page .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; outline: 0; background: transparent; color: #000; font: 700 27px/35px Arial; min-width: 0; overflow: hidden; white-space: nowrap; }
-        
-        .s21-page .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
-        .s21-page .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
-        .s21-page .identity .male { left: 0; top: 0; }
-        .s21-page .identity .female { left: 248px; top: 0; }
-        .s21-page .identity .sheep { left: 0; top: 35px; }
-        .s21-page .identity .anointed { left: 248px; top: 35px; }
-        .s21-page .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
-        .s21-page .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
-
-        /* PERFECTED FLEXBOX CHECKMARKS */
-        .s21-page .identity input, .s21-page .check-label input { 
-            appearance: none; -webkit-appearance: none; 
-            width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; 
-            border: 2px solid var(--heavy); border-radius: 0; background: #fff; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center;
-        }
-        .s21-page .identity input:checked::after, .s21-page .check-label input:checked::after { 
-            content: "✔"; font-size: 18px; color: #000; font-weight: bold; line-height: 1;
-        }
-
-        .s21-page .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
-        .s21-page .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 2px solid var(--heavy); background: #fff; }
-        .s21-page .cell { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; background: #fff; display: flex; align-items: center; }
-        .s21-page .cell:nth-child(6n) { border-right: 0; }
-        .s21-page .cell.header { height: var(--header-h); justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; color: #000;}
-        .s21-page .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
-        
-        .s21-page .month { padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; color: #000; }
-        .s21-page .center { justify-content: center; }
-        .s21-page .hours-header { flex-direction: column; }
-        .s21-page .hours-header .sub { font-weight: 400; }
-        
-        .s21-page .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial; text-align: center; }
-        .s21-page .remarks-input { width: 100%; height: 41px; padding: 0 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/41px Arial; text-align: center; white-space: nowrap; overflow: hidden; }
-
-        .s21-page .month-check { 
-            appearance: none; -webkit-appearance: none; 
-            width: 26px; height: 26px; margin: 0; padding: 0; 
-            border: 2px solid var(--heavy); border-radius: 0; background: #fff; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center;
-        }
-        .s21-page .month-check:checked::after { 
-            content: "✔"; font-size: 24px; color: #000; font-weight: bold; line-height: 1;
-        }
-
-        .s21-page .total-row { width: var(--table-w); height: 45px; position: relative; }
-        .s21-page .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; color: #000;}
-        .s21-page .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); border-top: 2px solid var(--heavy); background: #fff; box-shadow: inset -1px 0 0 var(--heavy); }
-        .s21-page .total-box .slot { height: 41px; overflow: hidden; }
-        .s21-page .total-box .slot + .slot { border-left: 1px solid var(--line); }
-        .s21-page .total-input { width: 100%; height: 41px; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/41px Arial; text-align: center; }
-        .s21-page .total-input.remarks { font-weight: 700; }
-        
-        .s21-page .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; color: #000;}
-        .s21-page .footer-date { margin-left: 18px; }
+        .s4-strict .study-label { padding: 0 14px 0 15px; width: 670px; height: 44px; font-size: 25px; line-height: 28px; white-space: normal; }
+        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent !important; font-size: 27px; text-align: center; color: #000; border-radius: 0; }
+        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 29px; line-height: 34px; }
+        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222222; background: #ffffff; }
+        .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
+        .s4-strict .comments-input { position: absolute; left: 169px; top: 0; width: 603px; height: 92px; resize: none; padding: 15px 15px; border: 0; outline: none; background: #f1f4ff !important; font-size: 24px; color: #000; border-radius: 0; }
+        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; }
+        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; }
 
         /* ANALYTICS TABLE STYLES */
         .analytics-table { width: 100%; border: 2px solid #000; background: #fff; color: #000; font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 24px; border-collapse: collapse; }
@@ -226,7 +115,7 @@
 
     <!-- PASSWORD OVERLAY -->
     <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 to-teal-900 z-[10000] flex flex-col items-center justify-center">
-        <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30">
+        <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30 shadow-2xl">
             <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">FS</div>
             <h2 class="text-2xl font-bold text-white mb-2">Service Manager Portal</h2>
             <p class="text-teal-200/70 text-sm mb-6">Restricted Access. Enter master password.</p>
@@ -242,13 +131,13 @@
                 <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.3)]">FS</div>
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
-            <!-- Tab Order: Dashboard, Groups, Printer, Publishers, Analytics -->
+            <!-- Logical Tab Order -->
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
                 <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
-                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
                 <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
+                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
             </div>
         </div>
     </nav>
@@ -263,8 +152,8 @@
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
+                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -272,6 +161,7 @@
                 </div>
             </div>
             
+            <!-- Core Statistics -->
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
             
             <!-- AP and RP Dedicated Tables -->
@@ -339,26 +229,54 @@
             </div>
         </div>
 
-        <!-- S-21 PRINTER TAB -->
+        <!-- S-21 PRINTER TAB (iFrame Engine) -->
         <div id="tab-s21" class="tab-content space-y-6">
             <div class="flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-white drop-shadow-md">Document Printer</h2>
-                    <p class="text-teal-200/70 mt-1">Compile and download pixel-perfect S-21 records</p>
+                    <p class="text-teal-200/70 mt-1">Compile and print pixel-perfect S-21 records natively</p>
                 </div>
                 <div class="flex gap-3 flex-wrap">
-                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input"></select>
-                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input max-w-[250px]"></select>
+                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
-                    <!-- jsPDF/html2canvas Download Trigger -->
-                    <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
-                        Download PDF
+                    <!-- Triggers iFrame Native Print -->
+                    <button onclick="ui.printCards()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
+                        Print Cards
                     </button>
                 </div>
             </div>
             
-            <div id="s21-render-area" class="s21-wrapper bg-gray-900 rounded-xl"></div>
+            <!-- ISOLATED IFRAME FOR 100% PURE HTML/CSS RENDERING -->
+            <div id="s21-render-area" class="w-full bg-gray-900 rounded-xl overflow-hidden shadow-inner flex justify-center p-4" style="height: 800px;">
+                <iframe id="s21-render-frame" class="w-full h-full bg-white shadow-2xl rounded" style="max-width: 1448px;"></iframe>
+            </div>
+        </div>
+
+        <!-- ANALYTICS TAB (6-Month Summary) -->
+        <div id="tab-analytics" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
+                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
+            </div>
+            
+            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto"></div>
+
+            <div class="glass-panel mt-10 p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
+                    <div class="flex gap-3">
+                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="analytics-roster" class="overflow-x-auto"></div>
+            </div>
         </div>
 
         <!-- PUBLISHERS TAB -->
@@ -369,13 +287,13 @@
                     <p class="text-teal-200/70 mt-1">Manage global profiles and access controls</p>
                 </div>
                 <div class="flex gap-3 flex-wrap">
-                    <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Import CSV</button>
+                    <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Import Contacts</button>
                     <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="db.importContacts(event)">
-                    <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export CSV</button>
+                    <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export Contacts</button>
                     
-                    <button onclick="document.getElementById('csv-report-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20 text-amber-200">Import Reports</button>
+                    <button onclick="document.getElementById('csv-report-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Import Reports</button>
                     <input type="file" id="csv-report-file" accept=".csv" class="hidden" onchange="db.importReports(event)">
-                    <button onclick="ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20 text-amber-200">Export Reports</button>
+                    <button onclick="ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Export Reports</button>
 
                     <button onclick="ui.wipeAllData()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
                     
@@ -400,31 +318,6 @@
                         <tbody id="publisher-table-body" class="divide-y divide-white/10 text-teal-50"></tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- ANALYTICS TAB (6-Month Summary) -->
-        <div id="tab-analytics" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
-                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
-            </div>
-            
-            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto"></div>
-
-            <div class="glass-panel mt-10 p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
-                    <div class="flex gap-3">
-                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
-                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
-                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
-                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="analytics-roster" class="overflow-x-auto"></div>
             </div>
         </div>
 
@@ -505,11 +398,11 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Full Name</label>
-                        <input type="text" id="pub-name" required class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-name" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Service Group Designation</label>
-                        <input type="text" id="pub-group" placeholder="e.g. Group A" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-group" placeholder="e.g. Group A" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
                 
@@ -544,22 +437,22 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date of Birth</label>
-                        <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date Baptized</label>
-                        <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone</label>
-                        <input type="text" id="pub-phone" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-phone" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Address</label>
-                        <input type="text" id="pub-address" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
+                        <input type="text" id="pub-address" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
 
@@ -589,7 +482,7 @@
         const supabaseClient = isCloudEnabled ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         /* -------------------------------------------------------------------------- */
-        /* MODULE 2: AUTH & UTILITY FUNCTIONS                                         */
+        /* MODULE 2: CONSTANTS & UTILITIES                                            */
         /* -------------------------------------------------------------------------- */
         window.config = {
             MASTER_PASSWORD: 'Admin' + '1234'
@@ -661,7 +554,7 @@
         };
 
         /* -------------------------------------------------------------------------- */
-        /* MODULE 3: HYBRID STATE MANAGEMENT (DATABASE ABSTRACTION)                   */
+        /* MODULE 3: HYBRID DATABASE ABSTRACTION                                      */
         /* -------------------------------------------------------------------------- */
         window.db = {
             publishers: [],
@@ -698,7 +591,7 @@
             }),
             mapRepToDB: (r) => ({
                 id: r.id, pub_id: r.pubId, service_year: r.serviceYear, month: r.month,
-                shared_in_ministry: r.shared_in_ministry, studies: r.studies ? parseInt(r.studies) : 0,
+                shared_in_ministry: r.sharedInMinistry, studies: r.studies ? parseInt(r.studies) : 0,
                 hours: r.hours ? parseFloat(r.hours) : 0, comments: r.comments, is_ap: r.isAP
             }),
             mapRepFromDB: (r) => ({
@@ -719,7 +612,6 @@
                 if (!pub.id) pub.id = utils.generateUUID();
                 const idx = window.db.publishers.findIndex(p => p.id === pub.id);
                 if (idx > -1) window.db.publishers[idx] = pub; else window.db.publishers.push(pub);
-                
                 if (isCloudEnabled) await supabaseClient.from('publishers').upsert(db.mapPubToDB(pub));
                 else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
             },
@@ -727,10 +619,8 @@
             deletePublisher: async (id) => {
                 if(!confirm('Execute cascading delete on this publisher record?')) return;
                 window.db.publishers = window.db.publishers.filter(p => p.id !== id);
-                
                 if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id);
                 else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                
                 ui.renderPublishers();
                 ui.showToast('Record purged successfully.');
             },
@@ -739,7 +629,6 @@
                 report.id = `${report.pubId}_${report.serviceYear}_${report.month}`;
                 const idx = window.db.reports.findIndex(r => r.id === report.id);
                 if (idx > -1) window.db.reports[idx] = report; else window.db.reports.push(report);
-                
                 if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(report));
                 else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
             },
@@ -768,7 +657,6 @@
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim();
                         if (!line) continue;
-                        
                         const values = []; let inQuotes = false, val = '';
                         for (let j = 0; j < line.length; j++) {
                             const char = line[j];
@@ -780,7 +668,6 @@
                         
                         const pubName = values[0]?.trim();
                         if (!pubName) continue;
-                        
                         const pub = window.db.publishers.find(p => p.name.toLowerCase() === pubName.toLowerCase());
                         if (!pub) continue; 
                         
@@ -790,14 +677,9 @@
                         if(monthIdx === -1) continue;
 
                         const repData = {
-                            pubId: pub.id,
-                            serviceYear: parseInt(values[1]),
-                            month: monthIdx,
-                            sharedInMinistry: isTrue(values[3]),
-                            studies: parseInt(values[4]) || 0,
-                            hours: parseFloat(values[5]) || 0,
-                            comments: values[6]?.trim() || '',
-                            isAP: isTrue(values[7])
+                            pubId: pub.id, serviceYear: parseInt(values[1]), month: monthIdx,
+                            sharedInMinistry: isTrue(values[3]), studies: parseInt(values[4]) || 0,
+                            hours: parseFloat(values[5]) || 0, comments: values[6]?.trim() || '', isAP: isTrue(values[7])
                         };
                         repData.id = `${repData.pubId}_${repData.serviceYear}_${repData.month}`;
                         
@@ -806,13 +688,10 @@
                         dbRepsToUpsert.push(db.mapRepToDB(repData));
                         imported++;
                     }
-                    
                     if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert);
                     else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    
                     ui.showToast(`Imported ${imported} historical reports`); 
-                    ui.renderDashboard(); ui.renderAnalytics();
-                    e.target.value = ''; 
+                    ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             },
@@ -829,7 +708,6 @@
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim();
                         if (!line) continue;
-                        
                         const values = []; let inQuotes = false, val = '';
                         for (let j = 0; j < line.length; j++) {
                             const char = line[j];
@@ -847,12 +725,9 @@
                             name: name, phone: values[1]?.trim() || '', address: values[2]?.trim() || '',
                             dob: values[3]?.trim() || '', baptized: values[4]?.trim() || '',
                             isElder: isTrue(values[5]), isMS: isTrue(values[6]), isRP: isTrue(values[7]),
-                            gender: isTrue(values[8]) ? 'Male' : 'Female',
-                            isSP: isTrue(values[10]), isFM: isTrue(values[11]),
-                            hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep',
-                            group: values[14]?.trim() || ''
+                            gender: isTrue(values[8]) ? 'Male' : 'Female', isSP: isTrue(values[10]), isFM: isTrue(values[11]),
+                            hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep', group: values[14]?.trim() || ''
                         };
-                        
                         const existing = window.db.publishers.find(p => p.name.toLowerCase() === name.toLowerCase());
                         pubData.id = existing ? existing.id : utils.generateUUID();
                         
@@ -861,33 +736,94 @@
                         dbPubsToUpsert.push(db.mapPubToDB(pubData));
                         imported++;
                     }
-                    
                     if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert);
                     else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                    
-                    ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups();
-                    e.target.value = ''; 
+                    ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             }
         };
 
         /* -------------------------------------------------------------------------- */
-        /* MODULE 4: USER INTERFACE CONTROLLER                                        */
+        /* MODULE 4: S-21 PRINTER ENGINE (IFRAME ISOLATION + TEMPLATE INJECTION)      */
+        /* -------------------------------------------------------------------------- */
+        
+        // This constant contains the EXACT CSS from editable_3.html to ensure a perfect 1:1 match
+        // with absolutely no Tailwind CSS interference during the native browser print.
+        const S21_ENGINE_CSS = `
+            :root {
+                --page-w: 1448px; --page-h: 1025px; --x: 40px; --table-w: 1369px;
+                --c1: 206px; --c2: 173px; --c3: 172px; --c4: 172px; --c5: 173px; --c6: 473px;
+                --header-h: 120px; --row-h: 43px; --line: #000000; --heavy: #000000;
+            }
+            * { box-sizing: border-box; }
+            body { margin: 0; padding: 0; background: #fff; font-family: Arial, Helvetica, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 20px;}
+            
+            .page { position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto; background: #fff; overflow: hidden; flex-shrink: 0; }
+            .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; }
+            .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; }
+            .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
+            .detail.name { top: 0; } .detail.birth { top: 35px; } .detail.baptism { top: 70px; }
+            .detail-label { flex: 0 0 205px; white-space: nowrap; }
+            .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; color: #000; font: 700 27px/35px Arial, Helvetica, sans-serif; overflow: hidden; white-space: nowrap; }
+            .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
+            .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
+            .identity .male { left: 0; top: 0; } .identity .female { left: 248px; top: 0; } .identity .sheep { left: 0; top: 35px; } .identity .anointed { left: 248px; top: 35px; }
+            .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
+            .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
+            
+            .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
+            .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 3px solid var(--heavy); background: #fff; }
+            .cell { min-width: 0; min-height: 0; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); overflow: hidden; background: #fff; }
+            .cell:nth-child(6n) { border-right: 0; }
+            .cell.header { height: var(--header-h); display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 7px; font-size: 25px; line-height: 28px; font-weight: 700; }
+            .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
+            .month { display: flex; align-items: center; padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; }
+            .center { display: flex; align-items: center; justify-content: center; }
+            .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; }
+            .hours-header .sub { display: block; font-weight: 400; }
+            
+            .cell-input { display: block; width: 100%; height: 41px; padding: 0 5px; color: #000; font: 400 24px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+            .remarks-input { display: block; width: 100%; height: 41px; padding: 0 7px; color: #000; font: 400 21px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+            
+            /* Rigid DIV Checkboxes to prevent browser wipeout */
+            .check-box, .month-check { display: flex; align-items: center; justify-content: center; border: 2px solid #111; background: #fff; }
+            .check-box { width: 21px; height: 21px; flex: 0 0 21px; margin-right: 9px; }
+            .month-check { width: 26px; height: 26px; margin: 0 auto; }
+            .check-box.checked::after, .month-check.checked::after { content: "✔"; color: #111; font-weight: bold; font-size: 18px; line-height: 1; }
+            .month-check.checked::after { font-size: 22px; }
+            
+            .total-row { width: var(--table-w); height: 45px; position: relative; }
+            .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
+            .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 3px solid var(--heavy); border-top: 3px solid var(--heavy); background: #fff; }
+            .total-box .slot { min-width: 0; height: 41px; overflow: hidden; border-left: 2px solid var(--line); }
+            .total-box .slot:first-child { border-left: none; }
+            .total-input { width: 100%; height: 41px; padding: 0 6px; color: #000; font: 700 23px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+            
+            .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; }
+            .footer-date { margin-left: 18px; }
+
+            /* NATIVE BROWSER PRINT DIRECTIVES */
+            @media print {
+                @page { size: landscape; margin: 0 !important; }
+                body { margin: 0 !important; padding: 0 !important; display: block; }
+                .page { margin: 0 !important; box-shadow: none; border: none; page-break-after: always; }
+                /* Hides extra spaces to prevent blank pages */
+                html, body { height: 100%; overflow: hidden; } 
+            }
+        `;
+
+        /* -------------------------------------------------------------------------- */
+        /* MODULE 5: USER INTERFACE CONTROLLER                                        */
         /* -------------------------------------------------------------------------- */
         window.ui = {
             currentTab: 'dashboard',
             publicGroup: null,
             
             init: () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const groupParam = urlParams.get('group');
-                
-                if (groupParam) {
-                    document.body.classList.add('public-mode');
-                    ui.publicGroup = groupParam;
-                    ui.switchTab('s4');
-                } else {
+                if (window.auth.check()) {
+                    if (ui.publicGroup) return; // handled in check()
+                    
                     const syInfo = utils.getCurrentServiceYearInfo();
                     const istInfo = utils.getISTPreviousMonthInfo();
                     
@@ -900,27 +836,17 @@
                                 el.innerHTML += `<option value="${i}">${i-1}-${i}</option>`;
                             }
                             el.value = istInfo.serviceYear;
-                            el.classList.add('app-input');
                         }
                     });
                     
                     const mSelects = ['dash-month', 'analytics-month'];
                     mSelects.forEach(id => {
                         const el = document.getElementById(id);
-                        if(el) {
-                            el.value = istInfo.month;
-                            el.classList.add('app-input');
-                        }
+                        if(el) el.value = istInfo.month;
                     });
-
-                    if(document.getElementById('auth-screen').classList.contains('hidden')) {
-                        ui.switchTab('dashboard');
-                    }
+                    ui.switchTab('dashboard');
                 }
-                window.addEventListener('resize', () => {
-                    ui.scaleS4();
-                    ui.scaleS21();
-                });
+                window.addEventListener('resize', ui.scaleS4);
             },
             
             switchTab: (tabId) => {
@@ -969,46 +895,31 @@
                 e.preventDefault();
                 const id = document.getElementById('pub-id').value;
                 const pub = {
-                    id: id || utils.generateUUID(),
-                    name: document.getElementById('pub-name').value,
+                    id: id || utils.generateUUID(), name: document.getElementById('pub-name').value,
                     gender: document.querySelector('input[name="pub-gender"]:checked')?.value || 'Male',
                     hope: document.querySelector('input[name="pub-hope"]:checked')?.value || 'Other Sheep',
-                    dob: document.getElementById('pub-dob').value,
-                    baptized: document.getElementById('pub-baptized').value,
-                    isElder: document.getElementById('pub-elder').checked,
-                    isMS: document.getElementById('pub-ms').checked,
-                    isRP: document.getElementById('pub-rp').checked,
-                    isSP: document.getElementById('pub-sp').checked,
-                    isFM: document.getElementById('pub-fm').checked,
-                    phone: document.getElementById('pub-phone').value,
-                    address: document.getElementById('pub-address').value,
-                    group: document.getElementById('pub-group').value
+                    dob: document.getElementById('pub-dob').value, baptized: document.getElementById('pub-baptized').value,
+                    isElder: document.getElementById('pub-elder').checked, isMS: document.getElementById('pub-ms').checked,
+                    isRP: document.getElementById('pub-rp').checked, isSP: document.getElementById('pub-sp').checked,
+                    isFM: document.getElementById('pub-fm').checked, phone: document.getElementById('pub-phone').value,
+                    address: document.getElementById('pub-address').value, group: document.getElementById('pub-group').value
                 };
                 await db.savePublisher(pub);
                 ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!');
-                ui.closeModal('modal-add-publisher');
-                ui.renderPublishers();
+                ui.closeModal('modal-add-publisher'); ui.renderPublishers();
             },
             
             editPublisher: (id) => {
                 const pub = db.getPublishers().find(p => p.id === id);
                 if (!pub) return;
-                document.getElementById('pub-id').value = pub.id;
-                document.getElementById('pub-name').value = pub.name;
-                const gSel = document.querySelector(`input[name="pub-gender"][value="${pub.gender === 'Female' ? 'Female' : 'Male'}"]`);
-                if(gSel) gSel.checked = true;
-                const hSel = document.querySelector(`input[name="pub-hope"][value="${pub.hope === 'Anointed' ? 'Anointed' : 'Other Sheep'}"]`);
-                if(hSel) hSel.checked = true;
-                document.getElementById('pub-dob').value = pub.dob || '';
-                document.getElementById('pub-baptized').value = pub.baptized || '';
-                document.getElementById('pub-elder').checked = !!pub.isElder;
-                document.getElementById('pub-ms').checked = !!pub.isMS;
-                document.getElementById('pub-rp').checked = !!pub.isRP;
-                document.getElementById('pub-sp').checked = !!pub.isSP;
-                document.getElementById('pub-fm').checked = !!pub.isFM;
-                document.getElementById('pub-phone').value = pub.phone || '';
-                document.getElementById('pub-address').value = pub.address || '';
-                document.getElementById('pub-group').value = pub.group || '';
+                document.getElementById('pub-id').value = pub.id; document.getElementById('pub-name').value = pub.name;
+                const gSel = document.querySelector(`input[name="pub-gender"][value="${pub.gender==='Female'?'Female':'Male'}"]`); if(gSel) gSel.checked = true;
+                const hSel = document.querySelector(`input[name="pub-hope"][value="${pub.hope==='Anointed'?'Anointed':'Other Sheep'}"]`); if(hSel) hSel.checked = true;
+                document.getElementById('pub-dob').value = pub.dob || ''; document.getElementById('pub-baptized').value = pub.baptized || '';
+                document.getElementById('pub-elder').checked = !!pub.isElder; document.getElementById('pub-ms').checked = !!pub.isMS;
+                document.getElementById('pub-rp').checked = !!pub.isRP; document.getElementById('pub-sp').checked = !!pub.isSP;
+                document.getElementById('pub-fm').checked = !!pub.isFM; document.getElementById('pub-phone').value = pub.phone || '';
+                document.getElementById('pub-address').value = pub.address || ''; document.getElementById('pub-group').value = pub.group || '';
                 document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record';
                 ui.openModal('modal-add-publisher', true);
             },
@@ -1017,129 +928,83 @@
                 const pass = prompt("DANGER ZONE: Enter Master Password to wipe all records:");
                 if(pass !== window.config.MASTER_PASSWORD) { alert("Incorrect password."); return; }
                 if(confirm("Are you absolutely sure? This will delete ALL publishers and reports permanently.")) {
-                    window.db.publishers = [];
-                    window.db.reports = [];
+                    window.db.publishers = []; window.db.reports = [];
                     if(isCloudEnabled) {
                         await supabaseClient.from('reports').delete().neq('id', '0');
                         await supabaseClient.from('publishers').delete().neq('name', '0');
-                    } else {
-                        localStorage.removeItem('fs_pubs');
-                        localStorage.removeItem('fs_reps');
-                    }
-                    ui.showToast("Database Wiped.", "error");
-                    ui.renderPublishers();
+                    } else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
+                    ui.showToast("Database Wiped.", "error"); ui.renderPublishers();
                 }
             },
 
             downloadContacts: () => {
                 const pubs = db.getPublishers();
                 if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
-                
                 let csv = 'Name,Phone,Address,DOB,Baptized,Elder,MS,RP,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
                 pubs.forEach(p => {
                     const cleanAddress = (p.address || '').replace(/,/g, ' ');
-                    csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",`;
-                    csv += `${!!p.isElder ? 'TRUE' : 'FALSE'},${!!p.isMS ? 'TRUE' : 'FALSE'},${!!p.isRP ? 'TRUE' : 'FALSE'},`;
-                    csv += `${p.gender === 'Male' ? 'TRUE' : 'FALSE'},${p.gender === 'Female' ? 'TRUE' : 'FALSE'},`;
-                    csv += `${!!p.isSP ? 'TRUE' : 'FALSE'},${!!p.isFM ? 'TRUE' : 'FALSE'},`;
-                    csv += `${p.hope === 'Anointed' ? 'TRUE' : 'FALSE'},${p.hope === 'Other Sheep' ? 'TRUE' : 'FALSE'},`;
-                    csv += `"${p.group || ''}"\n`;
+                    csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",${!!p.isElder?'TRUE':'FALSE'},${!!p.isMS?'TRUE':'FALSE'},${!!p.isRP?'TRUE':'FALSE'},${p.gender==='Male'?'TRUE':'FALSE'},${p.gender==='Female'?'TRUE':'FALSE'},${!!p.isSP?'TRUE':'FALSE'},${!!p.isFM?'TRUE':'FALSE'},${p.hope==='Anointed'?'TRUE':'FALSE'},${p.hope==='Other Sheep'?'TRUE':'FALSE'},"${p.group || ''}"\n`;
                 });
-                
                 const blob = new Blob([csv], { type: 'text/csv' });
-                const a = document.createElement('a');
-                a.href = window.URL.createObjectURL(blob);
-                a.download = 'Publishers_Master_Backup.csv';
-                a.click();
+                const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Publishers_Master_Backup.csv'; a.click();
             },
 
             downloadReports: () => {
-                const reps = db.getReports();
-                const pubs = db.getPublishers();
+                const reps = db.getReports(); const pubs = db.getPublishers();
                 if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
-                
                 let csv = 'Publisher Name,Service Year,Month,Shared In Ministry,Studies,Hours,Remarks,Is Auxiliary Pioneer\n';
                 reps.forEach(r => {
-                    const pub = pubs.find(p => p.id === r.pubId);
-                    const pubName = pub ? pub.name : 'Unknown';
+                    const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown';
                     const monthName = utils.getMonthName(r.month);
                     const cleanComments = (r.comments || '').replace(/"/g, '""');
-                    csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry ? 'TRUE' : 'FALSE'},${r.studies || 0},${r.hours || 0},"${cleanComments}",${r.isAP ? 'TRUE' : 'FALSE'}\n`;
+                    csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`;
                 });
-                
                 const blob = new Blob([csv], { type: 'text/csv' });
-                const a = document.createElement('a');
-                a.href = window.URL.createObjectURL(blob);
-                a.download = 'Historical_Reports_Backup.csv';
-                a.click();
+                const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Historical_Reports_Backup.csv'; a.click();
             },
 
             renderDashboard: () => {
-                const dYear = document.getElementById('dash-year');
-                const dMonth = document.getElementById('dash-month');
+                const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month');
                 if(!dYear || !dMonth) return;
                 
-                const sy = parseInt(dYear.value);
-                const month = parseInt(dMonth.value);
-                const pubs = db.getPublishers();
-                const reports = db.getReports(sy, month);
+                const sy = parseInt(dYear.value); const month = parseInt(dMonth.value);
+                const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
                 
-                let stats = { totalRep: 0, apCount: 0, rpCount: 0 };
-                const apReviewHtml = [];
-                let rpTableHtml = '', apTableHtml = '';
-                
-                document.getElementById('dash-reports-table').innerHTML = '';
+                let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
+                let rpTableHtml = '', apTableHtml = '', apReviewHtml = '';
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
                         let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
                         if (r.sharedInMinistry) stats.totalRep++;
-                        
                         if (p.isRP || p.isSP || p.isFM) { 
-                            stats.rpCount++; 
-                            rpTableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
+                            stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
+                            rpTableHtml += `<tr class="border-b border-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                         } else if (r.isAP) { 
-                            stats.apCount++; 
-                            apTableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
-                            apReviewHtml.push(`
-                                <tr class="border-b border-white/5 bg-emerald-900/10 hover:bg-emerald-900/20 transition-colors">
-                                    <td class="px-6 py-3 font-medium">${p.name}</td>
-                                    <td class="px-6 py-3 text-center font-mono">${h}</td>
-                                    <td class="px-6 py-3 text-center font-mono">${s}</td>
-                                    <td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td>
-                                </tr>
-                            `);
+                            stats.apCount++; stats.apHours += h; stats.apStudies += s; 
+                            apReviewHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
                         }
-                        
-                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-center text-xs truncate max-w-[200px] text-teal-100/70">${r.comments||''}</td></tr>`;
-                    } else {
-                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
                     }
                 });
 
-                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auto-flagged Pioneers.</td></tr>`;
                 document.getElementById('dash-rp-table').innerHTML = rpTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
-                document.getElementById('dash-ap-table').innerHTML = apTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers found.</td></tr>`;
+                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div>
-                        <div class="text-4xl font-bold text-white mt-2">${pubs.length}</div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div>
-                        <div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div>
-                        <div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div>
-                        <div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div>
-                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div><div class="text-4xl font-bold text-white mt-2">${pubs.length}</div></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div><div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div></div>
                 `;
+
+                const tbody = document.getElementById('dash-reports-table');
+                tbody.innerHTML = '';
+                pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
+                    const r = reports.find(x => x.pubId === p.id);
+                    if (r) tbody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
+                    else tbody.innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
+                });
             },
 
             renderPublishers: () => {
@@ -1181,8 +1046,7 @@
                 
                 if (groups.length === 0) {
                     sidebar.innerHTML = '<div class="glass-panel p-4 text-center text-teal-100/60">No groups assigned.</div>';
-                    document.getElementById('group-details').classList.add('hidden');
-                    return;
+                    document.getElementById('group-details').classList.add('hidden'); return;
                 }
                 
                 sidebar.innerHTML = groups.map(g => `<button onclick="ui.showGroup('${g}')" class="group-btn w-full glass-panel text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all font-medium flex justify-between items-center text-white mb-2">${g} <span class="bg-black/40 text-teal-300 text-xs px-2.5 py-1 rounded-full">${pubs.filter(p=>p.group===g).length}</span></button>`).join('');
@@ -1194,8 +1058,7 @@
                 const btn = Array.from(document.querySelectorAll('.group-btn')).find(b => b.textContent.includes(groupName));
                 if(btn) btn.classList.add('bg-teal-600/50', 'border-teal-400/50');
                 
-                const details = document.getElementById('group-details');
-                details.classList.remove('hidden');
+                const details = document.getElementById('group-details'); details.classList.remove('hidden');
                 
                 const pubs = db.getPublishers().filter(p => p.group === groupName);
                 const istInfo = utils.getISTPreviousMonthInfo();
@@ -1206,9 +1069,7 @@
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     membersList.push(p.name);
-                    if(p.isElder) stats.elders++;
-                    if(p.isRP) stats.rps++;
-                    
+                    if(p.isElder) stats.elders++; if(p.isRP) stats.rps++;
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
                         if(r.isAP) stats.aps++;
@@ -1219,19 +1080,12 @@
                     }
                 });
                 
-                let pendingHtml = pending.length > 0 
-                    ? `<ol class="list-decimal pl-5 space-y-1 text-rose-300 text-sm">${pending.map(name => `<li>${name}</li>`).join('')}</ol>` 
-                    : '<div class="text-emerald-400 text-sm">All submitted!</div>';
+                let pendingHtml = pending.length > 0 ? `<ol class="list-decimal pl-5 space-y-1 text-rose-300 text-sm">${pending.map(name => `<li>${name}</li>`).join('')}</ol>` : '<div class="text-emerald-400 text-sm">All submitted!</div>';
                     
                 details.innerHTML = `
                     <div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4">
-                        <div>
-                            <h3 class="text-2xl font-bold text-white">${groupName}</h3>
-                            <div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button>
-                        </div>
+                        <div><h3 class="text-2xl font-bold text-white">${groupName}</h3><div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div></div>
+                        <div class="flex gap-2"><button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button></div>
                     </div>
                     <div class="grid grid-cols-4 gap-3 mb-6 text-center text-white">
                         <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div>
@@ -1250,14 +1104,9 @@
             copyGroupLink: (groupName) => {
                 const baseUrl = window.location.href.split('?')[0];
                 const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
-                const textArea = document.createElement("textarea");
-                textArea.value = url;
-                document.body.appendChild(textArea);
+                const textArea = document.createElement("textarea"); textArea.value = url; document.body.appendChild(textArea);
                 textArea.focus(); textArea.select();
-                try {
-                    document.execCommand('copy');
-                    ui.showToast('Public Link Copied!');
-                } catch (err) { console.error(err); }
+                try { document.execCommand('copy'); ui.showToast('Public Link Copied!'); } catch (err) { console.error(err); }
                 document.body.removeChild(textArea);
             },
 
@@ -1278,18 +1127,12 @@
                 for(let i=0; i<6; i++) {
                     const targetDate = new Date(currentMonthDate.getTime());
                     targetDate.setMonth(currentMonthDate.getMonth() - i);
-                    
-                    const tMonth = targetDate.getMonth();
-                    const tYear = targetDate.getFullYear();
+                    const tMonth = targetDate.getMonth(); const tYear = targetDate.getFullYear();
                     const tSy = tMonth >= 8 ? tYear + 1 : tYear;
                     const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`;
-                    
                     const reports = db.getReports(tSy, tMonth);
                     
-                    let pubCount = 0, pubStudies = 0;
-                    let apCount = 0, apStudies = 0, apHours = 0;
-                    let rpCount = 0, rpStudies = 0, rpHours = 0;
-                    let inactiveCount = 0;
+                    let pubCount = 0, pubStudies = 0, apCount = 0, apStudies = 0, apHours = 0, rpCount = 0, rpStudies = 0, rpHours = 0, inactiveCount = 0;
                     
                     pubs.forEach(p => {
                         const r = reports.find(x => x.pubId === p.id);
@@ -1298,9 +1141,7 @@
                             if (p.isRP || p.isSP || p.isFM) { rpCount++; rpStudies+=s; rpHours+=h; }
                             else if (r.isAP) { apCount++; apStudies+=s; apHours+=h; }
                             else { pubCount++; pubStudies+=s; }
-                        } else {
-                            inactiveCount++;
-                        }
+                        } else inactiveCount++;
                     });
                     
                     html += `
@@ -1309,15 +1150,12 @@
                             <div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div>
                             <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div>
                             <div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div>
-                            
                             <div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div>
                             <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
                             <div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div>
-                            
                             <div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div>
                             <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
                             <div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div>
-                            
                             <div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div>
                         </div>
                     `;
@@ -1326,15 +1164,10 @@
             },
             
             renderDetailedRoster: () => {
-                const area = document.getElementById('analytics-roster');
-                if(!area) return;
-                
+                const area = document.getElementById('analytics-roster'); if(!area) return;
                 const sy = parseInt(document.getElementById('analytics-year').value);
                 const month = parseInt(document.getElementById('analytics-month').value);
-                
-                const pubs = db.getPublishers();
-                const reports = db.getReports(sy, month);
-                
+                const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
                 let rps=[], aps=[], normals=[], inactives=[];
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
@@ -1344,53 +1177,24 @@
                         if (p.isRP || p.isSP || p.isFM) rps.push(trHtml);
                         else if (r.isAP) aps.push(trHtml);
                         else normals.push(`<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`);
-                    } else {
-                        inactives.push(`<tr class="border-b border-white/10"><td class="px-4 py-2 text-rose-300">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">-</td></tr>`);
-                    }
+                    } else inactives.push(`<tr class="border-b border-white/10"><td class="px-4 py-2 text-rose-300">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">-</td></tr>`);
                 });
                 
-                const box = (title, rows, color) => `
-                    <div class="bg-black/30 border border-${color}-500/30 rounded-xl overflow-hidden">
-                        <div class="bg-black/60 text-${color}-300 font-bold px-4 py-3 text-sm flex justify-between"><span>${title}</span><span>${rows.length}</span></div>
-                        <table class="w-full text-left text-sm text-white">
-                            <thead class="bg-black/40 text-${color}-100/50 text-xs uppercase"><tr><th class="px-4 py-2">Name</th><th class="px-4 py-2 text-center w-20">Hours</th><th class="px-4 py-2 text-center w-20">Studies</th></tr></thead>
-                            <tbody>${rows.length ? rows.join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-white/30 italic">None</td></tr>`}</tbody>
-                        </table>
-                    </div>`;
-                    
-                area.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        ${box('Regular Pioneers', rps, 'cyan')}
-                        ${box('Auxiliary Pioneers', aps, 'teal')}
-                        ${box('Publishers', normals, 'slate')}
-                        ${box('Inactive / Pending', inactives, 'rose')}
-                    </div>
-                `;
+                const box = (title, rows, color) => `<div class="bg-black/30 border border-${color}-500/30 rounded-xl overflow-hidden"><div class="bg-black/60 text-${color}-300 font-bold px-4 py-3 text-sm flex justify-between"><span>${title}</span><span>${rows.length}</span></div><table class="w-full text-left text-sm text-white"><thead class="bg-black/40 text-${color}-100/50 text-xs uppercase"><tr><th class="px-4 py-2">Name</th><th class="px-4 py-2 text-center w-20">Hours</th><th class="px-4 py-2 text-center w-20">Studies</th></tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-white/30 italic">None</td></tr>`}</tbody></table></div>`;
+                area.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">${box('Regular Pioneers', rps, 'cyan')}${box('Auxiliary Pioneers', aps, 'teal')}${box('Publishers', normals, 'slate')}${box('Inactive / Pending', inactives, 'rose')}</div>`;
             },
 
+            /* ---------------------------------------------------------------------- */
+            /* ISOLATED IFRAME S-21 PRINTER ENGINE (VIRGIN DOM)                       */
+            /* ---------------------------------------------------------------------- */
             setupS21Tab: () => {
-                const sel = document.getElementById('s21-publisher-select');
-                if(!sel) return;
-                sel.innerHTML = `
-                    <option value="ALL">-- All Publishers --</option>
-                    <option value="BATCH_RP">All Regular Pioneers</option>
-                    <option value="BATCH_AP">All Auxiliary Pioneers (Current)</option>
-                    <option value="BATCH_ELDER">All Elders</option>
-                    <option value="BATCH_MS">All Ministerial Servants</option>
-                    <option value="BATCH_UBP">All Unbaptized</option>
-                    <optgroup label="Individuals">
-                `;
-                db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
-                    sel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-                });
+                const sel = document.getElementById('s21-publisher-select'); if(!sel) return;
+                sel.innerHTML = `<option value="ALL">-- All Publishers --</option><option value="BATCH_RP">All Regular Pioneers</option><option value="BATCH_AP">All Auxiliary Pioneers (Current)</option><option value="BATCH_ELDER">All Elders</option><option value="BATCH_MS">All Ministerial Servants</option><option value="BATCH_UBP">All Unbaptized</option><optgroup label="Individuals">`;
+                db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
                 sel.innerHTML += `</optgroup>`;
             },
 
             renderS21: () => {
-                const area = document.getElementById('s21-render-area');
-                if(!area) return;
-                area.innerHTML = '';
-                
                 const sy = parseInt(document.getElementById('s21-year-select').value);
                 const filter = document.getElementById('s21-publisher-select').value;
                 let pubs = db.getPublishers();
@@ -1398,248 +1202,143 @@
                 const currentReports = db.getReports(sy, currentMonth);
                 
                 if (filter === 'BATCH_RP') pubs = pubs.filter(p => p.isRP);
-                else if (filter === 'BATCH_AP') pubs = pubs.filter(p => {
-                    const r = currentReports.find(x => x.pubId === p.id);
-                    return r && r.isAP;
-                });
+                else if (filter === 'BATCH_AP') pubs = pubs.filter(p => { const r = currentReports.find(x => x.pubId === p.id); return r && r.isAP; });
                 else if (filter === 'BATCH_ELDER') pubs = pubs.filter(p => p.isElder);
                 else if (filter === 'BATCH_MS') pubs = pubs.filter(p => p.isMS);
                 else if (filter === 'BATCH_UBP') pubs = pubs.filter(p => !p.baptized);
                 else if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
                 
-                if(pubs.length === 0) { area.innerHTML = `<div class="text-teal-100/50 p-10 font-mono">No data matched for this batch request.</div>`; return; }
+                const iframe = document.getElementById('s21-render-frame');
+                
+                if(pubs.length === 0) { 
+                    iframe.srcdoc = `<html><body style="font-family:sans-serif; text-align:center; padding: 50px; color: #555;">No records found.</body></html>`;
+                    return; 
+                }
 
+                let pagesHtml = '';
                 const monthOrder = [8,9,10,11,0,1,2,3,4,5,6,7];
                 
                 pubs.forEach(pub => {
-                    const container = document.createElement('div');
-                    container.className = 's21-page-container';
-                    
-                    const card = document.createElement('div');
-                    card.className = 's21-page';
                     let rowsHtml = '', totalHours = 0, totalRemarksNum = 0;
-                    
                     monthOrder.forEach(m => {
                         const r = db.getReports(sy, m).find(x => x.pubId === pub.id) || {};
-                        
-                        if(r.hours && !isNaN(parseFloat(r.hours))) {
-                            totalHours += parseFloat(r.hours);
-                        }
-                        if(r.comments) {
-                            totalRemarksNum += utils.extractNumbers(r.comments);
-                        }
-                        
-                        const chkShared = r.sharedInMinistry ? 'checked' : '';
-                        const chkAP = r.isAP ? 'checked' : '';
+                        if(r.hours && !isNaN(parseFloat(r.hours))) totalHours += parseFloat(r.hours);
+                        if(r.comments) totalRemarksNum += utils.extractNumbers(r.comments);
                         
                         rowsHtml += `
                             <div class="cell month">${utils.getMonthName(m)}</div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${chkShared}></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}"></div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${chkAP}></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}"></div>
-                            <div class="cell"><textarea class="remarks-input">${r.comments||''}</textarea></div>
+                            <div class="cell center"><div class="month-check ${r.sharedInMinistry ? 'checked' : ''}"></div></div>
+                            <div class="cell"><div class="cell-input">${r.studies||''}</div></div>
+                            <div class="cell center"><div class="month-check ${r.isAP ? 'checked' : ''}"></div></div>
+                            <div class="cell"><div class="cell-input">${r.hours||''}</div></div>
+                            <div class="cell"><div class="remarks-input">${r.comments||''}</div></div>
                         `;
                     });
 
                     let remarksOutput = totalRemarksNum > 0 ? `Additional hours: ${totalRemarksNum}` : '';
                     const bapText = !pub.baptized ? 'UBP' : pub.baptized;
 
-                    card.innerHTML = `
-                        <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
-                        <section class="personal">
-                            <div class="detail name"><label class="detail-label">Name:</label><input class="detail-input" type="text" value="${pub.name}"></div>
-                            <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}"></div>
-                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${bapText}"></div>
-                            <div class="identity">
-                                <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''}><span>Male</span></label>
-                                <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''}><span>Female</span></label>
-                                <label class="sheep"><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''}><span>Other sheep</span></label>
-                                <label class="anointed"><input type="checkbox" ${pub.hope==='Anointed'?'checked':''}><span>Anointed</span></label>
-                            </div>
-                            <div class="role-options">
-                                <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''}><span>Elder</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isMS?'checked':''}><span>Ministerial servant</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isRP?'checked':''}><span>Regular pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isSP?'checked':''}><span>Special pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isFM?'checked':''}><span>Field missionary</span></label>
-                            </div>
-                        </section>
-                        <section class="form-table">
-                            <div class="table-grid">
-                                <div class="cell header">Service Year<br>${sy-1}-${sy}</div>
-                                <div class="cell header">Shared in<br>Ministry</div>
-                                <div class="cell header">Bible<br>Studies</div>
-                                <div class="cell header">Auxiliary<br>Pioneer</div>
-                                <div class="cell header hours-header"><span>Hours</span><span class="sub">(If pioneer<br>or field<br>missionary)</span></div>
-                                <div class="cell header">Remarks</div>
-                                ${rowsHtml}
-                            </div>
-                            <div class="total-row">
-                                <div class="total-label">Total</div>
-                                <div class="total-box">
-                                    <div class="slot"><input class="total-input" type="text" value="${totalHours > 0 ? totalHours : ''}"></div>
-                                    <div class="slot"><input class="total-input remarks" type="text" value="${remarksOutput}"></div>
+                    pagesHtml += `
+                        <div class="page">
+                            <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
+                            <section class="personal">
+                                <div class="detail name"><label class="detail-label">Name:</label><div class="detail-input">${pub.name}</div></div>
+                                <div class="detail birth"><label class="detail-label">Date of birth:</label><div class="detail-input">${pub.dob||''}</div></div>
+                                <div class="detail baptism"><label class="detail-label">Date of baptism:</label><div class="detail-input">${bapText}</div></div>
+                                <div class="identity">
+                                    <label class="male"><div class="check-box ${pub.gender==='Male'?'checked':''}"></div><span>Male</span></label>
+                                    <label class="female"><div class="check-box ${pub.gender==='Female'?'checked':''}"></div><span>Female</span></label>
+                                    <label class="sheep"><div class="check-box ${pub.hope==='Other Sheep'?'checked':''}"></div><span>Other sheep</span></label>
+                                    <label class="anointed"><div class="check-box ${pub.hope==='Anointed'?'checked':''}"></div><span>Anointed</span></label>
                                 </div>
-                            </div>
-                        </section>
-                        <footer class="footer"><span>S-21-E</span><span class="footer-date">11/23</span></footer>
+                                <div class="role-options">
+                                    <label class="check-label"><div class="check-box ${pub.isElder?'checked':''}"></div><span>Elder</span></label>
+                                    <label class="check-label"><div class="check-box ${pub.isMS?'checked':''}"></div><span>Ministerial servant</span></label>
+                                    <label class="check-label"><div class="check-box ${pub.isRP?'checked':''}"></div><span>Regular pioneer</span></label>
+                                    <label class="check-label"><div class="check-box ${pub.isSP?'checked':''}"></div><span>Special pioneer</span></label>
+                                    <label class="check-label"><div class="check-box ${pub.isFM?'checked':''}"></div><span>Field missionary</span></label>
+                                </div>
+                            </section>
+                            <section class="form-table">
+                                <div class="table-grid">
+                                    <div class="cell header">Service Year<br>${sy-1}-${sy}</div>
+                                    <div class="cell header">Shared in<br>Ministry</div>
+                                    <div class="cell header">Bible<br>Studies</div>
+                                    <div class="cell header">Auxiliary<br>Pioneer</div>
+                                    <div class="cell header hours-header"><span>Hours</span><span class="sub">(If pioneer<br>or field<br>missionary)</span></div>
+                                    <div class="cell header">Remarks</div>
+                                    ${rowsHtml}
+                                </div>
+                                <div class="total-row">
+                                    <div class="total-label">Total</div>
+                                    <div class="total-box">
+                                        <div class="slot"><div class="total-input">${totalHours > 0 ? totalHours : ''}</div></div>
+                                        <div class="slot"><div class="total-input remarks">${remarksOutput}</div></div>
+                                    </div>
+                                </div>
+                            </section>
+                            <footer class="footer"><span>S-21-E</span><span class="footer-date">11/23</span></footer>
+                        </div>
                     `;
-                    container.appendChild(card);
-                    area.appendChild(container);
                 });
                 
-                ui.scaleS21();
-            },
-            
-            scaleS21: () => {
-                const wrapper = document.getElementById('s21-render-area');
-                if (!wrapper) return;
+                const fullIframeHtml = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>${S21_ENGINE_CSS}</style>
+                    </head>
+                    <body>${pagesHtml}</body>
+                    </html>
+                `;
                 
-                const w = wrapper.clientWidth;
-                const pages = document.querySelectorAll('.s21-page');
-                const containers = document.querySelectorAll('.s21-page-container');
-                
-                if (pages.length === 0) return;
-                
-                if (w < 1448) {
-                    const scale = (w - 20) / 1448;
-                    pages.forEach(page => page.style.transform = `scale(${scale})`);
-                    containers.forEach(container => container.style.height = `${1025 * scale}px`);
-                } else {
-                    pages.forEach(page => page.style.transform = 'scale(1)');
-                    containers.forEach(container => container.style.height = '1025px');
-                }
+                iframe.srcdoc = fullIframeHtml;
+                ui.showToast('Cards Compiled!');
             },
 
-            exportPDF: async () => {
-                const wrapper = document.getElementById('s21-render-area');
-                const pages = wrapper.querySelectorAll('.s21-page');
-
-                if (pages.length === 0) {
-                    ui.showToast('Compile the queue first.', 'error');
-                    return;
+            printCards: () => {
+                const iframe = document.getElementById('s21-render-frame');
+                if (!iframe.srcdoc || iframe.srcdoc.includes('No records found')) {
+                    ui.showToast('Compile the queue first.', 'error'); return;
                 }
-                
-                ui.showToast('Generating PDF... Please wait.');
-                
-                // Show loading overlay
-                const loader = document.createElement('div');
-                loader.className = 'fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center text-white text-2xl font-bold';
-                loader.textContent = 'Rendering PDF Engine...';
-                document.body.appendChild(loader);
-
-                try {
-                    // Sync inputs to attributes so html2canvas captures user edits
-                    wrapper.querySelectorAll('input[type="text"]').forEach(input => input.setAttribute('value', input.value));
-                    wrapper.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
-                    wrapper.querySelectorAll('input[type="checkbox"]').forEach(chk => {
-                        if(chk.checked) chk.setAttribute('checked', 'checked');
-                        else chk.removeAttribute('checked');
-                    });
-
-                    // Initialize jsPDF instance
-                    const { jsPDF } = window.jspdf;
-                    // Format: [width, height] in pixels.
-                    // We use the exact S-21 dimensions to avoid scaling issues.
-                    const pdf = new jsPDF({
-                        orientation: 'landscape',
-                        unit: 'px',
-                        format: [1448, 1025] 
-                    });
-
-                    for (let i = 0; i < pages.length; i++) {
-                        const page = pages[i];
-                        
-                        // Temporarily remove transform for accurate canvas capture
-                        const originalTransform = page.style.transform;
-                        page.style.transform = 'none';
-
-                        // Create canvas
-                        const canvas = await html2canvas(page, {
-                            scale: 2, // Higher resolution
-                            useCORS: true,
-                            logging: false,
-                            width: 1448,
-                            height: 1025
-                        });
-
-                        // Restore original transform immediately after capture
-                        page.style.transform = originalTransform;
-
-                        // Add image to PDF
-                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                        
-                        if (i > 0) {
-                            pdf.addPage([1448, 1025], 'landscape');
-                        }
-                        
-                        pdf.addImage(imgData, 'JPEG', 0, 0, 1448, 1025);
-                    }
-
-                    // Save the completed PDF
-                    pdf.save(`S21_Records_${Date.now()}.pdf`);
-                    ui.showToast('PDF Export Completed!');
-
-                } catch(e) {
-                    console.error("PDF Generation Error:", e);
-                    ui.showToast('PDF Generation failed', 'error');
-                } finally {
-                    // Clean up loading overlay
-                    if(document.body.contains(loader)) {
-                        document.body.removeChild(loader);
-                    }
-                }
+                // Native instant print execution within the virgin iframe wrapper
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
             },
 
             setupS4Tab: () => {
-                const pubs = db.getPublishers();
-                const sel = document.getElementById('s4-pub-select');
-                if (!sel) return;
-                
+                const pubs = db.getPublishers(); const sel = document.getElementById('s4-pub-select'); if (!sel) return;
                 sel.innerHTML = '<option value="">-- Please select your name --</option>';
                 let filtered = ui.publicGroup ? pubs.filter(p => p.group === ui.publicGroup) : pubs;
                 filtered.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
-                
-                const istInfo = utils.getISTPreviousMonthInfo();
-                document.getElementById('s4-month-display').value = istInfo.displayString;
+                document.getElementById('s4-month-display').value = utils.getISTPreviousMonthInfo().displayString;
                 setTimeout(ui.scaleS4, 50);
             },
 
             scaleS4: () => {
-                const wrapper = document.getElementById('s4-container-wrapper');
-                const s4 = document.getElementById('s4-container');
+                const wrapper = document.getElementById('s4-container-wrapper'); const s4 = document.getElementById('s4-container');
                 if (!wrapper || !s4) return;
                 const w = wrapper.clientWidth;
                 if (w < 834) {
                     const scale = w / 834;
-                    s4.style.transform = `scale(${scale})`;
-                    wrapper.style.height = `${625 * scale}px`; 
-                } else {
-                    s4.style.transform = 'scale(1)';
-                    wrapper.style.height = '625px';
-                }
+                    s4.style.transform = `scale(${scale})`; wrapper.style.height = `${625 * scale}px`; 
+                } else { s4.style.transform = 'scale(1)'; wrapper.style.height = '625px'; }
             },
 
             enforceS4Logic: () => {
                 const ministryCheckbox = document.getElementById('s4-ministry');
-                const hoursInput = document.getElementById('s4-hours');
-                const studiesInput = document.getElementById('s4-studies');
                 if (!ministryCheckbox.checked) {
-                    hoursInput.value = '';
-                    studiesInput.value = '';
+                    document.getElementById('s4-hours').value = '';
+                    document.getElementById('s4-studies').value = '';
                 }
             },
 
             loadS4: () => {
-                const pubId = document.getElementById('s4-pub-select').value;
-                if(!pubId) return;
-                
+                const pubId = document.getElementById('s4-pub-select').value; if(!pubId) return;
                 const pub = db.getPublishers().find(p => p.id === pubId);
                 const istInfo = utils.getISTPreviousMonthInfo();
-                
                 document.getElementById('s4-name').value = pub.name;
-                
                 const existing = db.getReports(istInfo.serviceYear, istInfo.month).find(r => r.pubId === pubId);
                 if (existing) {
                     document.getElementById('s4-ministry').checked = !!existing.sharedInMinistry;
@@ -1647,47 +1346,27 @@
                     document.getElementById('s4-hours').value = existing.hours || '';
                     document.getElementById('s4-comments').value = existing.comments || '';
                 } else {
-                    document.getElementById('s4-ministry').checked = true;
-                    document.getElementById('s4-studies').value = '';
-                    document.getElementById('s4-hours').value = '';
-                    document.getElementById('s4-comments').value = '';
+                    document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = '';
+                    document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
                 }
             },
 
             saveS4: async () => {
                 const pubId = document.getElementById('s4-pub-select').value;
                 if(!pubId) { ui.showToast('Please select your name.', 'error'); return; }
-                
                 const pub = db.getPublishers().find(p => p.id === pubId);
                 const istInfo = utils.getISTPreviousMonthInfo();
                 
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
-                const studies = parseInt(document.getElementById('s4-studies').value) || 0;
+                let studies = parseInt(document.getElementById('s4-studies').value) || 0;
                 let isAP = false;
 
-                if (!sharedInMinistry) {
-                    hours = 0; 
-                } else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) {
-                    isAP = true; // Auto AP Logic
-                }
+                if (!sharedInMinistry) { hours = 0; studies = 0; }
+                else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) { isAP = true; }
                 
-                const report = {
-                    pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month,
-                    sharedInMinistry: sharedInMinistry, studies: studies,
-                    hours: hours, comments: document.getElementById('s4-comments').value,
-                    isAP: isAP
-                };
-                
-                await db.saveReport(report);
-                ui.showToast(`Report submitted successfully.`);
-                
-                document.getElementById('s4-pub-select').value = "";
-                document.getElementById('s4-name').value = "";
-                document.getElementById('s4-ministry').checked = true;
-                document.getElementById('s4-studies').value = '';
-                document.getElementById('s4-hours').value = '';
-                document.getElementById('s4-comments').value = '';
+                const report = { pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month, sharedInMinistry: sharedInMinistry, studies: studies, hours: hours, comments: document.getElementById('s4-comments').value, isAP: isAP };
+                await db.saveReport(report); ui.showToast(`Report submitted successfully.`);
             }
         };
 
