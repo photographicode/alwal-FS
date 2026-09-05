@@ -730,8 +730,6 @@
                     padding: 0 !important;
                     background: #fff !important;
                     width: 100% !important;
-                    height: 100% !important;
-                    overflow: hidden !important;
                 }
                 .page {
                     width: 1448px !important;
@@ -741,12 +739,14 @@
                     border: none !important;
                     page-break-inside: avoid !important;
                     page-break-after: always !important;
-                    zoom: 0.75 !important;
+                    break-after: page !important;
+                    zoom: 0.76 !important;
                     overflow: hidden !important;
                     box-sizing: border-box !important;
                 }
                 .page:last-of-type {
-                    page-break-after: avoid !important;
+                    page-break-after: auto !important;
+                    break-after: auto !important;
                 }
                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
@@ -1100,7 +1100,7 @@
                         if(r.hours && !isNaN(parseFloat(r.hours))) totalHours += parseFloat(r.hours);
                         if(r.comments) totalRemarksNum += utils.extractNumbers(r.comments);
                         rowsHtml += `
-                            <div class="cell month">${utils.getMonths()[m]}</div>
+                            <div class="cell month">${utils.getMonthName(m)}</div>
                             <div class="cell center"><div class="month-check">${r.sharedInMinistry ? '✔' : ''}</div></div>
                             <div class="cell"><div class="cell-input">${r.studies||''}</div></div>
                             <div class="cell center"><div class="month-check">${r.isAP ? '✔' : ''}</div></div>
