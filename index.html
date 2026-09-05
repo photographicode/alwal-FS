@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,11 +11,12 @@
     
     <style>
         :root {
-            --glass-bg: rgba(13, 148, 136, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            /* Theme Variables */
+            --glass-bg: rgba(6, 78, 59, 0.15); /* Aqua/Teal tint */
+            --glass-border: rgba(20, 184, 166, 0.2);
             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             
-            /* S-21 Exact Strict Variables */
+            /* S-21 Strict Grid Variables */
             --page-w: 1448px;
             --page-h: 1025px;
             --x: 40px;
@@ -32,6 +33,7 @@
             --heavy: #202020;
         }
 
+        /* --- GLOBAL UI --- */
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #020617, #064e3b, #083344);
@@ -52,7 +54,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(20, 184, 166, 0.4); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(20, 184, 166, 0.8); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
@@ -65,20 +66,60 @@
         }
         #toast.show { transform: translateY(0) scale(1); opacity: 1; }
 
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #fff; transition: all 0.2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            border-color: rgba(20, 184, 166, 0.6); box-shadow: 0 0 10px rgba(20, 184, 166, 0.2); outline: none;
+        }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #020617, #064e3b, #083344);
+            z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+        #auth-screen.hidden { display: none !important; }
+
+        /* --- PUBLIC S-4 MODE --- */
         body.public-mode #app-header { display: none !important; }
         body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
         body.public-mode #tab-s4 { display: block !important; width: 100%; }
 
-        /* ---------------- STRICT S-21 CONTAINER & PRINT STYLES ---------------- */
+        /* --- STRICT S-4 FORM UI (Preserved exact dimensions) --- */
+        #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
+        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
+        .s4-strict * { box-sizing: border-box; }
+        .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
+        .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
+        .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
+        .s4-strict .identity-label { position: absolute; left: -107px; top: 14px; width: 100px; height: 35px; font-size: 29px; font-weight: 700; color: #000; }
+        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000; background: transparent; font-size: 24px; color: #000; }
+        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #fff; color: #000; }
+        .s4-strict .report-table td { border: 1px solid #222; vertical-align: middle; }
+        .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
+        .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
+        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 7px; top: 0px; font-size: 29px; color: #222; font-weight: 700; border: none; transform: none; }
+        .s4-strict .study-label { padding: 0 14px 0 15px !important; width: 670px; min-height: 44px; font-size: 24px; line-height: 30px; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
+        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; min-height: 44px; padding: 0; background: #f1f4ff; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center; color: #000; }
+        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 25px; line-height: 30px; }
+        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222; background: #fff; }
+        .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
+        .s4-strict .comments-input { position: absolute; left: 169px; top: 0; width: 603px; height: 92px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
+        .s4-strict .ap-checkbox-wrapper { position: absolute; left: 15px; top: 50px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #000;}
+        .s4-strict .ap-checkbox { width: 20px; height: 20px; border: 1.5px solid #222; appearance: none; -webkit-appearance: none; position: relative; background: #f1f4ff;}
+        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 2px; top: -3px; font-size: 18px; color: #222; font-weight: bold;}
+        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; font-weight: 400; letter-spacing: 0.2px; }
+        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; font-weight: 400; }
+
+        /* --- STRICT S-21 PDF RENDERING ENGINE --- */
         .s21-wrapper { display: flex; flex-direction: column; gap: 40px; align-items: center; padding: 20px 0; }
-        
         .s21-strict {
             position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto;
             background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 4px;
             page-break-after: always; break-after: page;
         }
-
         .s21-strict * { box-sizing: border-box; }
         .s21-strict .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; color: #000; }
         .s21-strict .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; color: #000; }
@@ -92,7 +133,7 @@
         .s21-strict .identity .sheep { left: 0; top: 35px; } .s21-strict .identity .anointed { left: 248px; top: 35px; }
         .s21-strict .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
         .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: ""; position: absolute; left: 3px; top: -3px; width: 9px; height: 15px; border-right: 2px solid #111; border-bottom: 2px solid #111; transform: rotate(45deg); }
+        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 3px; top: -3px; font-size: 21px; font-weight:bold; color:#111; transform:none; border:none; }
         .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
         .s21-strict .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
         .s21-strict .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 2px solid var(--heavy); background: #fff; }
@@ -107,57 +148,44 @@
         .s21-strict .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; white-space: nowrap; }
         .s21-strict .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/24px Arial, Helvetica, sans-serif; text-align: left; overflow-wrap: anywhere; }
         .s21-strict .month-check { appearance: none; -webkit-appearance: none; display: block; width: 26px; height: 26px; margin: 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .month-check:checked::after { content: ""; position: absolute; left: 4px; top: -3px; width: 11px; height: 18px; border-right: 2px solid #111; border-bottom: 2px solid #111; transform: rotate(45deg); }
+        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 3px; top: -2px; font-size: 22px; font-weight:bold; color:#111; border:none; transform:none; }
         .s21-strict .total-row { width: var(--table-w); height: 45px; position: relative; }
         .s21-strict .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
-        .s21-strict .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); background: #fff; }
-        .s21-strict .total-box .slot { min-width: 0; height: 41px; }
+        .s21-strict .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); border-top: 2px solid var(--heavy); border-bottom: 2px solid var(--heavy); border-right: 2px solid var(--heavy); border-left: 2px solid var(--heavy); background: #fff; box-shadow: inset -1px 0 0 var(--heavy); }
+        .s21-strict .total-box .slot { min-width: 0; height: 41px; overflow: hidden; }
         .s21-strict .total-box .slot + .slot { border-left: 1px solid var(--line); }
-        .s21-strict .total-input { width: 100%; height: 41px; margin: 0; padding: 0 6px; border: 0; outline: 0; background: #fff; color: #000; font: 400 23px/30px Arial, Helvetica, sans-serif; text-align: center; }
-        .s21-strict .total-input.remarks { text-align: left; }
+        .s21-strict .total-input { width: 100%; height: 41px; margin: 0; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/30px Arial, Helvetica, sans-serif; text-align: center; }
+        .s21-strict .total-input.remarks { text-align: left; font-weight: 700; }
         .s21-strict .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; color: #000; }
         .s21-strict .footer-date { margin-left: 18px; }
 
+        /* --- NATIVE PRINT ENGINE (Hides UI, Prints Only S-21) --- */
         @media print {
-            body.printing-s21 { background: #fff !important; }
-            body.printing-s21 * { visibility: hidden; }
-            body.printing-s21 #s21-render-area, body.printing-s21 #s21-render-area * { visibility: visible; }
-            body.printing-s21 #s21-render-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
-            @page { size: landscape; margin: 5mm; }
-            .s21-strict { box-shadow: none !important; margin: 0 auto !important; page-break-after: always; transform: scale(0.72); transform-origin: top center; }
+            body.printing-s21 { background: #fff !important; margin: 0; padding: 0; overflow: visible !important; min-height: auto !important; height: auto !important; }
+            body.printing-s21 .no-print, body.printing-s21 nav, body.printing-s21 #app-header, body.printing-s21 .tab-content:not(#tab-s21) { display: none !important; }
+            body.printing-s21 #tab-s21 { display: block !important; background: transparent !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+            body.printing-s21 .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+            body.printing-s21 #s21-render-area { padding: 0 !important; background: transparent !important; display: block !important; overflow: visible !important; margin: 0 !important; }
+            .s21-strict { margin: 0 !important; box-shadow: none !important; border: none !important; page-break-after: always !important; break-after: page !important; }
+            @page { size: landscape; margin: 0mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-
-        /* ---------------- S-4 STRICT STYLES ---------------- */
-        #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
-        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
-        .s4-strict * { box-sizing: border-box; }
-        .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
-        .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
-        .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
-        .s4-strict .identity-label { position: absolute; left: -107px; top: 14px; width: 100px; height: 35px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000; background: transparent; font-size: 24px; color: #000; }
-        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #fff; color: #000; }
-        .s4-strict .report-table td { border: 1px solid #222; vertical-align: middle; }
-        .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
-        .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
-        .s4-strict .checkbox:checked::after { content: "✓"; position: absolute; left: 7px; top: 0px; font-size: 29px; color: #222; font-weight: 700; }
-        .s4-strict .study-label { padding: 0 14px 0 15px !important; width: 670px; height: 44px; font-size: 22px; line-height: 26px; white-space: normal; }
-        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center; color: #000; }
-        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 25px; line-height: 30px; }
-        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222; background: #fff; }
-        .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .comments-input { position: absolute; left: 169px; top: 0; width: 603px; height: 92px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
-        .s4-strict .ap-checkbox-wrapper { position: absolute; left: 15px; top: 50px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #000;}
-        .s4-strict .ap-checkbox { width: 20px; height: 20px; border: 1.5px solid #222; appearance: none; -webkit-appearance: none; position: relative; background: #f1f4ff;}
-        .s4-strict .ap-checkbox:checked::after { content: "✓"; position: absolute; left: 2px; top: -4px; font-size: 18px; color: #222; font-weight: bold;}
-        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; }
-        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; }
     </style>
 </head>
 <body class="text-sm">
 
+    <!-- PASSWORD OVERLAY -->
+    <div id="auth-screen">
+        <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30">
+            <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">FS</div>
+            <h2 class="text-2xl font-bold text-white mb-2">Service Manager Portal</h2>
+            <p class="text-teal-200/70 text-sm mb-6">Restricted Access. Enter master password.</p>
+            <input type="password" id="auth-pass" placeholder="Password" class="w-full px-5 py-3 rounded-xl mb-4 text-center bg-black/40 border border-white/20 text-white outline-none focus:border-teal-400">
+            <button onclick="auth.login()" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)]">Unlock</button>
+        </div>
+    </div>
+
+    <!-- Global Navigation -->
     <nav id="app-header" class="glass-panel sticky top-0 z-50 border-b border-teal-400/20">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -168,13 +196,14 @@
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all bg-teal-500/80 text-white shadow-lg whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
-                <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">S-21 Cards</button>
+                <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">S-21 Engine</button>
             </div>
         </div>
     </nav>
 
     <main class="main-content max-w-7xl mx-auto px-4 py-8">
         
+        <!-- DASHBOARD TAB -->
         <div id="tab-dashboard" class="tab-content active space-y-6">
             <div class="flex justify-between items-end">
                 <div>
@@ -182,8 +211,8 @@
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 bg-black/40 border border-white/20 text-white rounded-xl text-sm outline-none focus:border-teal-400"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 bg-black/40 border border-white/20 text-white rounded-xl text-sm outline-none focus:border-teal-400">
+                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -194,14 +223,36 @@
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
             <div id="dash-pio-stats" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
             
-            <div class="glass-panel rounded-2xl overflow-hidden">
-                <div class="bg-black/30 px-6 py-4 border-b border-white/10 flex justify-between items-center">
-                    <h3 class="font-semibold text-white">Monthly Submissions Log</h3>
-                    <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded border border-teal-500/30">Syncing...</span>
+            <!-- AP Review Board (For Revoking accidental AP hours) -->
+            <div class="glass-panel rounded-2xl overflow-hidden mt-6 border-amber-500/30">
+                <div class="bg-black/30 px-6 py-4 border-b border-amber-500/20 flex justify-between items-center">
+                    <h3 class="font-semibold text-amber-300">Auxiliary Pioneer Review Log</h3>
+                    <span class="text-xs text-amber-200/60">Review publishers mapped to AP this month</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-black/50 text-teal-100/70">
+                        <thead class="bg-black/50 text-amber-100/70">
+                            <tr>
+                                <th class="px-6 py-3 font-semibold">Publisher</th>
+                                <th class="px-6 py-3 font-semibold text-center">Hours</th>
+                                <th class="px-6 py-3 font-semibold text-center">Studies</th>
+                                <th class="px-6 py-3 font-semibold text-right">Admin Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dash-ap-review-table" class="divide-y divide-white/5 text-teal-50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Full Master Log -->
+            <div class="glass-panel rounded-2xl overflow-hidden mt-6">
+                <div class="bg-black/30 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="font-semibold text-white">Master Monthly Submissions Log</h3>
+                    <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded">☁️ Synced</span>
+                </div>
+                <div class="overflow-x-auto max-h-[500px] custom-scrollbar">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-black/50 text-teal-100/70 sticky top-0 backdrop-blur-md">
                             <tr>
                                 <th class="px-6 py-4 font-semibold">Publisher</th>
                                 <th class="px-6 py-4 font-semibold text-center">Shared</th>
@@ -216,23 +267,19 @@
             </div>
         </div>
 
+        <!-- PUBLISHERS TAB -->
         <div id="tab-publishers" class="tab-content space-y-6">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-white drop-shadow-md">Publisher Directory</h2>
                     <p class="text-teal-200/70 mt-1">Manage global profiles and access controls</p>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 flex items-center gap-2 border border-white/20">
-                        Import CSV
-                    </button>
+                <div class="flex gap-3 flex-wrap">
+                    <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Import CSV</button>
                     <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="db.importContacts(event)">
-                    
-                    <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 flex items-center gap-2 border border-white/20">
-                        Export CSV
-                    </button>
-
-                    <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
+                    <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export CSV</button>
+                    <button onclick="ui.wipeAllData()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
+                    <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)]">
                         + Add Publisher
                     </button>
                 </div>
@@ -245,7 +292,7 @@
                             <tr>
                                 <th class="px-6 py-5 font-semibold">Name & Group</th>
                                 <th class="px-6 py-5 font-semibold">Privileges</th>
-                                <th class="px-6 py-5 font-semibold">Age & Baptism</th>
+                                <th class="px-6 py-5 font-semibold">Demographics</th>
                                 <th class="px-6 py-5 font-semibold">Contact Info</th>
                                 <th class="px-6 py-5 font-semibold text-right">Actions</th>
                             </tr>
@@ -256,6 +303,7 @@
             </div>
         </div>
 
+        <!-- GROUPS TAB -->
         <div id="tab-groups" class="tab-content space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="md:col-span-1 space-y-3" id="groups-sidebar"></div>
@@ -265,16 +313,17 @@
             </div>
         </div>
 
+        <!-- S-21 PDF RENDERING TAB -->
         <div id="tab-s21" class="tab-content space-y-6">
-            <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl">
+            <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
-                    <h2 class="text-3xl font-bold text-white drop-shadow-md">S-21 Record Cards</h2>
-                    <p class="text-teal-200/70 mt-1">Generate strict format cards for printing</p>
+                    <h2 class="text-3xl font-bold text-white drop-shadow-md">S-21 Document Engine</h2>
+                    <p class="text-teal-200/70 mt-1">Compile and print strict S-21 Publisher Cards</p>
                 </div>
-                <div class="flex gap-4">
+                <div class="flex gap-3 flex-wrap items-center">
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[220px]"></select>
-                    <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Generate</button>
+                    <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile</button>
                     <button onclick="ui.printS21()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
                         Print Cards
@@ -285,12 +334,13 @@
             <div id="s21-render-area" class="s21-wrapper"></div>
         </div>
 
+        <!-- S-4 FORM (Strict Public View) -->
         <div id="tab-s4" class="tab-content">
             <div class="w-full flex flex-col items-center justify-center p-4">
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
-                        <p class="text-teal-200/80 text-sm mt-1">Select your name to initialize your S-4 card.</p>
+                        <p class="text-teal-200/80 text-sm mt-1">Select your profile to initialize the secure S-4 pipeline.</p>
                     </div>
                     <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
@@ -339,21 +389,22 @@
                 </div>
 
                 <div class="mt-8 w-full max-w-[834px] flex justify-end">
-                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
+                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Push Report to Server</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Modal Form (Publisher) -->
     <div id="modal-add-publisher" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[999] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/20">
             <div class="bg-black/40 px-8 py-5 flex justify-between items-center border-b border-white/10">
-                <h3 id="modal-pub-title" class="text-xl font-bold text-white tracking-tight">Add Publisher</h3>
+                <h3 id="modal-pub-title" class="text-xl font-bold text-white tracking-tight">Publisher Record</h3>
                 <button onclick="ui.closeModal('modal-add-publisher')" class="text-teal-200/50 hover:text-white transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <form id="form-publisher" onsubmit="ui.savePublisher(event)" class="p-8 space-y-6">
+            <form id="form-publisher" onsubmit="ui.savePublisher(event)" class="p-8 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
                 <input type="hidden" id="pub-id">
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
@@ -384,7 +435,7 @@
                 </div>
 
                 <div class="space-y-3 bg-black/30 p-5 rounded-xl border border-white/10">
-                    <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Privileges & Roles</label>
+                    <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Privileges</label>
                     <div class="flex flex-wrap gap-5">
                         <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="pub-elder" class="accent-teal-500 rounded w-4 h-4"> Elder</label>
                         <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="pub-ms" class="accent-teal-500 rounded w-4 h-4"> Min. Servant</label>
@@ -397,14 +448,14 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div class="space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date of Birth</label>
-                        <input type="date" id="pub-dob" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400 [color-scheme:dark]">
+                        <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date Baptized</label>
-                        <input type="date" id="pub-baptized" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400 [color-scheme:dark]">
+                        <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
-
+                
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone</label>
@@ -417,27 +468,53 @@
                 </div>
 
                 <div class="pt-6 flex justify-end gap-4 border-t border-white/10">
-                    <button type="button" onclick="ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all border border-transparent hover:border-white/10">Cancel</button>
-                    <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Save Publisher</button>
+                    <button type="button" onclick="ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all">Cancel</button>
+                    <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Save Record</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="toast" class="glass-panel text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-teal-500/40">
-        <span id="toast-icon" class="text-2xl drop-shadow-md">✅</span>
-        <span id="toast-msg" class="font-medium tracking-wide"></span>
-    </div>
-
     <script type="module">
+        /* --- CONFIGURATION & AUTH --- */
+        window.config = {
+            MASTER_PASSWORD: 'Admin' + '1234' // Concat string to avoid simple scraping if needed
+        };
+
         const { createClient } = window.supabase;
-        
         const SUPABASE_URL = 'https://vffbprsuvrwkzvwnipvg.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmZmJwcnN1dnJ3a3p2d25pcHZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NjE2MDIsImV4cCI6MjEwMzIzNzYwMn0.G3CdIsJduBvboPwbbMw07V4EdM0j_btHXFQzgg7j-XE';
         
         const isCloudEnabled = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_URL.startsWith('http');
         const supabaseClient = isCloudEnabled ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+        /* --- AUTH LOGIC --- */
+        window.auth = {
+            check: () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('group')) {
+                    document.getElementById('auth-screen').classList.add('hidden'); // Allow public S-4
+                    return true;
+                }
+                if (localStorage.getItem('fs_auth') === 'true') {
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    return true;
+                }
+                return false;
+            },
+            login: () => {
+                const p = document.getElementById('auth-pass').value;
+                if (p === window.config.MASTER_PASSWORD) {
+                    localStorage.setItem('fs_auth', 'true');
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    window.db.init(); // Init DB only after login
+                } else {
+                    alert("Invalid Master Password");
+                }
+            }
+        };
+
+        /* --- UTILS --- */
         window.utils = {
             generateUUID: () => {
                 if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -448,10 +525,16 @@
             },
             getMonths: () => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             getMonthName: (idx) => window.utils.getMonths()[idx],
-            calculateAge: (dob) => {
-                if (!dob) return '-';
-                const ageDifMs = Date.now() - new Date(dob).getTime();
-                return Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970);
+            calculateAge: (dobStr) => {
+                if (!dobStr) return '-';
+                // Assumes dd-mm-yyyy or similar parseable formats if JS can read it.
+                // For safety in custom strings, returning string or doing basic math if standard format
+                const parts = dobStr.split(/[-/]/);
+                if(parts.length === 3) {
+                    const y = parts[2].length === 4 ? parts[2] : parts[0]; 
+                    return new Date().getFullYear() - parseInt(y);
+                }
+                return '-';
             },
             getCurrentServiceYearInfo: () => {
                 const now = new Date();
@@ -466,9 +549,15 @@
                 const month = ist.getMonth();
                 const year = ist.getFullYear();
                 return { month, year, serviceYear: month >= 8 ? year + 1 : year, displayString: `${window.utils.getMonthName(month)} ${year}` };
+            },
+            extractNumbers: (str) => {
+                if(!str) return 0;
+                const matches = str.match(/\d+(\.\d+)?/g);
+                return matches ? matches.reduce((acc, val) => acc + parseFloat(val), 0) : 0;
             }
         };
 
+        /* --- DATABASE ABSTRACTION --- */
         window.db = {
             publishers: [],
             reports: [],
@@ -482,20 +571,12 @@
                         const { data: rData, error: rErr } = await supabaseClient.from('reports').select('*');
                         if (!rErr && rData) window.db.reports = rData.map(db.mapRepFromDB);
                         
-                        const statusEl = document.getElementById('sync-status');
-                        if(statusEl) {
-                            statusEl.innerHTML = '☁️ Cloud Synced';
-                            statusEl.className = 'text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded border border-teal-500/30';
-                        }
-                    } catch (e) { console.error("Cloud connection failed:", e); }
+                        const st = document.getElementById('sync-status');
+                        if(st) st.textContent = '☁️ Cloud Synced';
+                    } catch (e) { console.error("Cloud fetch failed:", e); }
                 } else {
                     window.db.publishers = JSON.parse(localStorage.getItem('fs_pubs') || '[]');
                     window.db.reports = JSON.parse(localStorage.getItem('fs_reps') || '[]');
-                    const statusEl = document.getElementById('sync-status');
-                    if(statusEl) {
-                        statusEl.innerHTML = '💾 Local Storage';
-                        statusEl.className = 'text-xs font-mono text-amber-300 bg-amber-900/40 px-2 py-1 rounded border border-amber-500/30';
-                    }
                 }
                 ui.init();
             },
@@ -539,12 +620,12 @@
             },
 
             deletePublisher: async (id) => {
-                if(!confirm('Delete this publisher record?')) return;
+                if(!confirm('Execute cascading delete on this publisher record?')) return;
                 window.db.publishers = window.db.publishers.filter(p => p.id !== id);
                 if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id);
                 else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
                 ui.renderPublishers();
-                ui.showToast('Publisher deleted');
+                ui.showToast('Record purged successfully.');
             },
 
             saveReport: async (report) => {
@@ -556,6 +637,18 @@
                 else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
             },
 
+            revokeAP: async (reportId) => {
+                const idx = window.db.reports.findIndex(r => r.id === reportId);
+                if(idx > -1) {
+                    window.db.reports[idx].isAP = false;
+                    window.db.reports[idx].hours = 0;
+                    if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(window.db.reports[idx]));
+                    else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                    ui.renderDashboard();
+                    ui.showToast('Accidental AP hours revoked.');
+                }
+            },
+
             importContacts: async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -563,15 +656,13 @@
                 reader.onload = async (event) => {
                     const lines = event.target.result.split('\n');
                     if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
-                    let imported = 0;
-                    const dbPubsToUpsert = [];
+                    let imported = 0; const dbPubsToUpsert = [];
                     
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim();
                         if (!line) continue;
                         
-                        const values = [];
-                        let inQuotes = false, val = '';
+                        const values = []; let inQuotes = false, val = '';
                         for (let j = 0; j < line.length; j++) {
                             const char = line[j];
                             if (char === '"') inQuotes = !inQuotes;
@@ -589,9 +680,9 @@
                             dob: values[3]?.trim() || '', baptized: values[4]?.trim() || '',
                             isElder: isTrue(values[5]), isMS: isTrue(values[6]), isRP: isTrue(values[7]),
                             gender: isTrue(values[8]) ? 'Male' : 'Female',
-                            hope: isTrue(values[11]) ? 'Anointed' : 'Other Sheep',
-                            isSP: isTrue(values[9]), isFM: isTrue(values[10]),
-                            group: values[12]?.trim() || ''
+                            isSP: isTrue(values[10]), isFM: isTrue(values[11]),
+                            hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep',
+                            group: values[14]?.trim() || ''
                         };
                         
                         const existing = window.db.publishers.find(p => p.name.toLowerCase() === name.toLowerCase());
@@ -603,19 +694,17 @@
                         imported++;
                     }
                     
-                    if (isCloudEnabled && dbPubsToUpsert.length > 0) {
-                        await supabaseClient.from('publishers').upsert(dbPubsToUpsert);
-                    } else {
-                        localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                    }
-                    ui.showToast(`Imported ${imported} publishers`);
-                    ui.renderPublishers();
+                    if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert);
+                    else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                    
+                    ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups();
                     e.target.value = ''; 
                 };
                 reader.readAsText(file);
             }
         };
 
+        /* --- USER INTERFACE --- */
         window.ui = {
             currentTab: 'dashboard',
             publicGroup: null,
@@ -636,7 +725,7 @@
                     const dMonth = document.getElementById('dash-month');
                     const s21Year = document.getElementById('s21-year-select');
                     
-                    if (dYear && s21Year) {
+                    if(dYear) {
                         dYear.innerHTML = ''; s21Year.innerHTML = '';
                         for (let i = syInfo.serviceYear - 3; i <= syInfo.serviceYear + 1; i++) {
                             const opt = `<option value="${i}">${i-1}-${i}</option>`;
@@ -686,7 +775,7 @@
                 if(id === 'modal-add-publisher' && !isEdit) {
                     document.getElementById('form-publisher').reset();
                     document.getElementById('pub-id').value = '';
-                    document.getElementById('modal-pub-title').textContent = 'Add Publisher';
+                    document.getElementById('modal-pub-title').textContent = 'Publisher Record';
                 }
                 document.getElementById(id).classList.remove('hidden');
             },
@@ -712,7 +801,7 @@
                     group: document.getElementById('pub-group').value
                 };
                 await db.savePublisher(pub);
-                ui.showToast(id ? 'Publisher updated!' : 'Publisher added!');
+                ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!');
                 ui.closeModal('modal-add-publisher');
                 ui.renderPublishers();
             },
@@ -736,26 +825,48 @@
                 document.getElementById('pub-phone').value = pub.phone || '';
                 document.getElementById('pub-address').value = pub.address || '';
                 document.getElementById('pub-group').value = pub.group || '';
-                document.getElementById('modal-pub-title').textContent = 'Edit Publisher';
+                document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record';
                 ui.openModal('modal-add-publisher', true);
+            },
+
+            wipeAllData: async () => {
+                const pass = prompt("DANGER ZONE: Enter Master Password to wipe all records:");
+                if(pass !== window.config.MASTER_PASSWORD) { alert("Incorrect password."); return; }
+                if(confirm("Are you absolutely sure? This will delete ALL publishers and reports permanently.")) {
+                    window.db.publishers = [];
+                    window.db.reports = [];
+                    if(isCloudEnabled) {
+                        // In strict setups, requires API loop or backend function, but we try a blanket delete if RLS permits
+                        await supabaseClient.from('reports').delete().neq('id', '0');
+                        await supabaseClient.from('publishers').delete().neq('name', '0');
+                    } else {
+                        localStorage.removeItem('fs_pubs');
+                        localStorage.removeItem('fs_reps');
+                    }
+                    ui.showToast("Database Wiped.", "error");
+                    ui.renderPublishers();
+                }
             },
 
             downloadContacts: () => {
                 const pubs = db.getPublishers();
                 if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
                 
-                let csv = 'Name,Phone,Address,DOB,Baptized,Elder,Ministerial Servant,Regular Pioneer,Male,Special Pioneer,Field Missionary,Anointed,Group\n';
+                let csv = 'Name,Phone,Address,DOB,Baptized,Elder,Ministerial Servant,Regular Pioneer,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
                 pubs.forEach(p => {
                     const cleanAddress = (p.address || '').replace(/,/g, ' ');
                     csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",`;
-                    csv += `${!!p.isElder},${!!p.isMS},${!!p.isRP},${p.gender === 'Male'},`;
-                    csv += `${!!p.isSP},${!!p.isFM},${p.hope === 'Anointed'},"${p.group || ''}"\n`;
+                    csv += `${!!p.isElder ? 'TRUE' : 'FALSE'},${!!p.isMS ? 'TRUE' : 'FALSE'},${!!p.isRP ? 'TRUE' : 'FALSE'},`;
+                    csv += `${p.gender === 'Male' ? 'TRUE' : 'FALSE'},${p.gender === 'Female' ? 'TRUE' : 'FALSE'},`;
+                    csv += `${!!p.isSP ? 'TRUE' : 'FALSE'},${!!p.isFM ? 'TRUE' : 'FALSE'},`;
+                    csv += `${p.hope === 'Anointed' ? 'TRUE' : 'FALSE'},${p.hope === 'Other Sheep' ? 'TRUE' : 'FALSE'},`;
+                    csv += `"${p.group || ''}"\n`;
                 });
                 
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
-                a.download = 'Publishers_Backup.csv';
+                a.download = 'Publishers_Master_Backup.csv';
                 a.click();
             },
 
@@ -770,16 +881,36 @@
                 const reports = db.getReports(sy, month);
                 
                 let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
+                const apReviewHtml = [];
                 
-                reports.forEach(r => {
-                    const p = pubs.find(x => x.id === r.pubId);
-                    if (!p) return;
-                    let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
-                    if (r.sharedInMinistry) stats.totalRep++;
-                    if (r.isAP) { stats.apCount++; stats.apHours += h; stats.apStudies += s; }
-                    if (p.isRP || p.isSP || p.isFM) { stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; }
+                document.getElementById('dash-reports-table').innerHTML = '';
+                
+                pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
+                    const r = reports.find(x => x.pubId === p.id);
+                    if (r) {
+                        let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
+                        if (r.sharedInMinistry) stats.totalRep++;
+                        if (r.isAP) { 
+                            stats.apCount++; stats.apHours += h; stats.apStudies += s; 
+                            apReviewHtml.push(`
+                                <tr class="border-b border-white/5 bg-amber-900/10">
+                                    <td class="px-6 py-3 font-medium text-amber-100">${p.name}</td>
+                                    <td class="px-6 py-3 text-center font-mono">${h}</td>
+                                    <td class="px-6 py-3 text-center font-mono">${s}</td>
+                                    <td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP & Hours</button></td>
+                                </tr>
+                            `);
+                        }
+                        if (p.isRP || p.isSP || p.isFM) { stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; }
+                        
+                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
+                    } else {
+                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
+                    }
                 });
                 
+                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-amber-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
+
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
                         <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Active</div>
@@ -800,8 +931,8 @@
                             <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.rpStudies}</div><div class="text-xs text-teal-100/60 uppercase">Studies</div></div>
                         </div>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl">
-                        <div class="text-emerald-400 font-bold mb-3 tracking-wide">Auxiliary Pioneers Pipeline</div>
+                    <div class="glass-panel p-5 rounded-2xl border border-amber-500/20">
+                        <div class="text-amber-400 font-bold mb-3 tracking-wide">Auxiliary Pioneers Pipeline</div>
                         <div class="grid grid-cols-3 gap-3 text-center text-white">
                             <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.apCount}</div><div class="text-xs text-teal-100/60 uppercase">Count</div></div>
                             <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.apHours}</div><div class="text-xs text-teal-100/60 uppercase">Hours</div></div>
@@ -809,17 +940,6 @@
                         </div>
                     </div>
                 `;
-
-                const tbody = document.getElementById('dash-reports-table');
-                tbody.innerHTML = '';
-                pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
-                    const r = reports.find(x => x.pubId === p.id);
-                    if (r) {
-                        tbody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded border border-teal-500/30">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">✓</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
-                    } else {
-                        tbody.innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name} <span class="text-[10px] ml-2 px-1.5 py-0.5 rounded border border-white/10 opacity-50">${p.group||'N/A'}</span></td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
-                    }
-                });
             },
 
             renderPublishers: () => {
@@ -834,6 +954,7 @@
                     if(p.isMS) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">MS</span>');
                     if(p.isRP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">RP</span>');
                     if(p.isSP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">SP</span>');
+                    if(p.isFM) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">FM</span>');
                     
                     const age = p.dob ? utils.calculateAge(p.dob) + ' yrs' : '-';
                     const bapText = !p.baptized ? '<span class="text-rose-300 font-semibold border border-rose-500/40 bg-rose-900/50 px-1.5 py-0.5 rounded text-[10px] uppercase">UBP</span>' : p.baptized;
@@ -892,7 +1013,7 @@
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
                         if(r.isAP) stats.aps++;
-                        tableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-2 px-3 font-medium text-white">${p.name}</td><td class="py-2 px-3 text-center text-emerald-400">✓</td><td class="py-2 px-3 text-center">${r.studies||'-'}</td><td class="py-2 px-3 text-center">${r.hours||'-'}</td><td class="py-2 px-3 text-xs truncate max-w-[150px] text-teal-100/70">${r.comments||''}</td></tr>`;
+                        tableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-2 px-3 font-medium text-white">${p.name}</td><td class="py-2 px-3 text-center text-emerald-400">${r.sharedInMinistry?'✔':'No'}</td><td class="py-2 px-3 text-center">${r.studies||'-'}</td><td class="py-2 px-3 text-center">${r.hours||'-'}</td><td class="py-2 px-3 text-xs truncate max-w-[150px] text-teal-100/70">${r.comments||''}</td></tr>`;
                     } else {
                         pending.push(p.name);
                         tableHtml += `<tr class="border-b border-white/5 text-teal-100/50 bg-black/20"><td class="py-2 px-3">${p.name}</td><td colspan="4" class="py-2 px-3 text-center italic text-xs">Pending</td></tr>`;
@@ -904,20 +1025,21 @@
                     : '<div class="text-emerald-400 text-sm">All submitted!</div>';
                     
                 details.innerHTML = `
-                    <div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10">
+                    <div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4">
                         <div>
                             <h3 class="text-2xl font-bold text-white">${groupName}</h3>
                             <div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="ui.copyGroupLink('${groupName}')" class="bg-indigo-600/80 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-sm shadow flex items-center gap-2">🔗 Copy Link</button>
+                            <button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button>
+                            <button onclick="ui.batchS21Group('${groupName}')" class="bg-teal-600/80 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">Download S-21</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-3 mb-6 text-center text-white">
                         <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div>
                         <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-cyan-300">${stats.elders}</div><div class="text-xs text-teal-100/60">Elders</div></div>
                         <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-teal-300">${stats.rps}</div><div class="text-xs text-teal-100/60">RPs</div></div>
-                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-emerald-300">${stats.aps}</div><div class="text-xs text-teal-100/60">APs</div></div>
+                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-amber-300">${stats.aps}</div><div class="text-xs text-amber-100/60">APs</div></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div>
@@ -930,27 +1052,48 @@
             copyGroupLink: (groupName) => {
                 const baseUrl = window.location.href.split('?')[0];
                 const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
+                // Create temporary textarea to avoid iframe clipboard security block
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.focus(); textArea.select();
                 try {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = url;
-                    textArea.style.position = "fixed";
-                    textArea.style.left = "-999999px";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
                     document.execCommand('copy');
-                    textArea.remove();
                     ui.showToast('Public Link Copied!');
-                } catch (err) { ui.showToast('Failed to copy link', 'error'); }
+                } catch (err) { console.error(err); }
+                document.body.removeChild(textArea);
+            },
+            
+            batchS21Group: (groupName) => {
+                ui.switchTab('s21');
+                const sel = document.getElementById('s21-publisher-select');
+                if(sel) {
+                    // Inject temporary filter option for the group
+                    const opt = document.createElement('option');
+                    opt.value = `GROUP:${groupName}`;
+                    opt.text = `Group: ${groupName}`;
+                    sel.appendChild(opt);
+                    sel.value = `GROUP:${groupName}`;
+                    ui.renderS21();
+                }
             },
 
             setupS21Tab: () => {
                 const sel = document.getElementById('s21-publisher-select');
                 if(!sel) return;
-                sel.innerHTML = `<option value="ALL">-- Full Directory Batch --</option>`;
+                sel.innerHTML = `
+                    <option value="ALL">-- All Publishers --</option>
+                    <option value="BATCH_RP">All Regular Pioneers</option>
+                    <option value="BATCH_AP">All Auxiliary Pioneers (Current)</option>
+                    <option value="BATCH_ELDER">All Elders</option>
+                    <option value="BATCH_MS">All Ministerial Servants</option>
+                    <option value="BATCH_UBP">All Unbaptized</option>
+                    <optgroup label="Individuals">
+                `;
                 db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     sel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
                 });
+                sel.innerHTML += `</optgroup>`;
             },
 
             renderS21: () => {
@@ -961,51 +1104,73 @@
                 const sy = parseInt(document.getElementById('s21-year-select').value);
                 const filter = document.getElementById('s21-publisher-select').value;
                 let pubs = db.getPublishers();
+                const currentMonth = utils.getISTPreviousMonthInfo().month;
+                const currentReports = db.getReports(sy, currentMonth);
                 
-                if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
-                if(pubs.length === 0) { area.innerHTML = `<div class="text-teal-100/50 p-10 font-mono">No telemetry data found for compilation.</div>`; return; }
+                if (filter === 'BATCH_RP') pubs = pubs.filter(p => p.isRP);
+                else if (filter === 'BATCH_AP') pubs = pubs.filter(p => {
+                    const r = currentReports.find(x => x.pubId === p.id);
+                    return r && r.isAP;
+                });
+                else if (filter === 'BATCH_ELDER') pubs = pubs.filter(p => p.isElder);
+                else if (filter === 'BATCH_MS') pubs = pubs.filter(p => p.isMS);
+                else if (filter === 'BATCH_UBP') pubs = pubs.filter(p => !p.baptized);
+                else if (filter.startsWith('GROUP:')) pubs = pubs.filter(p => p.group === filter.replace('GROUP:', ''));
+                else if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
+                
+                if(pubs.length === 0) { area.innerHTML = `<div class="text-teal-100/50 p-10 font-mono">No data matched for this batch request.</div>`; return; }
 
                 const monthOrder = [8,9,10,11,0,1,2,3,4,5,6,7];
                 
                 pubs.forEach(pub => {
                     const card = document.createElement('div');
                     card.className = 's21-strict';
-                    let rowsHtml = '', totalHours = 0;
+                    let rowsHtml = '', totalHours = 0, totalRemarksNum = 0;
                     
                     monthOrder.forEach(m => {
                         const r = db.getReports(sy, m).find(x => x.pubId === pub.id) || {};
+                        
                         if(r.hours && !isNaN(parseFloat(r.hours))) {
                             totalHours += parseFloat(r.hours);
                         }
+                        if(r.comments) {
+                            totalRemarksNum += utils.extractNumbers(r.comments);
+                        }
+                        
+                        // Strict checkmark rules
+                        const chkShared = r.sharedInMinistry ? 'checked' : '';
+                        const chkAP = r.isAP ? 'checked' : '';
                         
                         rowsHtml += `
                             <div class="cell month">${utils.getMonthName(m)}</div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${r.sharedInMinistry?'checked':''}></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}"></div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${r.isAP?'checked':''}></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}"></div>
-                            <div class="cell"><textarea class="remarks-input">${r.comments||''}</textarea></div>
+                            <div class="cell center"><input class="month-check" type="checkbox" ${chkShared} disabled></div>
+                            <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}" readonly></div>
+                            <div class="cell center"><input class="month-check" type="checkbox" ${chkAP} disabled></div>
+                            <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}" readonly></div>
+                            <div class="cell"><textarea class="remarks-input" readonly>${r.comments||''}</textarea></div>
                         `;
                     });
+
+                    let remarksOutput = totalRemarksNum > 0 ? `Additional hours: ${totalRemarksNum}` : '';
 
                     card.innerHTML = `
                         <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
                         <section class="personal">
-                            <div class="detail name"><label class="detail-label" for="publisher-name">Name:</label><input id="publisher-name" class="detail-input" type="text" value="${pub.name}"></div>
-                            <div class="detail birth"><label class="detail-label" for="birth-date">Date of birth:</label><input id="birth-date" class="detail-input" type="text" value="${pub.dob||''}"></div>
-                            <div class="detail baptism"><label class="detail-label" for="baptism-date">Date of baptism:</label><input id="baptism-date" class="detail-input" type="text" value="${pub.baptized||''}"></div>
+                            <div class="detail name"><label class="detail-label">Name:</label><input class="detail-input" type="text" value="${pub.name}" readonly></div>
+                            <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}" readonly></div>
+                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${pub.baptized||''}" readonly></div>
                             <div class="identity">
-                                <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''}><span>Male</span></label>
-                                <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''}><span>Female</span></label>
-                                <label class="sheep"><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''}><span>Other sheep</span></label>
-                                <label class="anointed"><input type="checkbox" ${pub.hope==='Anointed'?'checked':''}><span>Anointed</span></label>
+                                <label><input type="checkbox" ${pub.gender==='Male'?'checked':''} disabled><span>Male</span></label>
+                                <label><input type="checkbox" ${pub.gender==='Female'?'checked':''} disabled><span>Female</span></label>
+                                <label><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''} disabled><span>Other sheep</span></label>
+                                <label><input type="checkbox" ${pub.hope==='Anointed'?'checked':''} disabled><span>Anointed</span></label>
                             </div>
                             <div class="role-options">
-                                <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''}><span>Elder</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isMS?'checked':''}><span>Ministerial servant</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isRP?'checked':''}><span>Regular pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isSP?'checked':''}><span>Special pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isFM?'checked':''}><span>Field missionary</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''} disabled><span>Elder</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isMS?'checked':''} disabled><span>Ministerial servant</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isRP?'checked':''} disabled><span>Regular pioneer</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isSP?'checked':''} disabled><span>Special pioneer</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isFM?'checked':''} disabled><span>Field missionary</span></label>
                             </div>
                         </section>
                         <section class="form-table">
@@ -1021,8 +1186,8 @@
                             <div class="total-row">
                                 <div class="total-label">Total</div>
                                 <div class="total-box">
-                                    <div class="slot"><input class="total-input" type="text" value="${totalHours > 0 ? totalHours : ''}"></div>
-                                    <div class="slot"><input class="total-input remarks" type="text"></div>
+                                    <div class="slot"><input class="total-input" type="text" value="${totalHours > 0 ? totalHours : ''}" readonly></div>
+                                    <div class="slot"><input class="total-input remarks" type="text" value="${remarksOutput}" readonly></div>
                                 </div>
                             </div>
                         </section>
@@ -1030,20 +1195,18 @@
                     `;
                     area.appendChild(card);
                 });
-                ui.showToast('Compilation successful. Ready to print.');
+                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print.`);
             },
 
             printS21: () => {
                 const area = document.getElementById('s21-render-area');
                 if (!area.hasChildNodes()) {
-                    ui.showToast('Generate the cards first.', 'error');
+                    ui.showToast('Compile the queue first.', 'error');
                     return;
                 }
                 document.body.classList.add('printing-s21');
                 window.print();
-                setTimeout(() => {
-                    document.body.classList.remove('printing-s21');
-                }, 1000);
+                setTimeout(() => document.body.classList.remove('printing-s21'), 1000);
             },
 
             setupS4Tab: () => {
@@ -1051,7 +1214,7 @@
                 const sel = document.getElementById('s4-pub-select');
                 if (!sel) return;
                 
-                sel.innerHTML = '<option value="">-- Select Your Name --</option>';
+                sel.innerHTML = '<option value="">-- Authenticate Profile --</option>';
                 let filtered = ui.publicGroup ? pubs.filter(p => p.group === ui.publicGroup) : pubs;
                 filtered.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
                 
@@ -1078,9 +1241,11 @@
             loadS4: () => {
                 const pubId = document.getElementById('s4-pub-select').value;
                 if(!pubId) return;
-                const istInfo = utils.getISTPreviousMonthInfo();
+                
                 const pub = db.getPublishers().find(p => p.id === pubId);
-                if(pub) document.getElementById('s4-name').value = pub.name;
+                const istInfo = utils.getISTPreviousMonthInfo();
+                
+                document.getElementById('s4-name').value = pub.name;
                 
                 const existing = db.getReports(istInfo.serviceYear, istInfo.month).find(r => r.pubId === pubId);
                 if (existing) {
@@ -1100,24 +1265,44 @@
 
             saveS4: async () => {
                 const pubId = document.getElementById('s4-pub-select').value;
-                if(!pubId) { ui.showToast('Please select your name first', 'error'); return; }
+                if(!pubId) { ui.showToast('Profile authentication required.', 'error'); return; }
+                
+                const pub = db.getPublishers().find(p => p.id === pubId);
                 const istInfo = utils.getISTPreviousMonthInfo();
+                
+                // Advanced Logic Rules
+                const sharedInMinistry = document.getElementById('s4-ministry').checked;
+                let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
+                let isAP = document.getElementById('s4-isAP').checked;
+                const studies = parseInt(document.getElementById('s4-studies').value) || 0;
+
+                // Rule 1: If Shared is false, force metrics to 0
+                if (!sharedInMinistry) {
+                    hours = 0; isAP = false;
+                }
+                
+                // Rule 2: Accidental Pioneer fix. If hours entered but not RP/SP/FM, force AP to true
+                if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) {
+                    isAP = true;
+                }
+                
+                // Auto-Add RP flag is inherent by reading the pub profile when rendering, but we save AP explicitly
                 
                 const report = {
                     pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month,
-                    sharedInMinistry: document.getElementById('s4-ministry').checked,
-                    studies: document.getElementById('s4-studies').value,
-                    hours: document.getElementById('s4-hours').value,
-                    comments: document.getElementById('s4-comments').value,
-                    isAP: document.getElementById('s4-isAP').checked
+                    sharedInMinistry: sharedInMinistry, studies: studies,
+                    hours: hours, comments: document.getElementById('s4-comments').value,
+                    isAP: isAP
                 };
                 
                 await db.saveReport(report);
-                ui.showToast('Report submitted successfully!');
+                ui.showToast(`Data committed successfully.`);
             }
         };
 
-        window.addEventListener('load', () => window.db.init());
+        window.addEventListener('load', () => {
+            if (auth.check()) window.db.init();
+        });
     </script>
 </body>
 </html>
