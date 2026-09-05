@@ -130,6 +130,7 @@
         .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; justify-content: space-between; align-items: center; }
         .s21-strict .check-label { display: flex; align-items: center; height: 35px; }
         
+        /* Rigid CSS Boxes to immune against Tailwind resets */
         .s21-strict .print-check {
             border: 2px solid #111 !important; 
             background: transparent !important;
@@ -369,6 +370,10 @@
                     <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="db.importContacts(event)">
                     <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export CSV</button>
                     
+                    <button onclick="document.getElementById('csv-report-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20 text-amber-200">Import Reports</button>
+                    <input type="file" id="csv-report-file" accept=".csv" class="hidden" onchange="db.importReports(event)">
+                    <button onclick="ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20 text-amber-200">Export Reports</button>
+
                     <button onclick="ui.wipeAllData()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
                     
                     <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
@@ -1112,8 +1117,8 @@
                     }
                 });
 
-                document.getElementById('dash-rp-table').innerHTML = rpReviewHtml.length ? rpReviewHtml.join('') : `<tr><td colspan="3" class="px-6 py-4 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
-                document.getElementById('dash-ap-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
+                document.getElementById('dash-rp-table') ? document.getElementById('dash-rp-table').innerHTML = rpReviewHtml.length ? rpReviewHtml.join('') : `<tr><td colspan="3" class="px-6 py-4 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>` : null;
+                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300">
@@ -1297,7 +1302,7 @@
                 const pubs = db.getPublishers();
                 const now = new Date();
                 const currentMonthDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5));
-                currentMonthDate.setMonth(currentMonthDate.getMonth() - 1); // Pointing to current reporting month
+                currentMonthDate.setMonth(currentMonthDate.getMonth() - 1); 
                 
                 let html = '';
                 
