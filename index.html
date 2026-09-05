@@ -130,8 +130,20 @@
         .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; justify-content: space-between; align-items: center; }
         .s21-strict .check-label { display: flex; align-items: center; height: 35px; }
         
-        .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; border: 2px solid #111; margin-right: 9px; position: relative; }
-        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; color: #111; }
+        .s21-strict .print-check {
+            border: 2px solid #111 !important; 
+            background: transparent !important;
+            display: flex; justify-content: center; align-items: center;
+            color: #111 !important; font-weight: bold;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .s21-strict .print-check.small {
+            width: 21px; height: 21px; font-size: 22px; margin-right: 9px;
+        }
+        .s21-strict .print-check:not(.small) {
+            width: 26px; height: 26px; font-size: 26px;
+        }
         
         .s21-strict .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
         .s21-strict .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; border: 2px solid #202020; background: #fff; }
@@ -144,8 +156,6 @@
         .s21-strict .hours-header { flex-direction: column; } .s21-strict .hours-header .sub { font-weight: 400; }
         .s21-strict .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 24px Arial; color:#000; background:transparent;}
         .s21-strict .remarks-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 21px Arial; color:#000; background:transparent;}
-        .s21-strict .month-check { appearance: none; -webkit-appearance: none; width: 26px; height: 26px; border: 2px solid #111; position: relative; }
-        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; color: #111; }
         
         .s21-strict .total-row { width: 1369px; height: 45px; position: relative; }
         .s21-strict .total-label { position: absolute; left: 648px; top: 7px; font-size: 25px; font-weight: 700; width: 74px; text-align: right;}
@@ -166,22 +176,51 @@
         
         /* ---------------- NATIVE PRINT ENGINE OVERRIDE ---------------- */
         @media print {
-            body { background: #fff !important; }
-            body * { visibility: hidden; }
-            #tab-s21, #tab-s21 * { visibility: visible; }
-            #tab-s21 { position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; }
+            @page {
+                size: landscape;
+                margin: 0 !important; /* Forces removal of browser Headers and Footers (URLs, Dates) */
+            }
+            
+            body { 
+                background: #ffffff !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body > * { display: none !important; } /* Hide entire app by default */
+            
+            /* Unhide necessary wrappers */
+            .main-content { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
+            #tab-s21 { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+            
             .no-print { display: none !important; }
-            .s21-strict {
-                width: 1448px !important;
-                height: 1025px !important;
-                page-break-after: always !important;
-                break-after: page !important;
-                margin: 0 !important;
+            
+            #s21-render-area {
+                display: block !important;
+                background: #ffffff !important;
                 padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .s21-strict {
+                position: relative !important;
+                margin: 0 auto !important;
+                padding-top: 15px !important;
                 box-shadow: none !important;
                 border: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                /* Safely zoom down to fit A4 Landscape dimensions natively */
+                zoom: 0.75 !important; 
             }
-            #app-header, #toast { display: none !important; }
+
+            /* Ensure grids and borders survive Tailwind's print resets */
+            .s21-strict .table-grid { border: 2px solid #202020 !important; }
+            .s21-strict .cell { border-right: 1px solid #404040 !important; border-bottom: 1px solid #404040 !important; }
+            .s21-strict .total-box { border: 2px solid #202020 !important; border-top: 2px solid #202020 !important; box-shadow: inset -1px 0 0 #202020 !important; }
+            .s21-strict .total-box .slot { border-left: 1px solid #404040 !important; }
         }
         
     </style>
@@ -1077,13 +1116,21 @@
                 document.getElementById('dash-ap-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Active</div>
-                        <div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300">
+                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div>
+                        <div class="text-4xl font-bold text-white mt-2">${pubs.length}</div>
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-rose-400">
-                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Pending Commits</div>
-                        <div class="text-4xl font-bold text-white mt-2">${pubs.length - stats.totalRep}</div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400">
+                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div>
+                        <div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400">
+                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div>
+                        <div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
+                        <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div>
+                        <div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div>
                     </div>
                 `;
                 
@@ -1396,15 +1443,14 @@
                             totalRemarksNum += utils.extractNumbers(r.comments);
                         }
                         
-                        // Strict checkmark rules
-                        const chkShared = r.sharedInMinistry ? 'checked' : '';
-                        const chkAP = r.isAP ? 'checked' : '';
+                        const chkShared = r.sharedInMinistry ? '✔' : '';
+                        const chkAP = r.isAP ? '✔' : '';
                         
                         rowsHtml += `
                             <div class="cell month">${utils.getMonthName(m)}</div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${chkShared} disabled></div>
+                            <div class="cell center"><div class="print-check">${chkShared}</div></div>
                             <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}" readonly></div>
-                            <div class="cell center"><input class="month-check" type="checkbox" ${chkAP} disabled></div>
+                            <div class="cell center"><div class="print-check">${chkAP}</div></div>
                             <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}" readonly></div>
                             <div class="cell"><input class="remarks-input" type="text" value="${r.comments||''}" readonly></div>
                         `;
@@ -1420,17 +1466,17 @@
                             <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}" readonly></div>
                             <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${bapText}" readonly></div>
                             <div class="identity">
-                                <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''} disabled><span>Male</span></label>
-                                <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''} disabled><span>Female</span></label>
-                                <label class="sheep"><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''} disabled><span>Other sheep</span></label>
-                                <label class="anointed"><input type="checkbox" ${pub.hope==='Anointed'?'checked':''} disabled><span>Anointed</span></label>
+                                <label class="male"><div class="print-check small">${pub.gender==='Male'?'✔':''}</div><span>Male</span></label>
+                                <label class="female"><div class="print-check small">${pub.gender==='Female'?'✔':''}</div><span>Female</span></label>
+                                <label class="sheep"><div class="print-check small">${pub.hope==='Other Sheep'?'✔':''}</div><span>Other sheep</span></label>
+                                <label class="anointed"><div class="print-check small">${pub.hope==='Anointed'?'✔':''}</div><span>Anointed</span></label>
                             </div>
                             <div class="role-options">
-                                <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''} disabled><span>Elder</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isMS?'checked':''} disabled><span>Ministerial servant</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isRP?'checked':''} disabled><span>Regular pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isSP?'checked':''} disabled><span>Special pioneer</span></label>
-                                <label class="check-label"><input type="checkbox" ${pub.isFM?'checked':''} disabled><span>Field missionary</span></label>
+                                <label class="check-label"><div class="print-check small">${pub.isElder?'✔':''}</div><span>Elder</span></label>
+                                <label class="check-label"><div class="print-check small">${pub.isMS?'✔':''}</div><span>Ministerial servant</span></label>
+                                <label class="check-label"><div class="print-check small">${pub.isRP?'✔':''}</div><span>Regular pioneer</span></label>
+                                <label class="check-label"><div class="print-check small">${pub.isSP?'✔':''}</div><span>Special pioneer</span></label>
+                                <label class="check-label"><div class="print-check small">${pub.isFM?'✔':''}</div><span>Field missionary</span></label>
                             </div>
                         </section>
                         <section class="form-table">
