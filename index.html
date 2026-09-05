@@ -87,8 +87,8 @@
 
         /* --- STRICT S-4 FORM UI (Preserved exact dimensions) --- */
         #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
-        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
-        .s4-strict * { box-sizing: border-box; }
+        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
+        .s4-strict * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
         .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
         .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
         .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
@@ -98,7 +98,7 @@
         .s4-strict .report-table td { border: 1px solid #222; vertical-align: middle; }
         .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
         .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
-        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 7px; top: 0px; font-size: 29px; color: #222; font-weight: 700; border: none; transform: none; }
+        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 7px; top: -3px; font-size: 38px; color: #222; font-weight: 700; border: none; transform: none; }
         .s4-strict .study-label { padding: 0 14px 0 15px !important; width: 670px; min-height: 44px; font-size: 24px; line-height: 30px; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
         .s4-strict .study-value, .s4-strict .hours-value { width: 103px; min-height: 44px; padding: 0; background: #f1f4ff; }
         .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center; color: #000; }
@@ -108,7 +108,7 @@
         .s4-strict .comments-input { position: absolute; left: 169px; top: 0; width: 603px; height: 92px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
         .s4-strict .ap-checkbox-wrapper { position: absolute; left: 15px; top: 50px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #000;}
         .s4-strict .ap-checkbox { width: 20px; height: 20px; border: 1.5px solid #222; appearance: none; -webkit-appearance: none; position: relative; background: #f1f4ff;}
-        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 2px; top: -3px; font-size: 18px; color: #222; font-weight: bold;}
+        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 2px; top: -4px; font-size: 20px; color: #222; font-weight: bold;}
         .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; font-weight: 400; letter-spacing: 0.2px; }
         .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; font-weight: 400; }
 
@@ -133,7 +133,7 @@
         .s21-strict .identity .sheep { left: 0; top: 35px; } .s21-strict .identity .anointed { left: 248px; top: 35px; }
         .s21-strict .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
         .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 3px; top: -3px; font-size: 21px; font-weight:bold; color:#111; transform:none; border:none; }
+        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 2px; top: -3px; font-size: 19px; font-weight:bold; color:#111; transform:none; border:none; }
         .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
         .s21-strict .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
         .s21-strict .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 2px solid var(--heavy); background: #fff; }
@@ -148,7 +148,7 @@
         .s21-strict .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; white-space: nowrap; }
         .s21-strict .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/24px Arial, Helvetica, sans-serif; text-align: left; overflow-wrap: anywhere; }
         .s21-strict .month-check { appearance: none; -webkit-appearance: none; display: block; width: 26px; height: 26px; margin: 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 3px; top: -2px; font-size: 22px; font-weight:bold; color:#111; border:none; transform:none; }
+        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 3px; top: -4px; font-size: 26px; font-weight:bold; color:#111; border:none; transform:none; }
         .s21-strict .total-row { width: var(--table-w); height: 45px; position: relative; }
         .s21-strict .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
         .s21-strict .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); border-top: 2px solid var(--heavy); border-bottom: 2px solid var(--heavy); border-right: 2px solid var(--heavy); border-left: 2px solid var(--heavy); background: #fff; box-shadow: inset -1px 0 0 var(--heavy); }
@@ -196,7 +196,7 @@
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all bg-teal-500/80 text-white shadow-lg whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
-                <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">S-21 Engine</button>
+                <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
             </div>
         </div>
     </nav>
@@ -317,7 +317,7 @@
         <div id="tab-s21" class="tab-content space-y-6">
             <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
-                    <h2 class="text-3xl font-bold text-white drop-shadow-md">S-21 Document Engine</h2>
+                    <h2 class="text-3xl font-bold text-white drop-shadow-md">Printer</h2>
                     <p class="text-teal-200/70 mt-1">Compile and print strict S-21 Publisher Cards</p>
                 </div>
                 <div class="flex gap-3 flex-wrap items-center">
@@ -340,7 +340,7 @@
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
-                        <p class="text-teal-200/80 text-sm mt-1">Select your profile to initialize the secure S-4 pipeline.</p>
+                        <p class="text-teal-200/80 text-sm mt-1">Please select your name</p>
                     </div>
                     <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
@@ -389,7 +389,7 @@
                 </div>
 
                 <div class="mt-8 w-full max-w-[834px] flex justify-end">
-                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Push Report to Server</button>
+                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
                 </div>
             </div>
         </div>
@@ -527,8 +527,6 @@
             getMonthName: (idx) => window.utils.getMonths()[idx],
             calculateAge: (dobStr) => {
                 if (!dobStr) return '-';
-                // Assumes dd-mm-yyyy or similar parseable formats if JS can read it.
-                // For safety in custom strings, returning string or doing basic math if standard format
                 const parts = dobStr.split(/[-/]/);
                 if(parts.length === 3) {
                     const y = parts[2].length === 4 ? parts[2] : parts[0]; 
@@ -836,7 +834,6 @@
                     window.db.publishers = [];
                     window.db.reports = [];
                     if(isCloudEnabled) {
-                        // In strict setups, requires API loop or backend function, but we try a blanket delete if RLS permits
                         await supabaseClient.from('reports').delete().neq('id', '0');
                         await supabaseClient.from('publishers').delete().neq('name', '0');
                     } else {
@@ -1160,10 +1157,10 @@
                             <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}" readonly></div>
                             <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${pub.baptized||''}" readonly></div>
                             <div class="identity">
-                                <label><input type="checkbox" ${pub.gender==='Male'?'checked':''} disabled><span>Male</span></label>
-                                <label><input type="checkbox" ${pub.gender==='Female'?'checked':''} disabled><span>Female</span></label>
-                                <label><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''} disabled><span>Other sheep</span></label>
-                                <label><input type="checkbox" ${pub.hope==='Anointed'?'checked':''} disabled><span>Anointed</span></label>
+                                <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''} disabled><span>Male</span></label>
+                                <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''} disabled><span>Female</span></label>
+                                <label class="sheep"><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''} disabled><span>Other sheep</span></label>
+                                <label class="anointed"><input type="checkbox" ${pub.hope==='Anointed'?'checked':''} disabled><span>Anointed</span></label>
                             </div>
                             <div class="role-options">
                                 <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''} disabled><span>Elder</span></label>
@@ -1214,7 +1211,7 @@
                 const sel = document.getElementById('s4-pub-select');
                 if (!sel) return;
                 
-                sel.innerHTML = '<option value="">-- Authenticate Profile --</option>';
+                sel.innerHTML = '<option value="">-- Please select your name --</option>';
                 let filtered = ui.publicGroup ? pubs.filter(p => p.group === ui.publicGroup) : pubs;
                 filtered.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
                 
@@ -1265,7 +1262,7 @@
 
             saveS4: async () => {
                 const pubId = document.getElementById('s4-pub-select').value;
-                if(!pubId) { ui.showToast('Profile authentication required.', 'error'); return; }
+                if(!pubId) { ui.showToast('Please select your name.', 'error'); return; }
                 
                 const pub = db.getPublishers().find(p => p.id === pubId);
                 const istInfo = utils.getISTPreviousMonthInfo();
@@ -1286,8 +1283,6 @@
                     isAP = true;
                 }
                 
-                // Auto-Add RP flag is inherent by reading the pub profile when rendering, but we save AP explicitly
-                
                 const report = {
                     pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month,
                     sharedInMinistry: sharedInMinistry, studies: studies,
@@ -1296,7 +1291,7 @@
                 };
                 
                 await db.saveReport(report);
-                ui.showToast(`Data committed successfully.`);
+                ui.showToast(`Report submitted successfully.`);
             }
         };
 
