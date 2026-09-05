@@ -139,6 +139,40 @@
         .s21-strict .total-input.remarks { text-align: left; padding-left: 6px; font-weight: 400;}
         .s21-strict .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; color:#000;}
         .s21-strict .footer-date { margin-left: 18px; }
+
+        /* ---------------- BULLETPROOF NATIVE PDF/PRINT OVERRIDE ---------------- */
+        @media print {
+            /* Force white background and hide everything except the render area */
+            body.printing-s21 { background: #fff !important; min-height: auto !important; }
+            body.printing-s21 * { visibility: hidden; }
+            body.printing-s21 #s21-render-area, body.printing-s21 #s21-render-area * { visibility: visible; }
+            
+            /* Reposition the render area to the absolute top left of the paper */
+            body.printing-s21 #s21-render-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                margin: 0; 
+                padding: 0; 
+            }
+            
+            /* Set paper to Landscape */
+            @page { size: landscape; margin: 0; }
+            
+            /* Scale the massive 1448px card down to fit a standard A4 paper perfectly */
+            .s21-strict { 
+                margin: 0 !important; 
+                box-shadow: none !important; 
+                page-break-after: always; 
+                break-after: page; 
+                transform: scale(0.77); 
+                transform-origin: top left;
+            }
+            
+            /* Force the browser to print background colors and heavy borders */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
     </style>
 </head>
 <body class="text-sm">
@@ -1013,7 +1047,7 @@
                 });
             },
 
-            renderS21: (explicitGroup = null) => {
+            renderS21: () => {
                 const area = document.getElementById('s21-render-area');
                 if(!area) return;
                 area.innerHTML = '';
@@ -1091,17 +1125,34 @@
                                 </div>
                             </section>
                             <footer class="footer"><span>S-21-E</span><span class="footer-date">11/23</span></footer>
-                        </div>
                     `;
                     area.appendChild(card);
                 });
-                ui.showToast('Compilation successful. Ready for printing.');
+                ui.showToast('Compilation successful. Ready for PDF Export.');
             },
 
-            printS21: () => {
+            /* ---------------------------------------------------------------------- */
+            /* Advanced Client-Side PDF Pipeline (Native Browser Engine)              */
+            /* ---------------------------------------------------------------------- */
+            exportPDF: () => {
+                const element = document.getElementById('s21-render-area');
+                if (!element.hasChildNodes()) {
+                    ui.showToast('Compile the queue first.', 'error');
+                    return;
+                }
+                
+                ui.showToast('Initializing Native Print Engine...');
+                
+                // Native print is 100x more accurate for pixel-perfect CSS grids than external libraries.
+                // We add a class to trigger our aggressive @media print CSS rules.
                 document.body.classList.add('printing-s21');
-                window.print();
-                setTimeout(() => document.body.classList.remove('printing-s21'), 1000);
+                
+                // Slight delay to allow CSS to apply before triggering the dialog
+                setTimeout(() => {
+                    window.print();
+                    // Remove the class after the print dialog closes so the dashboard returns to normal
+                    setTimeout(() => document.body.classList.remove('printing-s21'), 1000);
+                }, 300);
             },
 
             setupS4Tab: () => {
