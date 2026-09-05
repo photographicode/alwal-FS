@@ -2,38 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Field Service Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Theme Variables */
-            --glass-bg: rgba(6, 78, 59, 0.15); /* Aqua/Teal tint */
-            --glass-border: rgba(20, 184, 166, 0.2);
+            --glass-bg: rgba(13, 148, 136, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            
-            /* S-21 Strict Grid Variables */
-            --page-w: 1448px;
-            --page-h: 1025px;
-            --x: 40px;
-            --table-w: 1369px;
-            --c1: 206px;
-            --c2: 173px;
-            --c3: 172px;
-            --c4: 172px;
-            --c5: 173px;
-            --c6: 473px;
-            --header-h: 120px;
-            --row-h: 43px;
-            --line: #404040;
-            --heavy: #202020;
         }
-
-        /* --- GLOBAL UI --- */
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #020617, #064e3b, #083344);
@@ -42,7 +24,7 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
+        
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -54,6 +36,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(20, 184, 166, 0.4); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(20, 184, 166, 0.8); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
@@ -66,6 +49,16 @@
         }
         #toast.show { transform: translateY(0) scale(1); opacity: 1; }
 
+        #auth-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #020617, #064e3b, #083344);
+            z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+        #auth-screen.hidden { display: none !important; }
+
+        body.public-mode #app-header { display: none !important; }
+        body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
+        body.public-mode #tab-s4 { display: block !important; width: 100%; }
+        
         input[type="text"], input[type="number"], input[type="date"], select, textarea {
             background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #fff; transition: all 0.2s;
         }
@@ -73,19 +66,7 @@
             border-color: rgba(20, 184, 166, 0.6); box-shadow: 0 0 10px rgba(20, 184, 166, 0.2); outline: none;
         }
 
-        /* --- AUTH SCREEN --- */
-        #auth-screen {
-            position: fixed; inset: 0; background: linear-gradient(135deg, #020617, #064e3b, #083344);
-            z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column;
-        }
-        #auth-screen.hidden { display: none !important; }
-
-        /* --- PUBLIC S-4 MODE --- */
-        body.public-mode #app-header { display: none !important; }
-        body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
-        body.public-mode #tab-s4 { display: block !important; width: 100%; }
-
-        /* --- STRICT S-4 FORM UI (Preserved exact dimensions) --- */
+        /* ---------------- S-4 STRICT STYLES ---------------- */
         #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
         .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
         .s4-strict * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
@@ -93,83 +74,81 @@
         .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
         .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
         .s4-strict .identity-label { position: absolute; left: -107px; top: 14px; width: 100px; height: 35px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000; background: transparent; font-size: 24px; color: #000; }
-        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #fff; color: #000; }
-        .s4-strict .report-table td { border: 1px solid #222; vertical-align: middle; }
+        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000000; background: transparent; font-size: 24px; color: #000; text-align: left; }
+        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #ffffff; color: #000; }
+        .s4-strict .report-table td { border: 1px solid #222222; vertical-align: middle; }
         .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
-        .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
-        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 7px; top: -3px; font-size: 38px; color: #222; font-weight: 700; border: none; transform: none; }
-        .s4-strict .study-label { padding: 0 14px 0 15px !important; width: 670px; min-height: 44px; font-size: 24px; line-height: 30px; white-space: normal !important; word-wrap: break-word; overflow-wrap: break-word; }
-        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; min-height: 44px; padding: 0; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center; color: #000; }
-        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 25px; line-height: 30px; }
-        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222; background: #fff; }
+        .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
+        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 36px; color: #222; font-weight: bold; }
+        .s4-strict .study-label { padding: 0 14px 0 15px; width: 670px; height: 44px; font-size: 25px; line-height: 28px; white-space: normal; }
+        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center !important; color: #000; }
+        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 29px; line-height: 34px; }
+        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222222; background: #ffffff; }
         .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .comments-input { position: absolute; left: 169px; top: 0; width: 603px; height: 92px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
+        .s4-strict .comments-input { position: absolute; left: 195px; top: 8px; width: 565px; height: 76px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
         .s4-strict .ap-checkbox-wrapper { position: absolute; left: 15px; top: 50px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #000;}
         .s4-strict .ap-checkbox { width: 20px; height: 20px; border: 1.5px solid #222; appearance: none; -webkit-appearance: none; position: relative; background: #f1f4ff;}
-        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 2px; top: -4px; font-size: 20px; color: #222; font-weight: bold;}
-        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; font-weight: 400; letter-spacing: 0.2px; }
-        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; font-weight: 400; }
+        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 18px; color: #222; font-weight: bold;}
+        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; }
+        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; }
 
-        /* --- STRICT S-21 PDF RENDERING ENGINE --- */
-        .s21-wrapper { display: flex; flex-direction: column; gap: 40px; align-items: center; padding: 20px 0; }
+        /* ---------------- S-21 PRINTER STYLES ---------------- */
+        .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        
         .s21-strict {
-            position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto;
+            position: relative; width: 1448px; height: 1025px; min-width: 1448px; margin: 0 auto;
             background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 4px;
-            page-break-after: always; break-after: page;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); page-break-after: always; break-after: page;
         }
-        .s21-strict * { box-sizing: border-box; }
-        .s21-strict .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; color: #000; }
-        .s21-strict .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; color: #000; }
+        
+        .s21-strict * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
+        .s21-strict .title { position: absolute; top: 33px; left: 0; width: 1448px; text-align: center; font-size: 34px; font-weight: 700; color:#000; }
+        .s21-strict .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; font-weight: 700; color:#000;}
         .s21-strict .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
         .s21-strict .detail.name { top: 0; } .s21-strict .detail.birth { top: 35px; } .s21-strict .detail.baptism { top: 70px; }
-        .s21-strict .detail-label { flex: 0 0 205px; white-space: nowrap; }
-        .s21-strict .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; outline: 0; background: #fff; color: #000; font: 700 27px/35px Arial, Helvetica, sans-serif; overflow: hidden; white-space: nowrap; }
-        .s21-strict .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
-        .s21-strict .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
+        .s21-strict .detail-label { flex: 0 0 205px; }
+        .s21-strict .detail-input { flex: 0 0 645px; width: 645px; height: 35px; padding: 0 4px; border: 0; background: transparent; color: #000; font: 700 27px Arial; }
+        .s21-strict .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; }
+        .s21-strict .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap;}
         .s21-strict .identity .male { left: 0; top: 0; } .s21-strict .identity .female { left: 248px; top: 0; }
         .s21-strict .identity .sheep { left: 0; top: 35px; } .s21-strict .identity .anointed { left: 248px; top: 35px; }
-        .s21-strict .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
-        .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 2px; top: -3px; font-size: 19px; font-weight:bold; color:#111; transform:none; border:none; }
-        .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
-        .s21-strict .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
-        .s21-strict .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 2px solid var(--heavy); background: #fff; }
-        .s21-strict .cell { min-width: 0; min-height: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; background: #fff; }
+        .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; justify-content: space-between; align-items: center; }
+        .s21-strict .check-label { display: flex; align-items: center; height: 35px; }
+        .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; border: 2px solid #111; margin-right: 9px; position: relative; }
+        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: bold; color: #111; }
+        .s21-strict .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
+        .s21-strict .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; border: 2px solid #202020; background: #fff; }
+        .s21-strict .cell { border-right: 1px solid #404040; border-bottom: 1px solid #404040; background: #fff; display: flex; align-items: center; }
         .s21-strict .cell:nth-child(6n) { border-right: 0; }
-        .s21-strict .cell.header { height: var(--header-h); display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 7px; font-size: 25px; line-height: 28px; font-weight: 700; }
+        .s21-strict .cell.header { height: 120px; justify-content: center; text-align: center; font-size: 25px; font-weight: 700; }
         .s21-strict .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
-        .s21-strict .month { display: flex; align-items: center; padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; }
-        .s21-strict .center { display: flex; align-items: center; justify-content: center; }
-        .s21-strict .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; }
-        .s21-strict .hours-header .sub { display: block; font-weight: 400; }
-        .s21-strict .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; white-space: nowrap; }
-        .s21-strict .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/24px Arial, Helvetica, sans-serif; text-align: left; overflow-wrap: anywhere; }
-        .s21-strict .month-check { appearance: none; -webkit-appearance: none; display: block; width: 26px; height: 26px; margin: 0; padding: 0; border: 2px solid #111; background: #fff; position: relative; cursor: pointer; }
-        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 3px; top: -4px; font-size: 26px; font-weight:bold; color:#111; border:none; transform:none; }
-        .s21-strict .total-row { width: var(--table-w); height: 45px; position: relative; }
-        .s21-strict .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
-        .s21-strict .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); border-top: 2px solid var(--heavy); border-bottom: 2px solid var(--heavy); border-right: 2px solid var(--heavy); border-left: 2px solid var(--heavy); background: #fff; box-shadow: inset -1px 0 0 var(--heavy); }
-        .s21-strict .total-box .slot { min-width: 0; height: 41px; overflow: hidden; }
-        .s21-strict .total-box .slot + .slot { border-left: 1px solid var(--line); }
-        .s21-strict .total-input { width: 100%; height: 41px; margin: 0; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/30px Arial, Helvetica, sans-serif; text-align: center; }
-        .s21-strict .total-input.remarks { text-align: left; font-weight: 700; }
-        .s21-strict .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; color: #000; }
+        .s21-strict .month { height: 43px; padding-left: 9px; font-size: 25px; }
+        .s21-strict .center { justify-content: center; }
+        .s21-strict .hours-header { flex-direction: column; } .s21-strict .hours-header .sub { font-weight: 400; }
+        .s21-strict .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 24px Arial; color:#000; background:transparent;}
+        .s21-strict .remarks-input { width: 100%; height: 41px; padding: 3px 7px; border: 0; resize: none; font: 400 21px Arial; color:#000; background:transparent; text-align: center !important;}
+        .s21-strict .month-check { appearance: none; width: 26px; height: 26px; border: 2px solid #111; position: relative; }
+        .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; color: #111; }
+        .s21-strict .total-row { width: 1369px; height: 45px; position: relative; }
+        .s21-strict .total-label { position: absolute; left: 648px; top: 7px; font-size: 25px; font-weight: 700; width: 74px; text-align: right;}
+        .s21-strict .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: 2px solid #202020; background: #fff; box-shadow: inset -1px 0 0 #202020; }
+        .s21-strict .total-box .slot { border-left: 1px solid #404040; height: 41px; }
+        .s21-strict .total-box .slot:first-child { border-left: none; }
+        .s21-strict .total-input { width: 100%; height: 41px; border: 0; text-align: center; font: 700 23px Arial; color:#000;}
+        .s21-strict .total-input.remarks { text-align: center; font-weight: 700;}
+        .s21-strict .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; color:#000;}
         .s21-strict .footer-date { margin-left: 18px; }
 
-        /* --- NATIVE PRINT ENGINE (Hides UI, Prints Only S-21) --- */
-        @media print {
-            body.printing-s21 { background: #fff !important; margin: 0; padding: 0; overflow: visible !important; min-height: auto !important; height: auto !important; }
-            body.printing-s21 .no-print, body.printing-s21 nav, body.printing-s21 #app-header, body.printing-s21 .tab-content:not(#tab-s21) { display: none !important; }
-            body.printing-s21 #tab-s21 { display: block !important; background: transparent !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
-            body.printing-s21 .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
-            body.printing-s21 #s21-render-area { padding: 0 !important; background: transparent !important; display: block !important; overflow: visible !important; margin: 0 !important; }
-            .s21-strict { margin: 0 !important; box-shadow: none !important; border: none !important; page-break-after: always !important; break-after: page !important; }
-            @page { size: landscape; margin: 0mm; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        }
+        /* ANALYTICS TAB SPREADSHEET STYLES */
+        .analytics-table { width: 100%; border: 2px solid #000; background: #fff; color: #000; font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 24px; border-collapse: collapse; }
+        .analytics-table th, .analytics-table td { border: 1px solid #000; padding: 6px; }
+        .analytics-table .header-row { font-weight: bold; text-align: center; font-size: 16px; border-bottom: 2px solid #000; }
+        .analytics-table .sub-header { font-weight: bold; text-align: center; background: #f0f0f0; }
+        .analytics-table .metric-row { display: flex; justify-content: space-between; border-bottom: 1px solid #000; }
+        
+        /* PDF Loader Overlay */
+        #pdf-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; color: #fff; }
     </style>
 </head>
 <body class="text-sm">
@@ -181,11 +160,17 @@
             <h2 class="text-2xl font-bold text-white mb-2">Service Manager Portal</h2>
             <p class="text-teal-200/70 text-sm mb-6">Restricted Access. Enter master password.</p>
             <input type="password" id="auth-pass" placeholder="Password" class="w-full px-5 py-3 rounded-xl mb-4 text-center bg-black/40 border border-white/20 text-white outline-none focus:border-teal-400">
-            <button onclick="auth.login()" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)]">Unlock</button>
+            <button onclick="auth.login()" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)]">Unlock Database</button>
         </div>
     </div>
 
-    <!-- Global Navigation -->
+    <div id="pdf-loader">
+        <svg class="animate-spin h-12 w-12 text-teal-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <h2 class="text-xl font-bold text-white tracking-wide">Generating PDF Array...</h2>
+        <p class="text-teal-200/70 text-sm mt-2">Please wait up to 15 seconds. Do not close the window.</p>
+    </div>
+
+    <!-- Global Navigation (Reordered) -->
     <nav id="app-header" class="glass-panel sticky top-0 z-50 border-b border-teal-400/20">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -193,10 +178,11 @@
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
-                <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all bg-teal-500/80 text-white shadow-lg whitespace-nowrap">Dashboard</button>
-                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
+                <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
                 <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
+                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
+                <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
             </div>
         </div>
     </nav>
@@ -205,14 +191,14 @@
         
         <!-- DASHBOARD TAB -->
         <div id="tab-dashboard" class="tab-content active space-y-6">
-            <div class="flex justify-between items-end">
+            <div class="flex justify-between items-end flex-wrap gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-white drop-shadow-md">Congregation Overview</h2>
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none"></select>
+                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -222,9 +208,9 @@
             
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
             <div id="dash-pio-stats" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
-            
+
             <!-- AP Review Board (For Revoking accidental AP hours) -->
-            <div class="glass-panel rounded-2xl overflow-hidden mt-6 border-amber-500/30">
+            <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
                 <div class="bg-black/30 px-6 py-4 border-b border-amber-500/20 flex justify-between items-center">
                     <h3 class="font-semibold text-amber-300">Auxiliary Pioneer Review Log</h3>
                     <span class="text-xs text-amber-200/60">Review publishers mapped to AP this month</span>
@@ -239,20 +225,19 @@
                                 <th class="px-6 py-3 font-semibold text-right">Admin Action</th>
                             </tr>
                         </thead>
-                        <tbody id="dash-ap-review-table" class="divide-y divide-white/5 text-teal-50"></tbody>
+                        <tbody id="dash-ap-review-table" class="divide-y divide-white/5 text-amber-50"></tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- Full Master Log -->
-            <div class="glass-panel rounded-2xl overflow-hidden mt-6">
+            
+            <div class="glass-panel rounded-2xl overflow-hidden">
                 <div class="bg-black/30 px-6 py-4 border-b border-white/10 flex justify-between items-center">
-                    <h3 class="font-semibold text-white">Master Monthly Submissions Log</h3>
+                    <h3 class="font-semibold text-white">Monthly Submissions Log</h3>
                     <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded">☁️ Synced</span>
                 </div>
                 <div class="overflow-x-auto max-h-[500px] custom-scrollbar">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-black/50 text-teal-100/70 sticky top-0 backdrop-blur-md">
+                    <table class="w-full text-left text-sm whitespace-nowrap relative">
+                        <thead class="bg-black/80 text-teal-100/70 sticky top-0 z-10 backdrop-blur-md">
                             <tr>
                                 <th class="px-6 py-4 font-semibold">Publisher</th>
                                 <th class="px-6 py-4 font-semibold text-center">Shared</th>
@@ -267,6 +252,41 @@
             </div>
         </div>
 
+        <!-- GROUPS TAB -->
+        <div id="tab-groups" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="md:col-span-1 space-y-3" id="groups-sidebar">
+                    <!-- Groups populated dynamically -->
+                </div>
+                <div class="md:col-span-3">
+                    <div id="group-details" class="hidden glass-panel p-8 rounded-2xl">
+                        <!-- Group details populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- S-21 PDF RENDERING TAB -->
+        <div id="tab-s21" class="tab-content space-y-6">
+            <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white drop-shadow-md">Document Printer</h2>
+                    <p class="text-teal-200/70 mt-1">Compile and download pixel-perfect S-21 records</p>
+                </div>
+                <div class="flex gap-3 flex-wrap">
+                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
+                    <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
+                    <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div id="s21-render-area" class="s21-wrapper bg-gray-900 p-8 rounded-xl overflow-x-auto"></div>
+        </div>
+
         <!-- PUBLISHERS TAB -->
         <div id="tab-publishers" class="tab-content space-y-6">
             <div class="flex justify-between items-center flex-wrap gap-4">
@@ -278,8 +298,10 @@
                     <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Import CSV</button>
                     <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="db.importContacts(event)">
                     <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export CSV</button>
+                    
                     <button onclick="ui.wipeAllData()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
-                    <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)]">
+                    
+                    <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
                         + Add Publisher
                     </button>
                 </div>
@@ -303,35 +325,35 @@
             </div>
         </div>
 
-        <!-- GROUPS TAB -->
-        <div id="tab-groups" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-1 space-y-3" id="groups-sidebar"></div>
-                <div class="md:col-span-3">
-                    <div id="group-details" class="hidden glass-panel p-8 rounded-2xl"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- S-21 PDF RENDERING TAB -->
-        <div id="tab-s21" class="tab-content space-y-6">
-            <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold text-white drop-shadow-md">Printer</h2>
-                    <p class="text-teal-200/70 mt-1">Compile and print strict S-21 Publisher Cards</p>
-                </div>
-                <div class="flex gap-3 flex-wrap items-center">
-                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[220px]"></select>
-                    <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile</button>
-                    <button onclick="ui.printS21()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
-                        Print Cards
-                    </button>
-                </div>
+        <!-- ANALYTICS TAB (6-Month Summary) -->
+        <div id="tab-analytics" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
+                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
             </div>
             
-            <div id="s21-render-area" class="s21-wrapper"></div>
+            <!-- 6-Month Grid -->
+            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Detailed Roster Explorer -->
+            <div class="glass-panel mt-10 p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
+                    <div class="flex gap-3">
+                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="analytics-roster" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
         </div>
 
         <!-- S-4 FORM (Strict Public View) -->
@@ -340,7 +362,7 @@
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
-                        <p class="text-teal-200/80 text-sm mt-1">Please select your name</p>
+                        <p class="text-teal-200/80 text-sm mt-1">Please select your name.</p>
                     </div>
                     <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
@@ -389,13 +411,13 @@
                 </div>
 
                 <div class="mt-8 w-full max-w-[834px] flex justify-end">
-                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
+                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal Form (Publisher) -->
+    <!-- Modal Form (Publisher Provisioning) -->
     <div id="modal-add-publisher" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[999] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/20">
             <div class="bg-black/40 px-8 py-5 flex justify-between items-center border-b border-white/10">
@@ -404,7 +426,7 @@
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <form id="form-publisher" onsubmit="ui.savePublisher(event)" class="p-8 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <form id="form-publisher" onsubmit="ui.savePublisher(event)" class="p-8 space-y-6">
                 <input type="hidden" id="pub-id">
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
@@ -412,21 +434,21 @@
                         <input type="text" id="pub-name" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
-                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Service Group</label>
+                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Service Group Designation</label>
                         <input type="text" id="pub-group" placeholder="e.g. Group A" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-5">
                     <div class="space-y-2">
-                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Gender</label>
+                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Gender Matrix</label>
                         <div class="flex gap-5">
                             <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="radio" name="pub-gender" value="Male" class="accent-teal-500 w-4 h-4"> Male</label>
                             <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="radio" name="pub-gender" value="Female" class="accent-teal-500 w-4 h-4"> Female</label>
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Hope</label>
+                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Hope Designation</label>
                         <div class="flex gap-5">
                             <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="radio" name="pub-hope" value="Other Sheep" checked class="accent-teal-500 w-4 h-4"> Other Sheep</label>
                             <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="radio" name="pub-hope" value="Anointed" class="accent-teal-500 w-4 h-4"> Anointed</label>
@@ -435,7 +457,7 @@
                 </div>
 
                 <div class="space-y-3 bg-black/30 p-5 rounded-xl border border-white/10">
-                    <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Privileges</label>
+                    <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider block">Ecclesiastical Privileges</label>
                     <div class="flex flex-wrap gap-5">
                         <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="pub-elder" class="accent-teal-500 rounded w-4 h-4"> Elder</label>
                         <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="pub-ms" class="accent-teal-500 rounded w-4 h-4"> Min. Servant</label>
@@ -446,16 +468,16 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-5">
-                    <div class="space-y-2">
+                    <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date of Birth</label>
                         <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
-                    <div class="space-y-2">
+                    <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date Baptized</label>
                         <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone</label>
@@ -469,31 +491,41 @@
 
                 <div class="pt-6 flex justify-end gap-4 border-t border-white/10">
                     <button type="button" onclick="ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all">Cancel</button>
-                    <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Save Record</button>
+                    <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Commit Record</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script type="module">
-        /* --- CONFIGURATION & AUTH --- */
-        window.config = {
-            MASTER_PASSWORD: 'Admin' + '1234' // Concat string to avoid simple scraping if needed
-        };
+    <div id="toast" class="glass-panel text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-teal-500/40">
+        <span id="toast-icon" class="text-2xl drop-shadow-md">✅</span>
+        <span id="toast-msg" class="font-medium tracking-wide"></span>
+    </div>
 
+    <script type="module">
+        /* -------------------------------------------------------------------------- */
+        /* MODULE 1: SUPABASE BAAS CONFIGURATION                                      */
+        /* -------------------------------------------------------------------------- */
         const { createClient } = window.supabase;
+        
         const SUPABASE_URL = 'https://vffbprsuvrwkzvwnipvg.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmZmJwcnN1dnJ3a3p2d25pcHZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NjE2MDIsImV4cCI6MjEwMzIzNzYwMn0.G3CdIsJduBvboPwbbMw07V4EdM0j_btHXFQzgg7j-XE';
         
         const isCloudEnabled = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_URL.startsWith('http');
         const supabaseClient = isCloudEnabled ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-        /* --- AUTH LOGIC --- */
+        /* -------------------------------------------------------------------------- */
+        /* MODULE 2: AUTH & UTILITY FUNCTIONS                                         */
+        /* -------------------------------------------------------------------------- */
+        window.config = {
+            MASTER_PASSWORD: 'Admin' + '1234'
+        };
+
         window.auth = {
             check: () => {
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('group')) {
-                    document.getElementById('auth-screen').classList.add('hidden'); // Allow public S-4
+                    document.getElementById('auth-screen').classList.add('hidden');
                     return true;
                 }
                 if (localStorage.getItem('fs_auth') === 'true') {
@@ -507,14 +539,13 @@
                 if (p === window.config.MASTER_PASSWORD) {
                     localStorage.setItem('fs_auth', 'true');
                     document.getElementById('auth-screen').classList.add('hidden');
-                    window.db.init(); // Init DB only after login
+                    window.db.init(); 
                 } else {
                     alert("Invalid Master Password");
                 }
             }
         };
 
-        /* --- UTILS --- */
         window.utils = {
             generateUUID: () => {
                 if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -525,9 +556,9 @@
             },
             getMonths: () => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             getMonthName: (idx) => window.utils.getMonths()[idx],
-            calculateAge: (dobStr) => {
-                if (!dobStr) return '-';
-                const parts = dobStr.split(/[-/]/);
+            calculateAge: (dob) => {
+                if (!dob) return '-';
+                const parts = dob.split(/[-/]/);
                 if(parts.length === 3) {
                     const y = parts[2].length === 4 ? parts[2] : parts[0]; 
                     return new Date().getFullYear() - parseInt(y);
@@ -555,7 +586,9 @@
             }
         };
 
-        /* --- DATABASE ABSTRACTION --- */
+        /* -------------------------------------------------------------------------- */
+        /* MODULE 3: HYBRID STATE MANAGEMENT (DATABASE ABSTRACTION)                   */
+        /* -------------------------------------------------------------------------- */
         window.db = {
             publishers: [],
             reports: [],
@@ -569,8 +602,8 @@
                         const { data: rData, error: rErr } = await supabaseClient.from('reports').select('*');
                         if (!rErr && rData) window.db.reports = rData.map(db.mapRepFromDB);
                         
-                        const st = document.getElementById('sync-status');
-                        if(st) st.textContent = '☁️ Cloud Synced';
+                        const syncEl = document.getElementById('sync-status');
+                        if(syncEl) syncEl.textContent = '☁️ Cloud Synced';
                     } catch (e) { console.error("Cloud fetch failed:", e); }
                 } else {
                     window.db.publishers = JSON.parse(localStorage.getItem('fs_pubs') || '[]');
@@ -620,8 +653,10 @@
             deletePublisher: async (id) => {
                 if(!confirm('Execute cascading delete on this publisher record?')) return;
                 window.db.publishers = window.db.publishers.filter(p => p.id !== id);
+                
                 if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id);
                 else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                
                 ui.renderPublishers();
                 ui.showToast('Record purged successfully.');
             },
@@ -646,7 +681,7 @@
                     ui.showToast('Accidental AP hours revoked.');
                 }
             },
-
+            
             importContacts: async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -702,7 +737,9 @@
             }
         };
 
-        /* --- USER INTERFACE --- */
+        /* -------------------------------------------------------------------------- */
+        /* MODULE 4: USER INTERFACE CONTROLLER                                        */
+        /* -------------------------------------------------------------------------- */
         window.ui = {
             currentTab: 'dashboard',
             publicGroup: null,
@@ -719,20 +756,24 @@
                     const syInfo = utils.getCurrentServiceYearInfo();
                     const istInfo = utils.getISTPreviousMonthInfo();
                     
-                    const dYear = document.getElementById('dash-year');
-                    const dMonth = document.getElementById('dash-month');
-                    const s21Year = document.getElementById('s21-year-select');
-                    
-                    if(dYear) {
-                        dYear.innerHTML = ''; s21Year.innerHTML = '';
-                        for (let i = syInfo.serviceYear - 3; i <= syInfo.serviceYear + 1; i++) {
-                            const opt = `<option value="${i}">${i-1}-${i}</option>`;
-                            dYear.innerHTML += opt; s21Year.innerHTML += opt;
+                    const selects = ['dash-year', 's21-year-select', 'analytics-year'];
+                    selects.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) {
+                            el.innerHTML = '';
+                            for (let i = syInfo.serviceYear - 3; i <= syInfo.serviceYear + 1; i++) {
+                                el.innerHTML += `<option value="${i}">${i-1}-${i}</option>`;
+                            }
+                            el.value = istInfo.serviceYear;
                         }
-                        dYear.value = istInfo.serviceYear;
-                        s21Year.value = istInfo.serviceYear;
-                    }
-                    if(dMonth) dMonth.value = istInfo.month;
+                    });
+                    
+                    const mSelects = ['dash-month', 'analytics-month'];
+                    mSelects.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.value = istInfo.month;
+                    });
+
                     ui.switchTab('dashboard');
                 }
                 window.addEventListener('resize', ui.scaleS4);
@@ -759,6 +800,7 @@
                 if (tabId === 'groups') ui.renderGroups();
                 if (tabId === 's4') ui.setupS4Tab();
                 if (tabId === 's21') ui.setupS21Tab();
+                if (tabId === 'analytics') { ui.renderAnalytics(); ui.renderDetailedRoster(); }
             },
 
             showToast: (msg, type = 'success') => {
@@ -803,7 +845,7 @@
                 ui.closeModal('modal-add-publisher');
                 ui.renderPublishers();
             },
-
+            
             editPublisher: (id) => {
                 const pub = db.getPublishers().find(p => p.id === id);
                 if (!pub) return;
@@ -890,11 +932,11 @@
                         if (r.isAP) { 
                             stats.apCount++; stats.apHours += h; stats.apStudies += s; 
                             apReviewHtml.push(`
-                                <tr class="border-b border-white/5 bg-amber-900/10">
-                                    <td class="px-6 py-3 font-medium text-amber-100">${p.name}</td>
+                                <tr class="border-b border-white/5 bg-amber-900/10 hover:bg-amber-900/20">
+                                    <td class="px-6 py-3 font-medium">${p.name}</td>
                                     <td class="px-6 py-3 text-center font-mono">${h}</td>
                                     <td class="px-6 py-3 text-center font-mono">${s}</td>
-                                    <td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP & Hours</button></td>
+                                    <td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td>
                                 </tr>
                             `);
                         }
@@ -951,7 +993,6 @@
                     if(p.isMS) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">MS</span>');
                     if(p.isRP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">RP</span>');
                     if(p.isSP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">SP</span>');
-                    if(p.isFM) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">FM</span>');
                     
                     const age = p.dob ? utils.calculateAge(p.dob) + ' yrs' : '-';
                     const bapText = !p.baptized ? '<span class="text-rose-300 font-semibold border border-rose-500/40 bg-rose-900/50 px-1.5 py-0.5 rounded text-[10px] uppercase">UBP</span>' : p.baptized;
@@ -970,7 +1011,7 @@
                     `;
                 });
             },
-            
+
             renderGroups: () => {
                 const pubs = db.getPublishers();
                 const groups = [...new Set(pubs.map(p => p.group).filter(g => g && g.trim() !== ''))].sort();
@@ -1040,7 +1081,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div>
-                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70 max-h-[150px] overflow-y-auto custom-scrollbar">${membersList.join('<br>')}</div></div>
+                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70 overflow-visible">${membersList.join('<br>')}</div></div>
                     </div>
                     <div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>
                 `;
@@ -1049,7 +1090,6 @@
             copyGroupLink: (groupName) => {
                 const baseUrl = window.location.href.split('?')[0];
                 const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
-                // Create temporary textarea to avoid iframe clipboard security block
                 const textArea = document.createElement("textarea");
                 textArea.value = url;
                 document.body.appendChild(textArea);
@@ -1065,7 +1105,6 @@
                 ui.switchTab('s21');
                 const sel = document.getElementById('s21-publisher-select');
                 if(sel) {
-                    // Inject temporary filter option for the group
                     const opt = document.createElement('option');
                     opt.value = `GROUP:${groupName}`;
                     opt.text = `Group: ${groupName}`;
@@ -1073,6 +1112,103 @@
                     sel.value = `GROUP:${groupName}`;
                     ui.renderS21();
                 }
+            },
+
+            /* ---------------------------------------------------------------------- */
+            /* ANALYTICS ENGINE (6-Month Table View)                                  */
+            /* ---------------------------------------------------------------------- */
+            renderAnalytics: () => {
+                const grid = document.getElementById('analytics-grid');
+                if(!grid) return;
+                
+                const pubs = db.getPublishers();
+                const now = new Date();
+                const currentMonthDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5));
+                currentMonthDate.setMonth(currentMonthDate.getMonth() - 1); // Pointing to current reporting month
+                
+                let html = '';
+                
+                for(let i=0; i<6; i++) {
+                    const targetDate = new Date(currentMonthDate.getTime());
+                    targetDate.setMonth(currentMonthDate.getMonth() - i);
+                    
+                    const tMonth = targetDate.getMonth();
+                    const tYear = targetDate.getFullYear();
+                    const tSy = tMonth >= 8 ? tYear + 1 : tYear;
+                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`;
+                    
+                    const reports = db.getReports(tSy, tMonth);
+                    
+                    let pubCount = 0, pubStudies = 0;
+                    let apCount = 0, apStudies = 0, apHours = 0;
+                    let rpCount = 0, rpStudies = 0, rpHours = 0;
+                    let inactiveCount = 0;
+                    
+                    pubs.forEach(p => {
+                        const r = reports.find(x => x.pubId === p.id);
+                        if(r && r.sharedInMinistry) {
+                            let s = parseInt(r.studies||0), h = parseFloat(r.hours||0);
+                            if (p.isRP || p.isSP || p.isFM) { rpCount++; rpStudies+=s; rpHours+=h; }
+                            else if (r.isAP) { apCount++; apStudies+=s; apHours+=h; }
+                            else { pubCount++; pubStudies+=s; }
+                        } else {
+                            inactiveCount++;
+                        }
+                    });
+                    
+                    html += `
+                        <div class="analytics-table">
+                            <div class="header-row py-2">Summary of ${displayMonth}</div>
+                            <div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div>
+                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div>
+                            <div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div>
+                            
+                            <div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div>
+                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
+                            <div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div>
+                            
+                            <div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div>
+                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
+                            <div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div>
+                            
+                            <div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div>
+                        </div>
+                    `;
+                }
+                grid.innerHTML = html;
+            },
+            
+            renderDetailedRoster: () => {
+                const area = document.getElementById('analytics-roster');
+                if(!area) return;
+                
+                const sy = parseInt(document.getElementById('analytics-year').value);
+                const month = parseInt(document.getElementById('analytics-month').value);
+                
+                const pubs = db.getPublishers();
+                const reports = db.getReports(sy, month);
+                
+                let rps=[], aps=[], normals=[], inactives=[];
+                
+                pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
+                    const r = reports.find(x => x.pubId === p.id);
+                    if(r && r.sharedInMinistry) {
+                        const str = `${p.name} <span class="float-right font-mono text-xs opacity-70">${r.hours||'-'}h / ${r.studies||'-'}s</span>`;
+                        if (p.isRP || p.isSP || p.isFM) rps.push(str);
+                        else if (r.isAP) aps.push(str);
+                        else normals.push(p.name + ` <span class="float-right font-mono text-xs opacity-70">${r.studies||'0'}s</span>`);
+                    } else {
+                        inactives.push(p.name);
+                    }
+                });
+                
+                const box = (title, arr, color) => `
+                    <div class="bg-black/30 border border-${color}-500/30 rounded-xl p-4 overflow-y-auto max-h-[300px] custom-scrollbar">
+                        <div class="text-${color}-300 font-bold border-b border-${color}-500/20 pb-2 mb-2 text-sm sticky top-0 bg-black/90">${title} (${arr.length})</div>
+                        <div class="text-white text-sm space-y-1.5">${arr.length?arr.join('<br>'):'<span class="opacity-50 italic">None</span>'}</div>
+                    </div>`;
+                    
+                area.innerHTML = box('Regular Pioneers', rps, 'cyan') + box('Auxiliary Pioneers', aps, 'teal') + box('Publishers', normals, 'slate') + box('Inactive / Pending', inactives, 'rose');
             },
 
             setupS21Tab: () => {
@@ -1192,18 +1328,38 @@
                     `;
                     area.appendChild(card);
                 });
-                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print.`);
+                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print or PDF.`);
             },
 
-            printS21: () => {
-                const area = document.getElementById('s21-render-area');
-                if (!area.hasChildNodes()) {
+            exportPDF: () => {
+                const element = document.getElementById('s21-render-area');
+                if (!element.hasChildNodes()) {
                     ui.showToast('Compile the queue first.', 'error');
                     return;
                 }
-                document.body.classList.add('printing-s21');
-                window.print();
-                setTimeout(() => document.body.classList.remove('printing-s21'), 1000);
+                
+                const loader = document.getElementById('pdf-loader');
+                loader.style.display = 'flex';
+                
+                // Optimized html2pdf settings for absolute precision
+                const opt = {
+                    margin:       0,
+                    filename:     `S21_Cards_${Date.now()}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1448 },
+                    // Force exact resolution matching the CSS grid bounds
+                    jsPDF:        { unit: 'px', format: [1448, 1025], orientation: 'landscape' },
+                    pagebreak:    { mode: ['css', 'legacy'] }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    loader.style.display = 'none';
+                    ui.showToast('PDF Downloaded successfully.');
+                }).catch(err => {
+                    console.error(err);
+                    loader.style.display = 'none';
+                    ui.showToast('PDF Engine Error.', 'error');
+                });
             },
 
             setupS4Tab: () => {
@@ -1267,18 +1423,15 @@
                 const pub = db.getPublishers().find(p => p.id === pubId);
                 const istInfo = utils.getISTPreviousMonthInfo();
                 
-                // Advanced Logic Rules
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
                 let isAP = document.getElementById('s4-isAP').checked;
                 const studies = parseInt(document.getElementById('s4-studies').value) || 0;
 
-                // Rule 1: If Shared is false, force metrics to 0
                 if (!sharedInMinistry) {
                     hours = 0; isAP = false;
                 }
                 
-                // Rule 2: Accidental Pioneer fix. If hours entered but not RP/SP/FM, force AP to true
                 if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) {
                     isAP = true;
                 }
