@@ -75,6 +75,13 @@
             box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
             outline: none;
         }
+        
+        /* Fix Chrome Autofill turning login background white */
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #064e3b inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
 
         #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
         .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
@@ -673,10 +680,29 @@
 
         const S21_ENGINE_CSS = `
             @media print {
-                @page { size: landscape; margin: 0 !important; }
-                html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
-                .page { width: 1448px !important; height: 1025px !important; margin: 0 auto !important; overflow: hidden !important; page-break-inside: avoid !important; }
-                .page:not(:last-child) { page-break-after: always !important; break-after: page !important; }
+                @page { size: landscape; margin: 0; }
+                html, body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+                .page {
+                    width: 1448px !important;
+                    height: 1025px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: none !important;
+                    page-break-after: always !important;
+                    break-after: page !important;
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
+                }
+                .page:last-of-type {
+                    page-break-after: auto !important;
+                    break-after: auto !important;
+                }
                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
             :root { --page-w: 1448px; --page-h: 1025px; --x: 40px; --table-w: 1369px; --c1: 206px; --c2: 173px; --c3: 172px; --c4: 172px; --c5: 173px; --c6: 473px; --header-h: 120px; --row-h: 43px; --line: #111; --heavy: #000; }
@@ -828,8 +854,8 @@
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
+                        stats.totalRep++;
                         let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
-                        if (r.sharedInMinistry) stats.totalRep++;
                         if (p.isRP || p.isSP || p.isFM) { 
                             stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
                             rpTableHtml += `<tr class="border-b border-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
@@ -999,8 +1025,7 @@
                     let remarksOutput = totalRemarksNum > 0 ? `Additional hours: ${totalRemarksNum}` : '';
                     const bapText = !pub.baptized ? 'UBP' : pub.baptized;
 
-                    pagesHtml += `
-                        <div class="page">
+                    pagesHtml += `<div class="page">
                             <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
                             <section class="personal">
                                 <div class="detail name"><label class="detail-label">Name:</label><div class="detail-input">${pub.name}</div></div>
@@ -1039,9 +1064,11 @@
                                 </div>
                             </section>
                             <footer class="footer"><span>S-21-E</span><span class="footer-date">11/23</span></footer>
-                        </div>
-                    `;
+                        </div>`;
                 });
+                
+                // Strip all invisible whitespace between pages to guarantee no phantom blank sheets
+                pagesHtml = pagesHtml.replace(/<\/div>\s*<div class="page">/g, '</div><div class="page">');
                 
                 iframe.srcdoc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${S21_ENGINE_CSS}</style></head><body>${pagesHtml}</body></html>`;
                 iframe.onload = () => setTimeout(ui.scaleS21Preview, 100);
