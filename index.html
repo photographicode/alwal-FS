@@ -65,20 +65,9 @@
             outline: none;
         }
         
-        #auth-pass {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(20, 184, 166, 0.3);
-            color: white;
-        }
-        #auth-pass:focus {
-            border-color: rgba(20, 184, 166, 0.8);
-            box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
-            outline: none;
-        }
-        
         /* Fix Chrome Autofill turning login background white */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #064e3b inset !important;
+            -webkit-box-shadow: 0 0 0 30px #020617 inset !important;
             -webkit-text-fill-color: white !important;
             transition: background-color 5000s ease-in-out 0s;
         }
@@ -141,21 +130,21 @@
 </head>
 <body class="text-sm">
 
+    <!-- Admin Login Screen -->
     <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 to-teal-900 z-[10000] flex flex-col items-center justify-center">
         <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30 shadow-2xl">
             <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">SP</div>
             <h2 class="text-2xl font-bold text-white mb-2">Service Reports Manager</h2>
             <p class="text-teal-200/70 text-sm mb-6">Restricted Access.</p>
             <form onsubmit="event.preventDefault(); window.auth.login();">
-                <!-- Hidden username field for accessibility -->
                 <input type="text" autocomplete="username" style="display:none">
-                <input type="password" id="auth-pass" placeholder="Enter password" autocomplete="current-password" class="w-full px-5 py-3 rounded-xl mb-4 text-center app-input">
+                <input type="password" id="auth-pass" placeholder="Enter password" autocomplete="current-password" class="w-full px-5 py-3 rounded-xl mb-6 text-center bg-black/50 border border-white/20 text-white outline-none focus:border-teal-400">
                 <button type="submit" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)]">Unlock Database</button>
             </form>
         </div>
     </div>
 
-    <!-- Custom Dialogs for Admin Actions -->
+    <!-- Custom Dialogs for Admin Actions (Replaces Native Alerts) -->
     <div id="sys-prompt-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center p-4">
         <div class="glass-panel p-8 rounded-3xl text-center max-w-md w-full border border-rose-500/30 shadow-[0_0_30px_rgba(225,29,72,0.3)]">
             <div class="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold border border-rose-500/30 shadow-lg mx-auto mb-6 text-3xl">⚠️</div>
@@ -163,7 +152,6 @@
             <p id="sys-prompt-desc" class="text-rose-200/80 text-sm mb-6"></p>
             
             <form id="sys-prompt-form" onsubmit="event.preventDefault(); window.ui.handleSysPromptConfirm();">
-                <!-- Hidden username field for accessibility -->
                 <input type="text" autocomplete="username" style="display:none">
                 <input type="password" id="sys-prompt-input" autocomplete="current-password" placeholder="Enter Master Password to confirm" class="w-full px-5 py-3 bg-black/50 border border-white/10 rounded-xl mb-6 text-center text-white outline-none focus:border-rose-400 hidden">
                 
@@ -366,15 +354,17 @@
         </div>
 
         <div id="tab-s4" class="tab-content">
+            <!-- Confidential Success State -->
             <div id="s4-success-msg" class="hidden flex flex-col items-center justify-center min-h-[60vh] text-center">
                 <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
                     <span class="text-5xl">✅</span>
                 </div>
                 <h2 class="text-4xl font-bold text-white mb-4">Report Submitted Successfully</h2>
                 <p class="text-teal-200/70 text-lg">Thank you. Your field service report has been securely recorded.</p>
-                <button onclick="location.reload()" class="mt-8 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">Submit Another Report</button>
+                <button onclick="location.reload()" class="mt-8 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all text-white">Submit Another Report</button>
             </div>
         
+            <!-- Submission Form -->
             <div id="s4-form-area" class="w-full flex flex-col items-center justify-center p-4">
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
@@ -519,16 +509,16 @@
         const isCloudEnabled = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_URL.startsWith('http');
         const supabaseClient = isCloudEnabled ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-        // --- MASTER PASSWORD CONFIGURATION ---
-        window.config = { MASTER_PASSWORD: 'Admin' + '1234' }; // Modify the string inside to change the password
+        // MODIFY THE PASSWORD BELOW
+        window.config = { MASTER_PASSWORD: 'Admin' + '1234' };
         
-        // --- CUSTOM SYSTEM PROMPT LOGIC ---
+        // Custom system prompt logic to replace native alerts
         window.sysPromptState = { actionCallback: null, requiresPassword: false };
 
         window.auth = {
             check: () => {
                 const urlParams = new URLSearchParams(window.location.search);
-                // IF GROUP LINK IS USED -> NO PASSWORD NEEDED
+                // GROUP LINK BYPASS: If ?group= exists, skip password screen entirely
                 if (urlParams.get('group')) { 
                     document.getElementById('auth-screen').classList.add('hidden'); 
                     return true; 
@@ -683,13 +673,12 @@
                         const repData = { pubId: pub.id, serviceYear: parseInt(values[1]), month: monthIdx, sharedInMinistry: isTrue(values[3]), studies: parseInt(values[4]) || 0, hours: parseFloat(values[5]) || 0, comments: values[6]?.trim() || '', isAP: isTrue(values[7]) };
                         repData.id = `${repData.pubId}_${repData.serviceYear}_${repData.month}`;
                         
-                        // Strict Overwrite Logic
                         const idx = window.db.reports.findIndex(r => r.id === repData.id);
                         if (idx > -1) window.db.reports[idx] = repData; else window.db.reports.push(repData);
                         dbRepsToUpsert.push(db.mapRepToDB(repData)); imported++;
                     }
                     if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    ui.showToast(`Imported/Overwritten ${imported} historical reports`); ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
+                    ui.showToast(`Imported ${imported} historical reports`); ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             },
@@ -722,13 +711,12 @@
                         const existing = window.db.publishers.find(p => p.name.toLowerCase() === name.toLowerCase());
                         pubData.id = existing ? existing.id : utils.generateUUID();
                         
-                        // Strict Overwrite Logic
                         const idx = window.db.publishers.findIndex(p => p.id === pubData.id);
                         if (idx > -1) window.db.publishers[idx] = pubData; else window.db.publishers.push(pubData);
                         dbPubsToUpsert.push(db.mapPubToDB(pubData)); imported++;
                     }
                     if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                    ui.showToast(`Imported/Overwritten ${imported} profiles`); ui.renderPublishers(); ui.renderGroups(); e.target.value = ''; 
+                    ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             }
@@ -748,15 +736,17 @@
                 .page {
                     width: 1448px !important;
                     height: 1025px !important;
-                    margin: 0 !important;
+                    margin: 0 auto !important;
                     padding: 0 !important;
                     border: none !important;
                     page-break-inside: avoid !important;
                     page-break-after: always !important;
-                    zoom: 0.76 !important;
+                    zoom: 0.75 !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
                 }
                 .page:last-of-type {
-                    page-break-after: auto !important;
+                    page-break-after: avoid !important;
                 }
                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
@@ -764,8 +754,8 @@
             * { box-sizing: border-box; }
             html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; }
             .page { position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto; background: #fff; overflow: hidden; }
-            .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; color: #000; }
-            .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; color: #000; }
+            .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; }
+            .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; }
             .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
             .detail.name { top: 0; } .detail.birth { top: 35px; } .detail.baptism { top: 70px; }
             .detail-label { flex: 0 0 205px; white-space: nowrap; }
@@ -777,12 +767,12 @@
             .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; font-weight: 700; }
             
             /* Rigid DIV check boxes for printing */
-            .box-check { display: flex; align-items: center; justify-content: center; width: 21px; height: 21px; border: 2px solid #202020; margin-right: 9px; font-size: 22px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
-            .month-check { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid #202020; font-size: 28px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
+            .box-check { display: flex; align-items: center; justify-content: center; width: 21px; height: 21px; border: 2px solid var(--heavy); margin-right: 9px; font-size: 22px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
+            .month-check { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid var(--heavy); font-size: 28px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
             
             .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
-            .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 3px solid #202020; background: #fff; color: #000; }
-            .cell { border-right: 2px solid #202020; border-bottom: 2px solid #202020; overflow: hidden; background: #fff; }
+            .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 3px solid var(--heavy); background: #fff; }
+            .cell { border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); overflow: hidden; background: #fff; }
             .cell:nth-child(6n) { border-right: 0; }
             .cell.header { height: var(--header-h); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; font-weight: 700; }
             .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
@@ -793,15 +783,15 @@
             .cell-input { width: 100%; height: 41px; padding: 0 5px; text-align: center; font: 400 24px/41px Arial; overflow: hidden;}
             .remarks-input { width: 100%; height: 41px; padding: 0 7px; text-align: center; font: 400 21px/41px Arial; overflow: hidden;}
             
-            .total-row { width: var(--table-w); height: 45px; position: relative; color: #000; }
+            .total-row { width: var(--table-w); height: 45px; position: relative; }
             .total-label { position: absolute; left: 648px; top: 7px; width: 74px; text-align: right; font-size: 25px; font-weight: 700; }
-            .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 3px solid #202020; border-top: 3px solid #202020; background: #fff; }
+            .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 3px solid var(--heavy); border-top: 3px solid var(--heavy); background: #fff; }
             .total-box .slot { height: 41px; overflow: hidden; }
-            .total-box .slot + .slot { border-left: 2px solid #202020; }
+            .total-box .slot + .slot { border-left: 2px solid var(--line); }
             .total-input { width: 100%; height: 41px; padding: 0 6px; text-align: center; font: 700 23px/41px Arial; overflow: hidden; }
             .total-input.remarks { font-weight: 700; }
             
-            .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; color: #000; } .footer-date { margin-left: 18px; }
+            .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; } .footer-date { margin-left: 18px; }
         `;
 
         window.ui = {
@@ -810,18 +800,13 @@
             init: () => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const groupParam = urlParams.get('group');
-                
-                // IF GROUP PARAM EXISTS -> INSTANT PUBLIC MODE (NO PASSWORD CHECK)
                 if (groupParam) { 
                     document.body.classList.add('public-mode'); 
                     ui.publicGroup = groupParam; 
                     ui.switchTab('s4'); 
-                    // Make sure auth screen is hidden for group links
                     document.getElementById('auth-screen').classList.add('hidden');
-                } 
-                else {
-                    // REQUIRE LOGIN IF NO GROUP PARAM
-                    if(auth.check()) {
+                } else {
+                    if (auth.check()) {
                         const syInfo = utils.getCurrentServiceYearInfo(); const istInfo = utils.getISTPreviousMonthInfo();
                         const selects = ['dash-year', 's21-year-select', 'analytics-year'];
                         selects.forEach(id => {
@@ -858,22 +843,14 @@
                 t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500);
             },
 
-            // --- CUSTOM SYSTEM PROMPTS (Replaces blockable alerts/confirms) ---
             openSysPrompt: (title, desc, requiresPassword, callback) => {
                 document.getElementById('sys-prompt-title').textContent = title;
                 document.getElementById('sys-prompt-desc').textContent = desc;
-                
                 const pwdInput = document.getElementById('sys-prompt-input');
-                if (requiresPassword) {
-                    pwdInput.classList.remove('hidden');
-                    pwdInput.value = '';
-                } else {
-                    pwdInput.classList.add('hidden');
-                }
-                
+                if (requiresPassword) { pwdInput.classList.remove('hidden'); pwdInput.value = ''; } 
+                else { pwdInput.classList.add('hidden'); }
                 window.sysPromptState.requiresPassword = requiresPassword;
                 window.sysPromptState.actionCallback = callback;
-                
                 document.getElementById('sys-prompt-overlay').classList.remove('hidden');
             },
             
@@ -885,32 +862,20 @@
             handleSysPromptConfirm: () => {
                 if (window.sysPromptState.requiresPassword) {
                     const p = document.getElementById('sys-prompt-input').value;
-                    if (p !== window.config.MASTER_PASSWORD) {
-                        ui.showToast("Incorrect Master Password", "error");
-                        return;
-                    }
+                    if (p !== window.config.MASTER_PASSWORD) { ui.showToast("Incorrect Master Password", "error"); return; }
                 }
-                
-                if (typeof window.sysPromptState.actionCallback === 'function') {
-                    window.sysPromptState.actionCallback();
-                }
+                if (typeof window.sysPromptState.actionCallback === 'function') { window.sysPromptState.actionCallback(); }
                 ui.closeSysPrompt();
             },
 
             confirmWipeDatabase: () => {
-                ui.openSysPrompt(
-                    "DANGER: Wipe Database",
-                    "This action will permanently delete ALL publishers and reports. Enter your Master Password to proceed.",
-                    true,
-                    async () => {
-                        window.db.publishers = []; window.db.reports = [];
-                        if(isCloudEnabled) { await supabaseClient.from('reports').delete().neq('id', '0'); await supabaseClient.from('publishers').delete().neq('name', '0'); } 
-                        else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
-                        ui.showToast("Database Wiped Permanently.", "error"); ui.renderPublishers(); ui.renderDashboard();
-                    }
-                );
+                ui.openSysPrompt("DANGER: Wipe Database", "This action will permanently delete ALL publishers and reports. Enter your Master Password to proceed.", true, async () => {
+                    window.db.publishers = []; window.db.reports = [];
+                    if(isCloudEnabled) { await supabaseClient.from('reports').delete().neq('id', '0'); await supabaseClient.from('publishers').delete().neq('name', '0'); } 
+                    else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
+                    ui.showToast("Database Wiped Permanently.", "error"); ui.renderPublishers(); ui.renderDashboard();
+                });
             },
-            // ------------------------------------------------------------------
 
             openModal: (id, isEdit = false) => {
                 if(id === 'modal-add-publisher' && !isEdit) { document.getElementById('form-publisher').reset(); document.getElementById('pub-id').value = ''; document.getElementById('modal-pub-title').textContent = 'Publisher Record'; }
@@ -957,12 +922,13 @@
                 const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month'); if(!dYear || !dMonth) return;
                 const sy = parseInt(dYear.value); const month = parseInt(dMonth.value);
                 const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
-                let stats = { totalRep: reports.length, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
+                let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
                 let rpTableHtml = '', apTableHtml = '';
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
+                        stats.totalRep++;
                         let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
                         if (p.isRP || p.isSP || p.isFM) { 
                             stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
@@ -1235,13 +1201,8 @@
                 const pubId = document.getElementById('s4-pub-select').value; if(!pubId) return;
                 const pub = db.getPublishers().find(p => p.id === pubId); const istInfo = utils.getISTPreviousMonthInfo();
                 document.getElementById('s4-name').value = pub.name;
-                const existing = db.getReports(istInfo.serviceYear, istInfo.month).find(r => r.pubId === pubId);
-                if (existing) {
-                    document.getElementById('s4-ministry').checked = !!existing.sharedInMinistry; document.getElementById('s4-studies').value = existing.studies || '';
-                    document.getElementById('s4-hours').value = existing.hours || ''; document.getElementById('s4-comments').value = existing.comments || '';
-                } else {
-                    document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = ''; document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
-                }
+                // Form stays blank/new for privacy, but we check if they previously unchecked ministry
+                document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = ''; document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
             },
 
             saveS4: async () => {
@@ -1251,9 +1212,10 @@
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0; let studies = parseInt(document.getElementById('s4-studies').value) || 0; let isAP = false;
                 if (!sharedInMinistry) { hours = 0; studies = 0; } else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) { isAP = true; }
                 const report = { pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month, sharedInMinistry: sharedInMinistry, studies: studies, hours: hours, comments: document.getElementById('s4-comments').value, isAP: isAP };
-                await db.saveReport(report); 
                 
-                // Hide form area and show success message
+                await db.saveReport(report);
+                
+                // Hide form area and show success message for absolute confidentiality
                 document.getElementById('s4-form-area').classList.add('hidden');
                 document.getElementById('s4-success-msg').classList.remove('hidden');
             }
