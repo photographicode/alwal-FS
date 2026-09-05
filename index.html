@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Field Service Manager</title>
     
+    <!-- External Dependencies: Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Supabase UMD Module for Browser Environments -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -49,49 +51,59 @@
         }
         #toast.show { transform: translateY(0) scale(1); opacity: 1; }
 
-        #auth-screen {
-            position: fixed; inset: 0; background: linear-gradient(135deg, #020617, #064e3b, #083344);
-            z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column;
-        }
-        #auth-screen.hidden { display: none !important; }
-
+        /* Public Mode (S-4 Submissions) */
         body.public-mode #app-header { display: none !important; }
         body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
         body.public-mode #tab-s4 { display: block !important; width: 100%; }
         
         input[type="text"], input[type="number"], input[type="date"], select, textarea {
-            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #fff; transition: all 0.2s;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            transition: all 0.2s;
         }
         input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-            border-color: rgba(20, 184, 166, 0.6); box-shadow: 0 0 10px rgba(20, 184, 166, 0.2); outline: none;
+            border-color: rgba(20, 184, 166, 0.6);
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.2);
+            outline: none;
         }
 
-        /* ---------------- S-4 STRICT STYLES ---------------- */
-        #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
-        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
-        .s4-strict * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
-        .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
-        .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
-        .s4-strict .identity-row { position: relative; width: 100%; height: 42px; }
-        .s4-strict .identity-label { position: absolute; left: -107px; top: 14px; width: 100px; height: 35px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .identity-input { position: absolute; left: 0; top: 9px; width: 647px; height: 32px; border: 0; border-bottom: 2px dotted #000000; background: transparent; font-size: 24px; color: #000; text-align: left; }
-        .s4-strict .report-table { position: absolute; left: 29px; top: 205px; width: 776px; height: 223px; border: 2px solid #222222; border-collapse: collapse; table-layout: fixed; font-size: 29px; background: #ffffff; color: #000; }
-        .s4-strict .report-table td { border: 1px solid #222222; vertical-align: middle; }
-        .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
-        .s4-strict .checkbox { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 1.5px solid #222222; background: #f1f4ff; appearance: none; -webkit-appearance: none; cursor: pointer; }
-        .s4-strict .checkbox:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 36px; color: #222; font-weight: bold; }
-        .s4-strict .study-label { padding: 0 14px 0 15px; width: 670px; height: 44px; font-size: 25px; line-height: 28px; white-space: normal; }
-        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0; border: 0; outline: none; background: transparent; font-size: 27px; text-align: center !important; color: #000; }
-        .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 29px; line-height: 34px; }
-        .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222222; background: #ffffff; }
-        .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
-        .s4-strict .comments-input { position: absolute; left: 195px; top: 8px; width: 565px; height: 76px; resize: none; padding: 8px; border: 0; outline: none; background: #f1f4ff; font-size: 24px; color: #000; }
-        .s4-strict .ap-checkbox-wrapper { position: absolute; left: 15px; top: 50px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #000;}
-        .s4-strict .ap-checkbox { width: 20px; height: 20px; border: 1.5px solid #222; appearance: none; -webkit-appearance: none; position: relative; background: #f1f4ff;}
-        .s4-strict .ap-checkbox:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 18px; color: #222; font-weight: bold;}
-        .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; }
-        .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; }
+        /* ---------------- S-4 STRICT STYLES (Refined to match official PDF) ---------------- */
+        #s4-container-wrapper {
+            width: 100%; max-width: 834px; height: 625px; margin: 0 auto;
+            position: relative; overflow: hidden; display: flex; justify-content: center;
+        }
+        .s4-strict {
+            width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000;
+            font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden;
+        }
+        .s4-strict * { font-family: Arial, Helvetica, sans-serif !important; box-sizing: border-box; }
+        .s4-strict .title { position: absolute; top: 35px; left: 0; width: 834px; text-align: center; font-size: 32px; font-weight: bold; color: #000; }
+        
+        .s4-strict .identity { position: absolute; left: 50px; top: 90px; width: 734px; }
+        .s4-strict .identity-row { display: flex; align-items: center; margin-bottom: 12px; }
+        .s4-strict .identity-label { width: 130px; font-size: 28px; font-weight: bold; color: #000; }
+        .s4-strict .identity-input { flex: 1; height: 45px; border: 0; border-bottom: 2px dashed #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; }
+        
+        .s4-strict .report-table { position: absolute; left: 50px; top: 220px; width: 734px; border: 2px solid #000; border-collapse: collapse; font-size: 26px; background: #ffffff; color: #000; }
+        .s4-strict .report-table td { border: 1px solid #000; padding: 12px 15px; vertical-align: middle; }
+        .s4-strict .ministry-cell { position: relative; width: 100%; height: 80px; }
+        .s4-strict .checkbox-wrapper { position: absolute; right: 15px; top: 15px; width: 45px; height: 45px; border: 1.5px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
+        .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; }
+        .s4-strict .checkmark { font-size: 38px; color: #000; font-weight: bold; display: none; margin-top: -5px; }
+        .s4-strict .checkbox:checked + .checkmark { display: block; }
+        
+        .s4-strict .study-label { width: 550px; }
+        .s4-strict .study-value, .s4-strict .hours-value { width: 184px; padding: 0 !important; background: #f1f4ff; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 60px; border: 0; outline: none; background: transparent !important; font-size: 32px; text-align: center !important; color: #000; border-radius: 0; }
+        
+        .s4-strict .comments { position: absolute; left: 50px; top: 460px; width: 734px; height: 90px; border: 2px solid #000; background: #f1f4ff; display: flex; }
+        .s4-strict .comments-label { font-size: 28px; font-weight: bold; color: #000; padding: 10px 15px; }
+        .s4-strict .comments-input { flex: 1; height: 100%; resize: none; border: 0; outline: none; background: transparent !important; font-size: 24px; color: #000; padding: 12px 10px; border-radius: 0; }
+        
+        .s4-strict .footer-code { position: absolute; left: 50px; top: 580px; font-size: 19px; color: #000; }
+        .s4-strict .footer-date { position: absolute; left: 130px; top: 580px; font-size: 19px; color: #000; }
 
         /* ---------------- S-21 PRINTER STYLES ---------------- */
         .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; }
@@ -109,14 +121,18 @@
         .s21-strict .detail.name { top: 0; } .s21-strict .detail.birth { top: 35px; } .s21-strict .detail.baptism { top: 70px; }
         .s21-strict .detail-label { flex: 0 0 205px; }
         .s21-strict .detail-input { flex: 0 0 645px; width: 645px; height: 35px; padding: 0 4px; border: 0; background: transparent; color: #000; font: 700 27px Arial; }
+        
         .s21-strict .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; }
         .s21-strict .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap;}
         .s21-strict .identity .male { left: 0; top: 0; } .s21-strict .identity .female { left: 248px; top: 0; }
         .s21-strict .identity .sheep { left: 0; top: 35px; } .s21-strict .identity .anointed { left: 248px; top: 35px; }
+        
         .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; justify-content: space-between; align-items: center; }
         .s21-strict .check-label { display: flex; align-items: center; height: 35px; }
+        
         .s21-strict .identity input, .s21-strict .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; border: 2px solid #111; margin-right: 9px; position: relative; }
-        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: bold; color: #111; }
+        .s21-strict .identity input:checked::after, .s21-strict .check-label input:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; color: #111; }
+        
         .s21-strict .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
         .s21-strict .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; border: 2px solid #202020; background: #fff; }
         .s21-strict .cell { border-right: 1px solid #404040; border-bottom: 1px solid #404040; background: #fff; display: flex; align-items: center; }
@@ -127,9 +143,10 @@
         .s21-strict .center { justify-content: center; }
         .s21-strict .hours-header { flex-direction: column; } .s21-strict .hours-header .sub { font-weight: 400; }
         .s21-strict .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 24px Arial; color:#000; background:transparent;}
-        .s21-strict .remarks-input { width: 100%; height: 41px; padding: 3px 7px; border: 0; resize: none; font: 400 21px Arial; color:#000; background:transparent; text-align: center !important;}
-        .s21-strict .month-check { appearance: none; width: 26px; height: 26px; border: 2px solid #111; position: relative; }
+        .s21-strict .remarks-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 21px Arial; color:#000; background:transparent;}
+        .s21-strict .month-check { appearance: none; -webkit-appearance: none; width: 26px; height: 26px; border: 2px solid #111; position: relative; }
         .s21-strict .month-check:checked::after { content: "✔"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; color: #111; }
+        
         .s21-strict .total-row { width: 1369px; height: 45px; position: relative; }
         .s21-strict .total-label { position: absolute; left: 648px; top: 7px; font-size: 25px; font-weight: 700; width: 74px; text-align: right;}
         .s21-strict .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: 2px solid #202020; background: #fff; box-shadow: inset -1px 0 0 #202020; }
@@ -147,14 +164,32 @@
         .analytics-table .sub-header { font-weight: bold; text-align: center; background: #f0f0f0; }
         .analytics-table .metric-row { display: flex; justify-content: space-between; border-bottom: 1px solid #000; }
         
-        /* PDF Loader Overlay */
-        #pdf-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; color: #fff; }
+        /* ---------------- NATIVE PRINT ENGINE OVERRIDE ---------------- */
+        @media print {
+            body { background: #fff !important; }
+            body * { visibility: hidden; }
+            #tab-s21, #tab-s21 * { visibility: visible; }
+            #tab-s21 { position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .s21-strict {
+                width: 1448px !important;
+                height: 1025px !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            #app-header, #toast { display: none !important; }
+        }
+        
     </style>
 </head>
 <body class="text-sm">
 
     <!-- PASSWORD OVERLAY -->
-    <div id="auth-screen">
+    <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 to-teal-900 z-[10000] flex flex-col items-center justify-center">
         <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30">
             <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">FS</div>
             <h2 class="text-2xl font-bold text-white mb-2">Service Manager Portal</h2>
@@ -164,19 +199,14 @@
         </div>
     </div>
 
-    <div id="pdf-loader">
-        <svg class="animate-spin h-12 w-12 text-teal-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        <h2 class="text-xl font-bold text-white tracking-wide">Generating PDF Array...</h2>
-        <p class="text-teal-200/70 text-sm mt-2">Please wait up to 15 seconds. Do not close the window.</p>
-    </div>
-
-    <!-- Global Navigation (Reordered) -->
+    <!-- Global Navigation -->
     <nav id="app-header" class="glass-panel sticky top-0 z-50 border-b border-teal-400/20">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.3)]">FS</div>
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
+            <!-- Reordered Tabs -->
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
@@ -197,8 +227,8 @@
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none">
+                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -266,20 +296,21 @@
             </div>
         </div>
 
-        <!-- S-21 PDF RENDERING TAB -->
+        <!-- S-21 PRINTER TAB -->
         <div id="tab-s21" class="tab-content space-y-6">
             <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-white drop-shadow-md">Document Printer</h2>
-                    <p class="text-teal-200/70 mt-1">Compile and download pixel-perfect S-21 records</p>
+                    <p class="text-teal-200/70 mt-1">Compile and print pixel-perfect S-21 records</p>
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
+                    <!-- Triggers Native Browser Print -->
                     <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
-                        Download PDF
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
+                        Print Cards
                     </button>
                 </div>
             </div>
@@ -385,7 +416,10 @@
                                 <tr>
                                     <td colspan="2" class="ministry-cell">
                                         <span class="ministry-text">Check the box if you shared in any form<br>of the ministry during the month</span>
-                                        <input id="s4-ministry" class="checkbox" type="checkbox" checked>
+                                        <div class="checkbox-wrapper">
+                                            <input id="s4-ministry" class="checkbox" type="checkbox" checked>
+                                            <span class="checkmark">✔</span>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -401,7 +435,6 @@
                         <section class="comments">
                             <label class="comments-label" for="s4-comments">Comments:</label>
                             <textarea id="s4-comments" class="comments-input"></textarea>
-                            <label class="ap-checkbox-wrapper"><input id="s4-isAP" type="checkbox" class="ap-checkbox"> Aux. Pioneer (This Month)</label>
                         </section>
                         <footer class="footer">
                             <span class="footer-code">S-4-E</span>
@@ -682,6 +715,67 @@
                 }
             },
             
+            importReports: async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const lines = event.target.result.split('\n');
+                    if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
+                    let imported = 0; const dbRepsToUpsert = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        const values = []; let inQuotes = false, val = '';
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            if (char === '"') inQuotes = !inQuotes;
+                            else if (char === ',' && !inQuotes) { values.push(val); val = ''; }
+                            else val += char;
+                        }
+                        values.push(val);
+                        
+                        const pubName = values[0]?.trim();
+                        if (!pubName) continue;
+                        
+                        const pub = window.db.publishers.find(p => p.name.toLowerCase() === pubName.toLowerCase());
+                        if (!pub) continue; 
+                        
+                        const isTrue = (v) => v && v.toUpperCase() === 'TRUE';
+                        const monthName = values[2]?.trim();
+                        const monthIdx = utils.getMonths().findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+                        if(monthIdx === -1) continue;
+
+                        const repData = {
+                            pubId: pub.id,
+                            serviceYear: parseInt(values[1]),
+                            month: monthIdx,
+                            sharedInMinistry: isTrue(values[3]),
+                            studies: parseInt(values[4]) || 0,
+                            hours: parseFloat(values[5]) || 0,
+                            comments: values[6]?.trim() || '',
+                            isAP: isTrue(values[7])
+                        };
+                        repData.id = `${repData.pubId}_${repData.serviceYear}_${repData.month}`;
+                        
+                        const idx = window.db.reports.findIndex(r => r.id === repData.id);
+                        if (idx > -1) window.db.reports[idx] = repData; else window.db.reports.push(repData);
+                        dbRepsToUpsert.push(db.mapRepToDB(repData));
+                        imported++;
+                    }
+                    
+                    if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert);
+                    else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                    
+                    ui.showToast(`Imported ${imported} historical reports`); 
+                    ui.renderDashboard(); ui.renderAnalytics();
+                    e.target.value = ''; 
+                };
+                reader.readAsText(file);
+            },
+
             importContacts: async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -891,7 +985,7 @@
                 const pubs = db.getPublishers();
                 if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
                 
-                let csv = 'Name,Phone,Address,DOB,Baptized,Elder,Ministerial Servant,Regular Pioneer,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
+                let csv = 'Name,Phone,Address,DOB,Baptized,Elder,MS,RP,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
                 pubs.forEach(p => {
                     const cleanAddress = (p.address || '').replace(/,/g, ' ');
                     csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",`;
@@ -909,6 +1003,27 @@
                 a.click();
             },
 
+            downloadReports: () => {
+                const reps = db.getReports();
+                const pubs = db.getPublishers();
+                if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
+                
+                let csv = 'Publisher Name,Service Year,Month,Shared In Ministry,Studies,Hours,Remarks,Is Auxiliary Pioneer\n';
+                reps.forEach(r => {
+                    const pub = pubs.find(p => p.id === r.pubId);
+                    const pubName = pub ? pub.name : 'Unknown';
+                    const monthName = utils.getMonthName(r.month);
+                    const cleanComments = (r.comments || '').replace(/"/g, '""');
+                    csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry ? 'TRUE' : 'FALSE'},${r.studies || 0},${r.hours || 0},"${cleanComments}",${r.isAP ? 'TRUE' : 'FALSE'}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = 'Historical_Reports_Backup.csv';
+                a.click();
+            },
+
             renderDashboard: () => {
                 const dYear = document.getElementById('dash-year');
                 const dMonth = document.getElementById('dash-month');
@@ -921,6 +1036,7 @@
                 
                 let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
                 const apReviewHtml = [];
+                const rpReviewHtml = [];
                 
                 document.getElementById('dash-reports-table').innerHTML = '';
                 
@@ -929,10 +1045,20 @@
                     if (r) {
                         let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
                         if (r.sharedInMinistry) stats.totalRep++;
-                        if (r.isAP) { 
+                        
+                        if (p.isRP || p.isSP || p.isFM) { 
+                            stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
+                            rpReviewHtml.push(`
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                    <td class="px-6 py-3 font-medium">${p.name}</td>
+                                    <td class="px-6 py-3 text-center font-mono">${h}</td>
+                                    <td class="px-6 py-3 text-center font-mono">${s}</td>
+                                </tr>
+                            `);
+                        } else if (r.isAP) { 
                             stats.apCount++; stats.apHours += h; stats.apStudies += s; 
                             apReviewHtml.push(`
-                                <tr class="border-b border-white/5 bg-amber-900/10 hover:bg-amber-900/20">
+                                <tr class="border-b border-white/5 bg-emerald-900/10 hover:bg-emerald-900/20 transition-colors">
                                     <td class="px-6 py-3 font-medium">${p.name}</td>
                                     <td class="px-6 py-3 text-center font-mono">${h}</td>
                                     <td class="px-6 py-3 text-center font-mono">${s}</td>
@@ -940,15 +1066,15 @@
                                 </tr>
                             `);
                         }
-                        if (p.isRP || p.isSP || p.isFM) { stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; }
                         
                         document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
                     } else {
                         document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
                     }
                 });
-                
-                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-amber-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
+
+                document.getElementById('dash-rp-table').innerHTML = rpReviewHtml.length ? rpReviewHtml.join('') : `<tr><td colspan="3" class="px-6 py-4 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
+                document.getElementById('dash-ap-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
@@ -1280,18 +1406,19 @@
                             <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}" readonly></div>
                             <div class="cell center"><input class="month-check" type="checkbox" ${chkAP} disabled></div>
                             <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}" readonly></div>
-                            <div class="cell"><textarea class="remarks-input" readonly>${r.comments||''}</textarea></div>
+                            <div class="cell"><input class="remarks-input" type="text" value="${r.comments||''}" readonly></div>
                         `;
                     });
 
                     let remarksOutput = totalRemarksNum > 0 ? `Additional hours: ${totalRemarksNum}` : '';
+                    const bapText = !pub.baptized ? 'UBP' : pub.baptized;
 
                     card.innerHTML = `
                         <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
                         <section class="personal">
                             <div class="detail name"><label class="detail-label">Name:</label><input class="detail-input" type="text" value="${pub.name}" readonly></div>
                             <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}" readonly></div>
-                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${pub.baptized||''}" readonly></div>
+                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${bapText}" readonly></div>
                             <div class="identity">
                                 <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''} disabled><span>Male</span></label>
                                 <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''} disabled><span>Female</span></label>
@@ -1328,7 +1455,7 @@
                     `;
                     area.appendChild(card);
                 });
-                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print or PDF.`);
+                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print.`);
             },
 
             exportPDF: () => {
@@ -1338,28 +1465,10 @@
                     return;
                 }
                 
-                const loader = document.getElementById('pdf-loader');
-                loader.style.display = 'flex';
-                
-                // Optimized html2pdf settings for absolute precision
-                const opt = {
-                    margin:       0,
-                    filename:     `S21_Cards_${Date.now()}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1448 },
-                    // Force exact resolution matching the CSS grid bounds
-                    jsPDF:        { unit: 'px', format: [1448, 1025], orientation: 'landscape' },
-                    pagebreak:    { mode: ['css', 'legacy'] }
-                };
-
-                html2pdf().set(opt).from(element).save().then(() => {
-                    loader.style.display = 'none';
-                    ui.showToast('PDF Downloaded successfully.');
-                }).catch(err => {
-                    console.error(err);
-                    loader.style.display = 'none';
-                    ui.showToast('PDF Engine Error.', 'error');
-                });
+                ui.showToast('Preparing Native Print View. Ensure Layout is Landscape.');
+                setTimeout(() => {
+                    window.print();
+                }, 500);
             },
 
             setupS4Tab: () => {
@@ -1406,13 +1515,11 @@
                     document.getElementById('s4-studies').value = existing.studies || '';
                     document.getElementById('s4-hours').value = existing.hours || '';
                     document.getElementById('s4-comments').value = existing.comments || '';
-                    document.getElementById('s4-isAP').checked = !!existing.isAP;
                 } else {
                     document.getElementById('s4-ministry').checked = true;
                     document.getElementById('s4-studies').value = '';
                     document.getElementById('s4-hours').value = '';
                     document.getElementById('s4-comments').value = '';
-                    document.getElementById('s4-isAP').checked = false;
                 }
             },
 
@@ -1425,7 +1532,7 @@
                 
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
-                let isAP = document.getElementById('s4-isAP').checked;
+                let isAP = false;
                 const studies = parseInt(document.getElementById('s4-studies').value) || 0;
 
                 if (!sharedInMinistry) {
