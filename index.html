@@ -1,88 +1,952 @@
-<!-- ... existing code ... -->
-        @media print {
-            @page { size: A4 landscape; margin: 0; }
-            html, body {
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #fff !important;
-                width: 100% !important;
-                height: 100% !important;
-                overflow: hidden !important;
-            }
-            .page {
-                width: 1448px !important;
-                height: 1025px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                page-break-inside: avoid !important;
-                page-break-after: always !important;
-                zoom: 0.76 !important;
-            }
-            .page:last-of-type {
-                page-break-after: auto !important;
-            }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        }
-<!-- ... existing code ... -->
-```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Service Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #022c22; color: white; margin: 0; overflow-x: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .tab-btn.active { background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 600; border-color: rgba(16, 185, 129, 0.4); }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.6); }
 
-```html:Field Service Manager:index.html
-<!-- ... existing code ... -->
-            <div class="glass-panel mt-10 p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
+        #auth-screen { position: fixed; inset: 0; background: #022c22; z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        #auth-pass { 
+            background: rgba(0,0,0,0.3) !important; 
+            color: white !important; 
+            border: 1px solid rgba(16, 185, 129, 0.3) !important; 
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-text-fill-color: white !important;
+            transition: all 0.3s ease;
+        }
+        #auth-pass:focus { border-color: #10b981 !important; background: rgba(0,0,0,0.5) !important; }
+
+        .s4-wrapper { font-family: Arial, Helvetica, sans-serif; color: black; max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .s4-title { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
+        .s4-header-grid { display: grid; grid-template-columns: 80px 1fr; gap: 10px; margin-bottom: 20px; font-size: 16px; font-weight: 700; align-items: center; }
+        .s4-input-line { background: #f1f4ff; border-bottom: 1px dashed #000; padding: 4px 8px; font-weight: 400; font-size: 16px; min-height: 28px; }
+        .s4-table { border-collapse: collapse; width: 100%; border: 2px solid #000; margin-bottom: 15px; }
+        .s4-table td { border: 1px solid #000; padding: 8px 12px; font-size: 15px; vertical-align: middle; }
+        .s4-table td.col-input { width: 80px; padding: 0; background: #f1f4ff; text-align: center; }
+        .s4-table input[type="text"], .s4-table input[type="number"] { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-size: 16px; font-family: Arial; outline: none; padding: 12px 0; }
+        
+        .s4-checkbox-container { display: flex; justify-content: flex-end; align-items: center; padding-right: 5px; }
+        .s4-checkbox { width: 30px; height: 30px; border: 2px solid #000; background: #f1f4ff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: transparent; user-select: none; }
+        .s4-checkbox.checked { color: #000; }
+        .s4-comments-box { border: 2px solid #000; padding: 10px; background: white; margin-bottom: 10px; display: flex; flex-direction: column; }
+        .s4-comments-title { font-weight: 700; font-size: 16px; margin-bottom: 5px; }
+        .s4-comments-input { background: #f1f4ff; border: none; outline: none; resize: none; height: 50px; font-family: Arial; font-size: 14px; padding: 5px; width: 100%; }
+
+        #print-engine { display: none; }
+        
+        .analytics-table { background: white; color: black; font-family: Arial; font-size: 12px; margin-bottom: 30px; border: 2px solid black; }
+        .analytics-table .header-row { text-align: center; font-weight: bold; font-size: 14px; border-bottom: 2px solid black; }
+        .analytics-table .sub-header { font-weight: bold; text-align: center; border-bottom: 1px solid black; border-top: 2px solid black; }
+        .analytics-table .metric-row { display: flex; border-bottom: 1px solid black; }
+        .analytics-table .metric-row:last-child { border-bottom: none; }
+        .detailed-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; background: rgba(0,0,0,0.2); }
+        .detailed-table th, .detailed-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; text-align: left; }
+        .detailed-table th { background: rgba(0,0,0,0.4); font-weight: bold; color: #10b981; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md text-center shadow-2xl">
+            <h2 class="text-3xl font-bold mb-2 text-emerald-400">Service Manager</h2>
+            <p class="text-sm text-gray-400 mb-8">Congregation administrative access</p>
+            <input type="password" id="auth-pass" placeholder="Enter master password" class="w-full px-4 py-3 rounded-xl mb-4 text-center tracking-widest text-lg" onkeydown="if(event.key === 'Enter') checkAuth()">
+            <button onclick="checkAuth()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-900/50">Unlock Portal</button>
+            <p id="auth-error" class="text-red-400 text-sm mt-4 hidden">Incorrect password.</p>
+        </div>
+    </div>
+
+    <div id="public-screen" class="hidden min-h-screen bg-[#022c22] p-4 flex flex-col items-center justify-center">
+        <div id="public-selector" class="glass-panel p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold mb-2 text-white">Submit Field Service Report</h2>
+            <p class="text-sm text-emerald-400 mb-6" id="public-group-name"></p>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-300 mb-2">Please select your name</label>
+                <select id="public-pub-select" class="w-full px-4 py-3 rounded-xl outline-none bg-black/40 border border-white/20 text-white appearance-none"></select>
+            </div>
+            <button onclick="ui.openPublicForm()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg">Continue to Report</button>
+        </div>
+
+        <div id="public-form-container" class="hidden w-full max-w-lg">
+            <div class="s4-wrapper">
+                <div class="s4-title">FIELD SERVICE REPORT</div>
+                <div class="s4-header-grid">
+                    <div>Name:</div><div id="s4-name" class="s4-input-line"></div>
+                    <div>Month:</div><div id="s4-month" class="s4-input-line"></div>
+                </div>
+                
+                <table class="s4-table">
+                    <tr>
+                        <td>Check the box if you shared in any form<br>of the ministry during the month</td>
+                        <td class="col-input">
+                            <div class="s4-checkbox-container">
+                                <div id="s4-shared" class="s4-checkbox checked" onclick="this.classList.toggle('checked'); ui.togglePublicInputs();">✔</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Number of <i>different</i> Bible studies<br>conducted</td>
+                        <td class="col-input"><input type="number" id="s4-studies" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Hours (if auxiliary, regular, or<br>special pioneer or field missionary)</td>
+                        <td class="col-input"><input type="number" id="s4-hours" min="0"></td>
+                    </tr>
+                </table>
+                
+                <div class="s4-comments-box">
+                    <div class="s4-comments-title">Comments:</div>
+                    <textarea id="s4-comments" class="s4-comments-input"></textarea>
+                </div>
+                <div class="text-xs text-gray-500 mt-2">S-4-E 11/23</div>
+                
+                <button onclick="ui.submitPublicForm()" class="w-full mt-6 bg-[#005a43] hover:bg-[#004a37] text-white font-bold py-4 rounded transition-all text-lg shadow-lg">Submit Report</button>
+            </div>
+        </div>
+
+        <div id="public-success" class="hidden glass-panel p-8 rounded-2xl w-full max-w-md text-center shadow-2xl">
+            <div class="text-6xl text-emerald-400 mb-4">✔</div>
+            <h2 class="text-2xl font-bold text-white mb-2">Report Submitted Successfully</h2>
+            <p class="text-gray-300">Thank you for your ministry. Your report has been securely saved.</p>
+        </div>
+    </div>
+
+    <div id="app" class="hidden min-h-screen flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <div class="w-full md:w-64 glass-panel border-r border-white/5 flex flex-col">
+            <div class="p-6 border-b border-white/5 flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-emerald-500 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_15px_rgba(16,185,129,0.5)]">FS</div>
+                <h1 class="font-bold text-lg tracking-wide text-white">Service Manager</h1>
+            </div>
+            <div class="p-4 flex-1 flex flex-col gap-2">
+                <button onclick="ui.nav('dashboard')" id="nav-dashboard" class="tab-btn w-full text-left px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 transition-all text-sm flex items-center gap-3"><span class="text-lg">📊</span> Dashboard</button>
+                <button onclick="ui.nav('groups')" id="nav-groups" class="tab-btn w-full text-left px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 transition-all text-sm flex items-center gap-3"><span class="text-lg">👥</span> Groups</button>
+                <button onclick="ui.nav('printer')" id="nav-printer" class="tab-btn w-full text-left px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 transition-all text-sm flex items-center gap-3"><span class="text-lg">🖨️</span> Printer</button>
+                <button onclick="ui.nav('analytics')" id="nav-analytics" class="tab-btn w-full text-left px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 transition-all text-sm flex items-center gap-3"><span class="text-lg">📈</span> Analytics</button>
+                <button onclick="ui.nav('publishers')" id="nav-publishers" class="tab-btn w-full text-left px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 transition-all text-sm flex items-center gap-3"><span class="text-lg">📋</span> Publishers</button>
+            </div>
+            <div class="p-4 border-t border-white/5">
+                <div class="text-xs text-center text-gray-500">v3.0.0 Final S-21 Native</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 md:p-10 h-screen overflow-y-auto">
+            
+            <div id="view-dashboard" class="hidden">
+                <div class="flex justify-between items-end mb-8 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">Congregation Overview</h2>
+                        <p class="text-emerald-400/80 text-sm">Real-time telemetry and service totals</p>
+                    </div>
                     <div class="flex gap-3">
-                        <select id="analytics-year" onchange="ui.renderAnalytics(); ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                        <select id="analytics-month" onchange="ui.renderAnalytics(); ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                        <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors"></select>
+                        <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors">
                             <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                             <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                             <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
                         </select>
                     </div>
                 </div>
-                <div id="analytics-roster" class="overflow-x-auto"></div>
-            </div>
-<!-- ... existing code ... -->
-```
 
-```html:Field Service Manager:index.html
-<!-- ... existing code ... -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-blue-500">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Total People</p>
+                        <div class="text-4xl font-bold text-white" id="dash-total-pubs">0</div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-emerald-500">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Reports Submitted</p>
+                        <div class="text-4xl font-bold text-emerald-400" id="dash-total-submitted">0</div>
+                        <p class="text-xs text-gray-500 mt-2" id="dash-pending-text">0 pending</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-purple-500">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Regular Pioneers</p>
+                        <div class="text-4xl font-bold text-purple-400" id="dash-rp-count">0</div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-pink-500">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Auxiliary Pioneers</p>
+                        <div class="text-4xl font-bold text-pink-400" id="dash-ap-count">0</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Regular Pioneers Log</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead><tr class="text-gray-400 border-b border-white/10"><th class="pb-2">Name</th><th class="pb-2 text-center">Hours</th><th class="pb-2 text-center">Studies</th></tr></thead>
+                                <tbody id="dash-rp-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-pink-400 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-500"></span> Auxiliary Pioneers Log</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead><tr class="text-gray-400 border-b border-white/10"><th class="pb-2">Name</th><th class="pb-2 text-center">Hours</th><th class="pb-2 text-center">Studies</th><th class="pb-2 text-right">Action</th></tr></thead>
+                                <tbody id="dash-ap-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-white">Monthly Submissions Log</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead>
+                                <tr class="text-gray-400 bg-black/20 border-b border-white/10">
+                                    <th class="p-3 rounded-tl-lg">Publisher</th>
+                                    <th class="p-3 text-center">Shared</th>
+                                    <th class="p-3 text-center">Studies</th>
+                                    <th class="p-3 text-center">Hours</th>
+                                    <th class="p-3 rounded-tr-lg">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-log-table" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-groups" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-1">Service Groups</h2>
+                    <p class="text-emerald-400/80 text-sm">Generate secure reporting links for overseers</p>
+                </div>
+                <div id="groups-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="view-printer" class="hidden">
+                <div class="glass-panel p-6 rounded-2xl mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Document Printer</h2>
+                            <p class="text-emerald-400 text-sm">Compile and print pixel-perfect S-21 records natively</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <select id="print-year" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors"></select>
+                            <select id="print-filter" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors">
+                                <option value="all">-- All Publishers --</option>
+                                <option value="rp">All Regular Pioneers</option>
+                                <option value="ap">All Auxiliary Pioneers (Current)</option>
+                                <option value="elder">All Elders</option>
+                                <option value="ms">All Ministerial Servants</option>
+                                <option value="ubp">All Unbaptized Publishers</option>
+                            </select>
+                            <button onclick="ui.compilePrinter()" class="px-5 py-2 bg-black/40 border border-white/20 hover:border-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg hover:bg-black/60">Compile Queue</button>
+                            <button onclick="ui.executePrint()" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center gap-2"><span class="text-lg">🖨️</span> Print Cards</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl bg-black/20 flex justify-center overflow-hidden">
+                    <div id="print-preview-container" style="transform-origin: top center; transition: transform 0.2s;">
+                        <div id="print-preview" class="flex flex-col gap-4">
+                            <div class="text-gray-500 text-center py-20">Click 'Compile Queue' to load records...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-analytics" class="hidden">
+                <div class="mb-8 flex justify-between items-end flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">6-Month Analysis</h2>
+                        <p class="text-emerald-400/80 text-sm">Historical trends and detailed rosters</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <select id="analytics-year" onchange="ui.renderAnalytics()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors"></select>
+                        <select id="analytics-month" onchange="ui.renderAnalytics()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white cursor-pointer hover:border-emerald-500/50 transition-colors">
+                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl mb-8">
+                    <div id="analytics-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Detailed Roster (Selected Month)</h3>
+                    <div id="analytics-roster" class="overflow-x-auto"></div>
+                </div>
+            </div>
+
+            <div id="view-publishers" class="hidden">
+                <div class="flex justify-between items-end mb-8 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">Publisher Database</h2>
+                        <p class="text-emerald-400/80 text-sm">Manage roster and batch operations</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="ui.showModal('pub-modal')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg">+ Add Publisher</button>
+                        <button onclick="ui.importCSV()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg">Import Contacts CSV</button>
+                        <button onclick="ui.exportCSV()" class="px-4 py-2 bg-blue-900/50 hover:bg-blue-800/50 border border-blue-500/30 text-white font-bold rounded-xl text-sm transition-all">Export Contacts</button>
+                        <button onclick="ui.importReportsCSV()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg">Import Reports CSV</button>
+                        <button onclick="ui.exportReportsCSV()" class="px-4 py-2 bg-orange-900/50 hover:bg-orange-800/50 border border-orange-500/30 text-white font-bold rounded-xl text-sm transition-all">Export Reports</button>
+                        <button onclick="ui.wipeDatabase()" class="px-4 py-2 bg-red-900/50 hover:bg-red-600 border border-red-500/30 text-white font-bold rounded-xl text-sm transition-all ml-4">Wipe Database</button>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="bg-black/40 text-gray-400 border-b border-white/10">
+                                <tr>
+                                    <th class="p-4 font-semibold">Name</th>
+                                    <th class="p-4 font-semibold">Group</th>
+                                    <th class="p-4 font-semibold">Privileges</th>
+                                    <th class="p-4 font-semibold">Pioneer</th>
+                                    <th class="p-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pubs-table" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="pub-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="glass-panel rounded-2xl w-full max-w-lg shadow-2xl border border-white/10 my-8 relative">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#022c22]/90 rounded-t-2xl z-10">
+                <h3 class="text-xl font-bold text-white" id="modal-title">Publisher Profile</h3>
+                <button onclick="ui.hideModal('pub-modal')" class="text-gray-400 hover:text-white transition-colors text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 space-y-5">
+                <input type="hidden" id="pub-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" id="pub-name" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Service Group</label>
+                        <input type="text" id="pub-group" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors" placeholder="e.g. Group A">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Gender</label>
+                        <select id="pub-gender" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors appearance-none">
+                            <option value="Male">Male</option><option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Hope</label>
+                        <select id="pub-hope" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors appearance-none">
+                            <option value="Other sheep">Other sheep</option><option value="Anointed">Anointed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Date of Birth</label>
+                        <input type="text" id="pub-dob" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Date of Baptism</label>
+                        <input type="text" id="pub-baptized" class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-emerald-500 transition-colors" placeholder="DD/MM/YYYY or UBP">
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-black/20 border border-white/5">
+                    <h4 class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Appointments</h4>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white text-gray-300"><input type="checkbox" id="pub-elder" class="w-4 h-4 accent-emerald-500"> Elder</label>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white text-gray-300"><input type="checkbox" id="pub-ms" class="w-4 h-4 accent-emerald-500"> Ministerial Servant</label>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-black/20 border border-white/5">
+                    <h4 class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Pioneer Service</h4>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white text-gray-300"><input type="checkbox" id="pub-rp" class="w-4 h-4 accent-emerald-500"> Regular Pioneer</label>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white text-gray-300"><input type="checkbox" id="pub-sp" class="w-4 h-4 accent-emerald-500"> Special Pioneer</label>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-white text-gray-300"><input type="checkbox" id="pub-fm" class="w-4 h-4 accent-emerald-500"> Field Missionary</label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#022c22]/90 rounded-b-2xl sticky bottom-0 z-10">
+                <button onclick="ui.hideModal('pub-modal')" class="px-5 py-2 text-gray-300 hover:text-white transition-colors text-sm font-bold">Cancel</button>
+                <button onclick="ui.savePublisher()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg">Save Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="print-engine"></iframe>
+
+    <script>
+        const utils = {
+            id: () => Math.random().toString(36).substr(2, 9),
+            now: () => new Date().toISOString(),
+            getMonthName: (idx) => ["January","February","March","April","May","June","July","August","September","October","November","December"][idx],
+            getServiceYear: (sy, month) => month >= 8 ? `${sy}-${sy+1}` : `${sy-1}-${sy}`
+        };
+
+        const SECRETS = { admin: "Admin1234" };
+        let PUBLIC_GROUP = null;
+
+        const db = {
+            get: (k) => JSON.parse(localStorage.getItem(`fs_${k}`) || '[]'),
+            set: (k, v) => localStorage.setItem(`fs_${k}`, JSON.stringify(v)),
+            getPublishers: () => db.get('pubs').sort((a,b) => a.name.localeCompare(b.name)),
+            savePublisher: (p) => {
+                let pubs = db.getPublishers();
+                if(p.id) pubs = pubs.map(x => x.id === p.id ? p : x);
+                else { p.id = utils.id(); pubs.push(p); }
+                db.set('pubs', pubs);
+            },
+            deletePublisher: (id) => {
+                db.set('pubs', db.get('pubs').filter(x => x.id !== id));
+                db.set('reports', db.get('reports').filter(x => x.pubId !== id));
+            },
+            getReports: (sy, month) => db.get('reports').filter(r => r.serviceYear === sy && r.month === month),
+            getPublisherReports: (pubId) => db.get('reports').filter(r => r.pubId === pubId),
+            saveReport: (r) => {
+                let reports = db.get('reports');
+                const idx = reports.findIndex(x => x.pubId === r.pubId && x.serviceYear === r.serviceYear && x.month === r.month);
+                if(idx >= 0) reports[idx] = r; else { r.id = utils.id(); reports.push(r); }
+                db.set('reports', reports);
+            },
+            revokeAP: (pubId, sy, month) => {
+                let reports = db.get('reports');
+                const r = reports.find(x => x.pubId === pubId && x.serviceYear === sy && x.month === month);
+                if(r) { r.isAP = false; r.hours = ""; db.set('reports', reports); }
+            },
+            wipe: () => { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reports'); }
+        };
+
+        const ui = {
+            nav: (tab) => {
+                document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                document.getElementById(`view-${tab}`).classList.remove('hidden');
+                document.getElementById(`nav-${tab}`).classList.add('active');
+                if(tab === 'publishers') ui.renderPublishers();
+                if(tab === 'dashboard') ui.renderDashboard();
+                if(tab === 'groups') ui.renderGroups();
+                if(tab === 'printer') ui.initPrinter();
+                if(tab === 'analytics') ui.renderAnalytics();
+            },
+            showModal: (id) => document.getElementById(id).classList.remove('hidden'),
+            hideModal: (id) => { document.getElementById(id).classList.add('hidden'); ui.clearForm(); },
+            clearForm: () => {
+                document.getElementById('pub-id').value = '';
+                document.getElementById('pub-name').value = '';
+                document.getElementById('pub-group').value = '';
+                document.getElementById('pub-dob').value = '';
+                document.getElementById('pub-baptized').value = '';
+                ['elder', 'ms', 'rp', 'sp', 'fm'].forEach(r => document.getElementById(`pub-${r}`).checked = false);
+            },
+            
+            renderPublishers: () => {
+                const tbody = document.getElementById('pubs-table');
+                tbody.innerHTML = db.getPublishers().map(p => `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-4 font-bold text-emerald-400">${p.name}</td>
+                        <td class="p-4 text-gray-300">${p.group || '-'}</td>
+                        <td class="p-4 text-gray-400 text-xs">${[p.isElder?'Elder':'', p.isMS?'MS':''].filter(Boolean).join(', ') || '-'}</td>
+                        <td class="p-4 text-gray-400 text-xs">${[p.isRP?'RP':'', p.isSP?'SP':'', p.isFM?'FM':''].filter(Boolean).join(', ') || '-'}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="ui.editPublisher('${p.id}')" class="text-blue-400 hover:text-blue-300 mr-3 text-xs font-bold">EDIT</button>
+                            <button onclick="ui.deletePublisher('${p.id}')" class="text-red-400 hover:text-red-300 text-xs font-bold">DELETE</button>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+            savePublisher: () => {
+                const name = document.getElementById('pub-name').value.trim();
+                if(!name) return alert('Name required');
+                db.savePublisher({
+                    id: document.getElementById('pub-id').value,
+                    name, group: document.getElementById('pub-group').value.trim(),
+                    gender: document.getElementById('pub-gender').value,
+                    hope: document.getElementById('pub-hope').value,
+                    dob: document.getElementById('pub-dob').value.trim(),
+                    baptized: document.getElementById('pub-baptized').value.trim(),
+                    isElder: document.getElementById('pub-elder').checked,
+                    isMS: document.getElementById('pub-ms').checked,
+                    isRP: document.getElementById('pub-rp').checked,
+                    isSP: document.getElementById('pub-sp').checked,
+                    isFM: document.getElementById('pub-fm').checked
+                });
+                ui.hideModal('pub-modal');
+                ui.renderPublishers();
+            },
+            editPublisher: (id) => {
+                const p = db.getPublishers().find(x => x.id === id);
+                if(!p) return;
+                document.getElementById('pub-id').value = p.id;
+                document.getElementById('pub-name').value = p.name;
+                document.getElementById('pub-group').value = p.group || '';
+                document.getElementById('pub-gender').value = p.gender || 'Male';
+                document.getElementById('pub-hope').value = p.hope || 'Other sheep';
+                document.getElementById('pub-dob').value = p.dob || '';
+                document.getElementById('pub-baptized').value = p.baptized || '';
+                ['elder', 'ms', 'rp', 'sp', 'fm'].forEach(r => document.getElementById(`pub-${r}`).checked = p[`is${r.toUpperCase()}`] || false);
+                document.getElementById('modal-title').innerText = 'Edit Publisher';
+                ui.showModal('pub-modal');
+            },
+            deletePublisher: (id) => { if(confirm('Delete publisher and all their reports?')) { db.deletePublisher(id); ui.renderPublishers(); } },
+            
+            renderGroups: () => {
+                const pubs = db.getPublishers();
+                const groups = [...new Set(pubs.map(p => p.group).filter(Boolean))].sort();
+                const grid = document.getElementById('groups-grid');
+                if(groups.length === 0) return grid.innerHTML = `<div class="col-span-full text-gray-500">No groups found. Assign groups in Publisher Database.</div>`;
+                
+                grid.innerHTML = groups.map(g => {
+                    const members = pubs.filter(p => p.group === g);
+                    const link = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(g)}`;
+                    return `
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col h-full">
+                            <h3 class="text-xl font-bold text-white mb-2">${g}</h3>
+                            <p class="text-xs text-emerald-400 mb-4">${members.length} members</p>
+                            <div class="flex-1 bg-black/20 rounded-xl p-4 mb-4 border border-white/5">
+                                ${members.map(m => `<div class="text-sm text-gray-300 py-1 border-b border-white/5 last:border-0">${m.name}</div>`).join('')}
+                            </div>
+                            <button onclick="ui.copyLink('${link}')" class="w-full bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 font-bold py-2 rounded-xl transition-all text-sm">🔗 Copy Submission Link</button>
+                        </div>
+                    `;
+                }).join('');
+            },
+            copyLink: (url) => {
+                const input = document.createElement('input'); input.value = url; document.body.appendChild(input); input.select(); document.execCommand('copy'); document.body.removeChild(input);
+                const toast = document.createElement('div'); toast.className = 'fixed bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded shadow-lg z-50'; toast.innerText = 'Link copied!'; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000);
+            },
+
+            renderDashboard: () => {
+                const sy = parseInt(document.getElementById('dash-year').value);
+                const month = parseInt(document.getElementById('dash-month').value);
+                if(isNaN(sy) || isNaN(month)) return;
+                
+                const pubs = db.getPublishers();
+                const reports = db.getReports(sy, month);
+                
+                let totalPubs = pubs.length;
+                let submitted = reports.length;
+                
+                let rpLog = [], apLog = [];
+                
+                const tbody = document.getElementById('dash-log-table');
+                tbody.innerHTML = pubs.map(p => {
+                    const r = reports.find(x => x.pubId === p.id);
+                    if(r) {
+                        let isPioneerRow = p.isRP || p.isSP || p.isFM;
+                        if(isPioneerRow) rpLog.push({ name: p.name, hours: parseFloat(r.hours||0), studies: parseInt(r.studies||0) });
+                        else if(r.isAP) apLog.push({ id: p.id, name: p.name, hours: parseFloat(r.hours||0), studies: parseInt(r.studies||0) });
+                        
+                        return `<tr class="hover:bg-white/5"><td class="p-3 text-emerald-400 font-bold">${p.name}</td><td class="p-3 text-center">${r.sharedInMinistry?'Yes':'No'}</td><td class="p-3 text-center">${r.studies||'-'}</td><td class="p-3 text-center">${r.hours||'-'}</td><td class="p-3 text-gray-400 text-xs truncate max-w-[200px]">${r.comments||'-'} ${r.isAP?'(Auto-AP)':''}</td></tr>`;
+                    }
+                    return `<tr><td class="p-3 text-gray-400">${p.name}</td><td colspan="4" class="p-3 text-center text-gray-500 text-xs tracking-widest">AWAITING DATA</td></tr>`;
+                }).join('');
+
+                document.getElementById('dash-total-pubs').innerText = totalPubs;
+                document.getElementById('dash-total-submitted').innerText = submitted;
+                document.getElementById('dash-pending-text').innerText = `${totalPubs - submitted} pending`;
+                document.getElementById('dash-rp-count').innerText = rpLog.length;
+                document.getElementById('dash-ap-count').innerText = apLog.length;
+                
+                document.getElementById('dash-rp-table').innerHTML = rpLog.map(x => `<tr><td class="py-2 text-purple-300 font-bold">${x.name}</td><td class="py-2 text-center text-gray-300">${x.hours}</td><td class="py-2 text-center text-gray-300">${x.studies}</td></tr>`).join('') || `<tr><td colspan="3" class="py-4 text-center text-gray-500">No Regular Pioneers</td></tr>`;
+                document.getElementById('dash-ap-table').innerHTML = apLog.map(x => `<tr><td class="py-2 text-pink-300 font-bold">${x.name}</td><td class="py-2 text-center text-gray-300">${x.hours}</td><td class="py-2 text-center text-gray-300">${x.studies}</td><td class="py-2 text-right"><button onclick="ui.revokeAP('${x.id}')" class="px-2 py-1 bg-red-900/50 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-600 hover:text-white transition-colors">Revoke AP</button></td></tr>`).join('') || `<tr><td colspan="4" class="py-4 text-center text-gray-500">No Auxiliary Pioneers</td></tr>`;
+            },
+            revokeAP: (pubId) => {
+                if(!confirm('Revoke Auxiliary Pioneer status? This will set their hours to 0.')) return;
+                const sy = parseInt(document.getElementById('dash-year').value);
+                const month = parseInt(document.getElementById('dash-month').value);
+                db.revokeAP(pubId, sy, month);
+                ui.renderDashboard();
+            },
+
             renderAnalytics: () => {
-                const grid = document.getElementById('analytics-grid'); if(!grid) return;
+                const grid = document.getElementById('analytics-grid'); 
+                const rosterGrid = document.getElementById('analytics-roster');
+                if(!grid || !rosterGrid) return;
+                
                 const sy = parseInt(document.getElementById('analytics-year').value);
                 const month = parseInt(document.getElementById('analytics-month').value);
                 if(isNaN(sy) || isNaN(month)) return;
                 
-                const year = month >= 8 ? sy - 1 : sy;
-                const selectedDate = new Date(year, month, 1);
+                // Adjust base date logic for Service Year
+                let baseYear = sy;
+                if(month < 8) baseYear += 1; // Jan-July are in the +1 year of the service year (e.g. SY 2025-2026 -> Jan 2026)
                 
+                const selectedDate = new Date(baseYear, month, 1);
                 const pubs = db.getPublishers(); 
                 let html = '';
+                
                 for(let i=0; i<6; i++) {
-                    const targetDate = new Date(selectedDate.getTime()); targetDate.setMonth(selectedDate.getMonth() - i);
-                    const tMonth = targetDate.getMonth(); const tYear = targetDate.getFullYear(); const tSy = tMonth >= 8 ? tYear + 1 : tYear;
-                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`; const reports = db.getReports(tSy, tMonth);
+                    const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - i, 1);
+                    const tMonth = targetDate.getMonth(); 
+                    const tYear = targetDate.getFullYear(); 
+                    const tSy = tMonth >= 8 ? tYear : tYear - 1; // Calculate back to SY
+                    
+                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`; 
+                    const reports = db.getReports(tSy, tMonth);
+                    
                     let pubCount = 0, pubStudies = 0, apCount = 0, apStudies = 0, apHours = 0, rpCount = 0, rpStudies = 0, rpHours = 0, inactiveCount = 0;
                     
                     pubs.forEach(p => {
                         const r = reports.find(x => x.pubId === p.id);
-                        if(r) {
-                            if(r.sharedInMinistry) {
-                                let s = parseInt(r.studies||0), h = parseFloat(r.hours||0);
-                                if (p.isRP || p.isSP || p.isFM) { rpCount++; rpStudies+=s; rpHours+=h; }
-                                else if (r.isAP) { apCount++; apStudies+=s; apHours+=h; }
-                                else { pubCount++; pubStudies+=s; }
-                            } else {
-                                inactiveCount++; 
-                            }
+                        if(r && r.sharedInMinistry) {
+                            let s = parseInt(r.studies||0), h = parseFloat(r.hours||0);
+                            if (p.isRP || p.isSP || p.isFM) { rpCount++; rpStudies+=s; rpHours+=h; }
+                            else if (r.isAP) { apCount++; apStudies+=s; apHours+=h; }
+                            else { pubCount++; pubStudies+=s; }
                         } else {
                             inactiveCount++; 
                         }
                     });
                     
-                    html += `<div class="analytics-table"><div class="header-row py-2">Summary of ${displayMonth}</div><div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div><div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div><div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div><div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div><div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div></div>`;
+                    html += `<div class="analytics-table"><div class="header-row py-2 bg-[#f8f9fa]">Summary of ${displayMonth}</div><div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold bg-[#f1f3f5] py-1">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black bg-[#f1f3f5] py-1">Studies</div></div><div class="metric-row"><div class="flex-1 text-center py-1">${pubCount}</div><div class="w-24 text-center border-l border-black py-1">${pubStudies}</div></div><div class="sub-header py-1 mt-2">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold bg-[#f1f3f5] py-1">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black bg-[#f1f3f5] py-1">Studies</div><div class="w-16 text-center font-bold border-l border-black bg-[#f1f3f5] py-1">Hours</div></div><div class="metric-row"><div class="flex-1 text-center py-1">${apCount}</div><div class="w-16 text-center border-l border-black py-1">${apStudies}</div><div class="w-16 text-center border-l border-black py-1">${apHours}</div></div><div class="sub-header py-1 mt-2">Report of Regular Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold bg-[#f1f3f5] py-1">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black bg-[#f1f3f5] py-1">Studies</div><div class="w-16 text-center font-bold border-l border-black bg-[#f1f3f5] py-1">Hours</div></div><div class="metric-row"><div class="flex-1 text-center py-1">${rpCount}</div><div class="w-16 text-center border-l border-black py-1">${rpStudies}</div><div class="w-16 text-center border-l border-black py-1">${rpHours}</div></div><div class="metric-row mt-2 bg-[#e9ecef] border-t-2 border-black font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div></div>`;
                 }
                 grid.innerHTML = html;
+
+                // Build Detailed Roster for Selected Month
+                const selReports = db.getReports(sy, month);
+                let rpRows='', apRows='', pubRows='', inRows='';
+                pubs.forEach(p => {
+                    const r = selReports.find(x => x.pubId === p.id);
+                    if(r && r.sharedInMinistry) {
+                        let htmlRow = `<tr><td>${p.name}</td><td>${r.hours||'-'}</td><td>${r.studies||'-'}</td></tr>`;
+                        if(p.isRP||p.isSP||p.isFM) rpRows+=htmlRow; else if(r.isAP) apRows+=htmlRow; else pubRows+=htmlRow;
+                    } else {
+                        inRows+=`<tr><td colspan="3" class="text-gray-400">${p.name}</td></tr>`;
+                    }
+                });
+                
+                rosterGrid.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div><h4 class="text-purple-400 font-bold mb-2">Regular Pioneers</h4><table class="detailed-table mb-4"><thead><tr><th>Name</th><th class="w-20">Hours</th><th class="w-20">Studies</th></tr></thead><tbody>${rpRows||'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>
+                        <div><h4 class="text-pink-400 font-bold mb-2">Auxiliary Pioneers</h4><table class="detailed-table mb-4"><thead><tr><th>Name</th><th class="w-20">Hours</th><th class="w-20">Studies</th></tr></thead><tbody>${apRows||'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>
+                        <div><h4 class="text-emerald-400 font-bold mb-2">Publishers</h4><table class="detailed-table mb-4"><thead><tr><th>Name</th><th class="w-20">Hours</th><th class="w-20">Studies</th></tr></thead><tbody>${pubRows||'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>
+                        <div><h4 class="text-gray-400 font-bold mb-2">Inactive / No Report</h4><table class="detailed-table mb-4"><thead><tr><th colspan="3">Name</th></tr></thead><tbody>${inRows||'<tr><td colspan="3">None</td></tr>'}</tbody></table></div>
+                    </div>
+                `;
             },
-<!-- ... existing code ... -->
+
+            importCSV: () => {
+                const input = document.createElement('input'); input.type = 'file'; input.accept = '.csv';
+                input.onchange = (e) => {
+                    const file = e.target.files[0]; if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const rows = event.target.result.split('\n');
+                        let imported = 0;
+                        rows.forEach((row, idx) => {
+                            if(idx === 0 || !row.trim()) return;
+                            const cols = row.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                            if(cols[0]) {
+                                db.savePublisher({ id: utils.id(), name: cols[0], group: cols[1]||'', gender: cols[2]||'Male', hope: cols[3]||'Other sheep', dob: cols[4]||'', baptized: cols[5]||'', isElder: cols[6]==='Y', isMS: cols[7]==='Y', isRP: cols[8]==='Y', isSP: cols[9]==='Y', isFM: cols[10]==='Y' });
+                                imported++;
+                            }
+                        });
+                        alert(`Imported ${imported} publishers.`); ui.renderPublishers();
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            },
+            exportCSV: () => {
+                const pubs = db.getPublishers();
+                const csv = ['Name,Group,Gender,Hope,DOB,Baptized,Elder(Y/N),MS(Y/N),RP(Y/N),SP(Y/N),FM(Y/N)'].concat(pubs.map(p => `"${p.name}","${p.group||''}","${p.gender||''}","${p.hope||''}","${p.dob||''}","${p.baptized||''}","${p.isElder?'Y':'N'}","${p.isMS?'Y':'N'}","${p.isRP?'Y':'N'}","${p.isSP?'Y':'N'}","${p.isFM?'Y':'N'}"`)).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('href', url); a.setAttribute('download', 'Publishers.csv'); a.click();
+            },
+            importReportsCSV: () => {
+                const input = document.createElement('input'); input.type = 'file'; input.accept = '.csv';
+                input.onchange = (e) => {
+                    const file = e.target.files[0]; if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const rows = event.target.result.split('\n');
+                        const pubs = db.getPublishers();
+                        let imported = 0;
+                        rows.forEach((row, idx) => {
+                            if(idx === 0 || !row.trim()) return;
+                            const cols = row.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                            const pubName = cols[0]; const sy = parseInt(cols[1]); const month = parseInt(cols[2]);
+                            if(pubName && !isNaN(sy) && !isNaN(month)) {
+                                const p = pubs.find(x => x.name.toLowerCase() === pubName.toLowerCase());
+                                if(p) {
+                                    db.saveReport({ pubId: p.id, serviceYear: sy, month: month, sharedInMinistry: cols[3]==='Y', studies: cols[4]||'', hours: cols[5]||'', isAP: cols[6]==='Y', comments: cols[7]||'' });
+                                    imported++;
+                                }
+                            }
+                        });
+                        alert(`Imported/Overwritten ${imported} reports.`);
+                        if(document.getElementById('view-dashboard').classList.contains('hidden') === false) ui.renderDashboard();
+                        if(document.getElementById('view-analytics').classList.contains('hidden') === false) ui.renderAnalytics();
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            },
+            exportReportsCSV: () => {
+                const csv = ['Publisher Name,Service Year (Start),Month (0=Jan),Shared (Y/N),Studies,Hours,Auto-AP (Y/N),Remarks'];
+                const pubs = db.getPublishers(); const reports = db.get('reports');
+                reports.forEach(r => {
+                    const p = pubs.find(x => x.id === r.pubId);
+                    if(p) csv.push(`"${p.name}",${r.serviceYear},${r.month},"${r.sharedInMinistry?'Y':'N'}","${r.studies||''}","${r.hours||''}","${r.isAP?'Y':'N'}","${r.comments||''}"`);
+                });
+                const blob = new Blob([csv.join('\n')], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('href', url); a.setAttribute('download', 'Historical_Reports.csv'); a.click();
+            },
+            wipeDatabase: () => {
+                const p = prompt("WARNING: This deletes ALL publishers and reports permanently. Type 'Admin1234' to confirm:");
+                if(p === SECRETS.admin) { db.wipe(); alert("Database wiped."); location.reload(); } else if (p) alert("Incorrect password.");
+            },
+
+            initPublic: (groupName) => {
+                PUBLIC_GROUP = groupName;
+                document.getElementById('public-group-name').innerText = `Group: ${groupName}`;
+                const pubs = db.getPublishers().filter(p => p.group === groupName);
+                if(pubs.length === 0) { document.getElementById('public-selector').innerHTML = '<p class="text-white text-center">No publishers in this group.</p>'; return; }
+                const select = document.getElementById('public-pub-select');
+                select.innerHTML = '<option value="">-- Select Name --</option>' + pubs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            },
+            openPublicForm: () => {
+                const pubId = document.getElementById('public-pub-select').value;
+                if(!pubId) return alert('Please select your name.');
+                const p = db.getPublishers().find(x => x.id === pubId);
+                const d = new Date(); let m = d.getMonth() - 1; let y = d.getFullYear(); if(m < 0) { m = 11; y--; } // Default to previous month
+                document.getElementById('s4-name').innerText = p.name;
+                document.getElementById('s4-month').innerText = `${utils.getMonthName(m)} ${y}`;
+                
+                // Clear the form to ensure confidentiality
+                document.getElementById('s4-shared').classList.add('checked');
+                document.getElementById('s4-studies').value = '';
+                document.getElementById('s4-hours').value = '';
+                document.getElementById('s4-comments').value = '';
+                ui.togglePublicInputs();
+                
+                // Save context
+                document.getElementById('public-form-container').dataset.pubId = p.id;
+                document.getElementById('public-form-container').dataset.month = m;
+                document.getElementById('public-form-container').dataset.sy = m >= 8 ? y : y - 1;
+                
+                document.getElementById('public-selector').classList.add('hidden');
+                document.getElementById('public-form-container').classList.remove('hidden');
+            },
+            togglePublicInputs: () => {
+                const shared = document.getElementById('s4-shared').classList.contains('checked');
+                const sIn = document.getElementById('s4-studies'); const hIn = document.getElementById('s4-hours');
+                sIn.disabled = !shared; hIn.disabled = !shared;
+                if(!shared) { sIn.value = ''; hIn.value = ''; }
+                sIn.style.opacity = shared ? '1' : '0.5'; hIn.style.opacity = shared ? '1' : '0.5';
+            },
+            submitPublicForm: () => {
+                const container = document.getElementById('public-form-container');
+                const pubId = container.dataset.pubId;
+                const p = db.getPublishers().find(x => x.id === pubId);
+                if(!p) return;
+                const shared = document.getElementById('s4-shared').classList.contains('checked');
+                const studies = document.getElementById('s4-studies').value;
+                const hours = document.getElementById('s4-hours').value;
+                
+                let isAP = false;
+                if(shared && parseFloat(hours) > 0 && !p.isRP && !p.isSP && !p.isFM) { isAP = true; } // Auto-AP Logic
+                
+                db.saveReport({
+                    pubId: p.id,
+                    serviceYear: parseInt(container.dataset.sy),
+                    month: parseInt(container.dataset.month),
+                    sharedInMinistry: shared,
+                    studies: shared ? studies : '',
+                    hours: shared ? hours : '',
+                    isAP: isAP,
+                    comments: document.getElementById('s4-comments').value.trim()
+                });
+                
+                // Hide form, show success to maintain confidentiality
+                container.classList.add('hidden');
+                document.getElementById('public-success').classList.remove('hidden');
+            },
+
+            initPrinter: () => {
+                const y = new Date().getFullYear();
+                const sy = new Date().getMonth() >= 8 ? y : y - 1;
+                let yOptions = ''; for(let i = sy-2; i <= sy+2; i++) yOptions += `<option value="${i}">${i}-${i+1}</option>`;
+                document.getElementById('print-year').innerHTML = yOptions;
+                document.getElementById('print-year').value = sy;
+                
+                // Analytics & Dashboard Drops
+                document.querySelectorAll('#dash-year, #analytics-year').forEach(el => { el.innerHTML = yOptions; el.value = sy; });
+                document.querySelectorAll('#dash-month, #analytics-month').forEach(el => { el.value = new Date().getMonth(); });
+            },
+            compilePrinter: () => {
+                const sy = parseInt(document.getElementById('print-year').value);
+                const filter = document.getElementById('print-filter').value;
+                let pubs = db.getPublishers();
+                
+                if(filter === 'rp') pubs = pubs.filter(p => p.isRP);
+                else if(filter === 'elder') pubs = pubs.filter(p => p.isElder);
+                else if(filter === 'ms') pubs = pubs.filter(p => p.isMS);
+                else if(filter === 'ubp') pubs = pubs.filter(p => p.baptized && p.baptized.toUpperCase() === 'UBP');
+                else if(filter === 'ap') {
+                    const currentMonth = new Date().getMonth();
+                    const currentSy = currentMonth >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+                    const reports = db.getReports(currentSy, currentMonth);
+                    pubs = pubs.filter(p => { const r = reports.find(x => x.pubId === p.id); return r && r.isAP; });
+                }
+                
+                if(pubs.length === 0) return alert('No publishers found for this filter.');
+                
+                let pagesHtml = pubs.map(p => {
+                    const reports = db.getPublisherReports(p.id).filter(r => r.serviceYear === sy);
+                    
+                    let gridHtml = '';
+                    let totalH = 0, totalS = 0;
+                    
+                    for(let i=0; i<12; i++) {
+                        let calcMonth = (i + 8) % 12;
+                        const r = reports.find(x => x.month === calcMonth);
+                        const isChecked = r && r.sharedInMinistry;
+                        const isAP = r && r.isAP;
+                        
+                        gridHtml += `
+                            <div class="cell month" style="font-family: Arial; font-size: 25px; padding-left: 9px; display: flex; align-items: center;">${utils.getMonthName(calcMonth)}</div>
+                            <div class="cell center" style="display: flex; align-items: center; justify-content: center;"><div class="s21-tick-box">${isChecked?'✔':''}</div></div>
+                            <div class="cell" style="font-family: Arial; font-size: 24px; text-align: center; display: flex; align-items: center; justify-content: center;">${r && r.studies ? r.studies : ''}</div>
+                            <div class="cell center" style="display: flex; align-items: center; justify-content: center;"><div class="s21-tick-box">${isAP?'✔':''}</div></div>
+                            <div class="cell" style="font-family: Arial; font-size: 24px; text-align: center; display: flex; align-items: center; justify-content: center;">${r && r.hours ? r.hours : ''}</div>
+                            <div class="cell" style="font-family: Arial; font-size: 21px; padding: 0 7px; display: flex; align-items: center; justify-content: center; overflow: hidden;">${r && r.comments ? r.comments : ''}</div>
+                        `;
+                        if(isChecked) {
+                            totalS += parseInt(r.studies||0);
+                            totalH += parseFloat(r.hours||0);
+                        }
+                    }
+
+                    return `
+                    <div class="page" style="position: relative; width: 1448px; height: 1025px; min-width: 1448px; margin: 0 auto; background: #fff; overflow: hidden; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; color: #000;">
+                        <h1 style="position: absolute; top: 33px; left: 0; width: 1448px; margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap;">CONGREGATION’S PUBLISHER RECORD</h1>
+                        <section style="position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700;">
+                            <div style="position: absolute; left: 0; top: 0; width: 850px; height: 35px; display: flex; align-items: center;">
+                                <div style="flex: 0 0 205px; white-space: nowrap;">Name:</div>
+                                <div style="flex: 0 0 645px; padding: 0 4px;">${p.name}</div>
+                            </div>
+                            <div style="position: absolute; left: 0; top: 35px; width: 850px; height: 35px; display: flex; align-items: center;">
+                                <div style="flex: 0 0 205px; white-space: nowrap;">Date of birth:</div>
+                                <div style="flex: 0 0 645px; padding: 0 4px;">${p.dob||''}</div>
+                            </div>
+                            <div style="position: absolute; left: 0; top: 70px; width: 850px; height: 35px; display: flex; align-items: center;">
+                                <div style="flex: 0 0 205px; white-space: nowrap;">Date of baptism:</div>
+                                <div style="flex: 0 0 645px; padding: 0 4px;">${p.baptized||''}</div>
+                            </div>
+                            <div style="position: absolute; left: 898px; top: 35px; width: 470px; height: 70px;">
+                                <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.gender==='Male'?'✔':''}</div>Male</div>
+                                <div style="position: absolute; left: 248px; top: 0; display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.gender==='Female'?'✔':''}</div>Female</div>
+                                <div style="position: absolute; left: 0; top: 35px; display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.hope==='Other sheep'?'✔':''}</div>Other sheep</div>
+                                <div style="position: absolute; left: 248px; top: 35px; display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.hope==='Anointed'?'✔':''}</div>Anointed</div>
+                            </div>
+                            <div style="position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.isElder?'✔':''}</div>Elder</div>
+                                <div style="display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.isMS?'✔':''}</div>Ministerial servant</div>
+                                <div style="display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.isRP?'✔':''}</div>Regular pioneer</div>
+                                <div style="display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.isSP?'✔':''}</div>Special pioneer</div>
+                                <div style="display: flex; align-items: center;"><div class="s21-tick-box" style="margin-right: 9px;">${p.isFM?'✔':''}</div>Field missionary</div>
+                            </div>
+                        </section>
+                        <section style="position: absolute; top: 264px; left: 40px; width: 1369px;">
+                            <div style="width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; grid-template-rows: 120px repeat(12, 43px); border: 2px solid #202020; background: #fff;" class="s21-grid">
+                                <div class="cell header" style="height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;">Service Year<br>${sy}-${sy+1}</div>
+                                <div class="cell header" style="height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;">Shared in<br>Ministry</div>
+                                <div class="cell header" style="height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;">Bible<br>Studies</div>
+                                <div class="cell header" style="height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;">Auxiliary<br>Pioneer</div>
+                                <div class="cell header" style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;"><span>Hours</span><span style="font-weight: 400;">(If pioneer<br>or field<br>missionary)</span></div>
+                                <div class="cell header" style="height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700;">Remarks</div>
+                                ${gridHtml}
+                            </div>
+                            <div style="width: 1369px; height: 45px; position: relative;">
+                                <div style="position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700;">Total</div>
+                                <div style="position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: none; background: #fff;">
+                                    <div style="height: 41px; display: flex; align-items: center; justify-content: center; font-size: 23px; font-weight: 700;">${totalH||''}</div>
+                                    <div style="height: 41px; border-left: 1px solid #404040; display: flex; align-items: center; justify-content: center; font-size: 23px; font-weight: 700;">${totalH||totalS ? `Additional hours: ${totalH}` : ''}</div>
+                                </div>
+                            </div>
+                        </section>
+                        <footer style="position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; font-weight: 400;"><span>S-21-E</span><span style="margin-left: 18px;">11/23</span></footer>
+                    </div>`;
+                }).join('');
+                
+                const previewHtml = `<style>
+                    * { box-sizing: border-box; }
+                    .s21-grid .cell { min-width: 0; min-height: 0; border-right: 1px solid #404040; border-bottom: 1px solid #404040; overflow: hidden; background: #fff; }
+                    .s21-grid .cell:nth-child(6n) { border-right: 0; }
+                    .s21-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
+                    .s21-tick-box { width: 21px; height: 21px; border: 2px solid #111; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; line-height: 1; }
+                    @media print {
+                        @page { size: A4 landscape; margin: 0; }
+                        html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; height: 100% !important; }
+                        .page { zoom: 0.76 !important; page-break-inside: avoid !important; }
+                        .page:not(:last-child) { page-break-after: always !important; }
+                        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    }
+                </style>${pagesHtml}`;
+                
+                // Inject into hidden iframe for flawless native printing
+                const iframe = document.getElementById('print-engine');
+                iframe.contentWindow.document.open();
+                iframe.contentWindow.document.write(previewHtml);
+                iframe.contentWindow.document.close();
+                
+                // Show tiny preview in Dashboard
+                const previewContainer = document.getElementById('print-preview');
+                previewContainer.innerHTML = pagesHtml;
+                
+                // Scale preview to fit screen without affecting print
+                const scale = Math.min(1, previewContainer.parentElement.clientWidth / 1468);
+                previewContainer.parentElement.style.transform = `scale(${scale})`;
+                previewContainer.parentElement.style.height = `${1045 * scale}px`;
+            },
+            executePrint: () => {
+                const iframe = document.getElementById('print-engine');
+                if(!iframe.contentWindow.document.querySelector('.page')) return alert('Please compile the queue first.');
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            }
+        };
+
+        function checkAuth() {
+            if(document.getElementById('auth-pass').value === SECRETS.admin) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                ui.nav('dashboard');
+                ui.initPrinter();
+            } else {
+                document.getElementById('auth-error').classList.remove('hidden');
+            }
+        }
+
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('group')) {
+                // Public Route: Bypass Auth
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('public-screen').classList.remove('hidden');
+                ui.initPublic(params.get('group'));
+            } else {
+                // Admin Route: Require Auth
+                document.getElementById('auth-pass').focus();
+                if(db.getPublishers().length === 0) {
+                    // Seed some dummy data for preview
+                    db.savePublisher({ id: utils.id(), name: 'Akhil', group: 'Group A', baptized: '29/05/2022' });
+                    db.savePublisher({ id: utils.id(), name: 'Bejoy P John', group: 'Group B', isElder: true, isRP: true });
+                }
+            }
+        };
+    </script>
+</body>
+</html>
