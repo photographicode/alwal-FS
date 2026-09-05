@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
-    <!-- External Dependencies: Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase UMD Module for Browser Environments -->
+    <!-- Supabase UMD Module -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* -------------------------------------------------------------------------- */
+        /* GLOBAL APP STYLES (Aqua Glass Theme)                                       */
+        /* -------------------------------------------------------------------------- */
         :root {
             --glass-bg: rgba(13, 148, 136, 0.15);
             --glass-border: rgba(255, 255, 255, 0.08);
@@ -51,24 +54,26 @@
         }
         #toast.show { transform: translateY(0) scale(1); opacity: 1; }
 
-        /* Public Mode (S-4 Submissions) */
+        /* Public Mode (S-4 Submissions via Public Link) */
         body.public-mode #app-header { display: none !important; }
         body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
         body.public-mode #tab-s4 { display: block !important; width: 100%; }
         
-        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+        input.app-input, select.app-input {
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
             transition: all 0.2s;
         }
-        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+        input.app-input:focus, select.app-input:focus {
             border-color: rgba(20, 184, 166, 0.6);
             box-shadow: 0 0 10px rgba(20, 184, 166, 0.2);
             outline: none;
         }
 
-        /* ---------------- S-4 STRICT STYLES (Refined to match official PDF) ---------------- */
+        /* -------------------------------------------------------------------------- */
+        /* S-4 STRICT PUBLIC FORM STYLES (Refined to match user screenshot)           */
+        /* -------------------------------------------------------------------------- */
         #s4-container-wrapper {
             width: 100%; max-width: 834px; height: 625px; margin: 0 auto;
             position: relative; overflow: hidden; display: flex; justify-content: center;
@@ -84,160 +89,150 @@
         .s4-strict .identity { position: absolute; left: 50px; top: 90px; width: 734px; }
         .s4-strict .identity-row { display: flex; align-items: center; margin-bottom: 12px; }
         .s4-strict .identity-label { width: 130px; font-size: 28px; font-weight: bold; color: #000; }
-        .s4-strict .identity-input { flex: 1; height: 45px; border: 0; border-bottom: 2px dashed #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; }
+        .s4-strict .identity-input { flex: 1; height: 45px; border: 0; border-bottom: 2px dotted #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; outline: none; }
         
         .s4-strict .report-table { position: absolute; left: 50px; top: 220px; width: 734px; border: 2px solid #000; border-collapse: collapse; font-size: 26px; background: #ffffff; color: #000; }
         .s4-strict .report-table td { border: 1px solid #000; padding: 12px 15px; vertical-align: middle; }
-        .s4-strict .ministry-cell { position: relative; width: 100%; height: 80px; }
-        .s4-strict .checkbox-wrapper { position: absolute; right: 15px; top: 15px; width: 45px; height: 45px; border: 1.5px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
-        .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; }
-        .s4-strict .checkmark { font-size: 38px; color: #000; font-weight: bold; display: none; margin-top: -5px; }
+        .s4-strict .ministry-cell { position: relative; width: 100%; height: 90px; }
+        
+        /* Custom Checkmark for S-4 */
+        .s4-strict .checkbox-wrapper { position: absolute; right: 15px; top: 20px; width: 45px; height: 45px; border: 1.5px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
+        .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; margin: 0; }
+        .s4-strict .checkmark { font-size: 38px; color: #000; font-weight: bold; display: none; line-height: 1; margin-top: -6px; }
         .s4-strict .checkbox:checked + .checkmark { display: block; }
         
-        .s4-strict .study-label { width: 550px; }
+        .s4-strict .study-label { width: 550px; font-size: 25px; }
         .s4-strict .study-value, .s4-strict .hours-value { width: 184px; padding: 0 !important; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 60px; border: 0; outline: none; background: transparent !important; font-size: 32px; text-align: center !important; color: #000; border-radius: 0; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 65px; border: 0; outline: none; background: transparent !important; font-size: 30px; text-align: center !important; color: #000; border-radius: 0; }
         
-        .s4-strict .comments { position: absolute; left: 50px; top: 460px; width: 734px; height: 90px; border: 2px solid #000; background: #f1f4ff; display: flex; }
-        .s4-strict .comments-label { font-size: 28px; font-weight: bold; color: #000; padding: 10px 15px; }
-        .s4-strict .comments-input { flex: 1; height: 100%; resize: none; border: 0; outline: none; background: transparent !important; font-size: 24px; color: #000; padding: 12px 10px; border-radius: 0; }
+        .s4-strict .comments { position: absolute; left: 50px; top: 480px; width: 734px; height: 80px; border: 2px solid #000; background: #f1f4ff; display: flex; align-items: center; }
+        .s4-strict .comments-label { font-size: 28px; font-weight: bold; color: #000; padding: 0 15px; }
+        .s4-strict .comments-input { flex: 1; height: 100%; resize: none; border: 0; outline: none; background: transparent !important; font-size: 24px; color: #000; padding: 25px 10px 10px 10px; border-radius: 0; }
         
         .s4-strict .footer-code { position: absolute; left: 50px; top: 580px; font-size: 19px; color: #000; }
         .s4-strict .footer-date { position: absolute; left: 130px; top: 580px; font-size: 19px; color: #000; }
 
-        /* ---------------- S-21 PRINTER STYLES ---------------- */
-        .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        /* -------------------------------------------------------------------------- */
+        /* EXACT S-21 PAGE STYLES (From User's editable_5.html)                       */
+        /* -------------------------------------------------------------------------- */
+        .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; overflow-x: auto; padding: 20px; }
         
-        .s21-strict {
-            position: relative; width: 1448px; height: 1025px; min-width: 1448px; margin: 0 auto;
-            background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); page-break-after: always; break-after: page;
+        .s21-page {
+            position: relative;
+            width: 1448px;
+            height: 1025px;
+            min-width: 1448px;
+            margin: 0 auto;
+            background: #fff;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* Required for correct multi-page native printing */
+            page-break-after: always;
+            break-after: page;
         }
-        
-        .s21-strict * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
-        .s21-strict .title { position: absolute; top: 33px; left: 0; width: 1448px; text-align: center; font-size: 34px; font-weight: 700; color:#000; }
-        .s21-strict .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; font-weight: 700; color:#000;}
-        .s21-strict .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
-        .s21-strict .detail.name { top: 0; } .s21-strict .detail.birth { top: 35px; } .s21-strict .detail.baptism { top: 70px; }
-        .s21-strict .detail-label { flex: 0 0 205px; }
-        .s21-strict .detail-input { flex: 0 0 645px; width: 645px; height: 35px; padding: 0 4px; border: 0; background: transparent; color: #000; font: 700 27px Arial; }
-        
-        .s21-strict .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; }
-        .s21-strict .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap;}
-        .s21-strict .identity .male { left: 0; top: 0; } .s21-strict .identity .female { left: 248px; top: 0; }
-        .s21-strict .identity .sheep { left: 0; top: 35px; } .s21-strict .identity .anointed { left: 248px; top: 35px; }
-        
-        .s21-strict .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; justify-content: space-between; align-items: center; }
-        .s21-strict .check-label { display: flex; align-items: center; height: 35px; }
-        
-        /* Rigid CSS Boxes to immune against Tailwind resets */
-        .s21-strict .print-check {
-            border: 2px solid #111 !important; 
-            background: transparent !important;
-            display: flex; justify-content: center; align-items: center;
-            color: #111 !important; font-weight: bold;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        .s21-strict .print-check.small {
-            width: 21px; height: 21px; font-size: 22px; margin-right: 9px;
-        }
-        .s21-strict .print-check:not(.small) {
-            width: 26px; height: 26px; font-size: 26px;
-        }
-        
-        .s21-strict .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
-        .s21-strict .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; border: 2px solid #202020; background: #fff; }
-        .s21-strict .cell { border-right: 1px solid #404040; border-bottom: 1px solid #404040; background: #fff; display: flex; align-items: center; }
-        .s21-strict .cell:nth-child(6n) { border-right: 0; }
-        .s21-strict .cell.header { height: 120px; justify-content: center; text-align: center; font-size: 25px; font-weight: 700; }
-        .s21-strict .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
-        .s21-strict .month { height: 43px; padding-left: 9px; font-size: 25px; }
-        .s21-strict .center { justify-content: center; }
-        .s21-strict .hours-header { flex-direction: column; } .s21-strict .hours-header .sub { font-weight: 400; }
-        .s21-strict .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 24px Arial; color:#000; background:transparent;}
-        .s21-strict .remarks-input { width: 100%; height: 41px; padding: 0 5px; border: 0; text-align: center; font: 400 21px Arial; color:#000; background:transparent;}
-        
-        .s21-strict .total-row { width: 1369px; height: 45px; position: relative; }
-        .s21-strict .total-label { position: absolute; left: 648px; top: 7px; font-size: 25px; font-weight: 700; width: 74px; text-align: right;}
-        .s21-strict .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: 2px solid #202020; background: #fff; box-shadow: inset -1px 0 0 #202020; }
-        .s21-strict .total-box .slot { border-left: 1px solid #404040; height: 41px; }
-        .s21-strict .total-box .slot:first-child { border-left: none; }
-        .s21-strict .total-input { width: 100%; height: 41px; border: 0; text-align: center; font: 700 23px Arial; color:#000;}
-        .s21-strict .total-input.remarks { text-align: center; font-weight: 700;}
-        .s21-strict .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; color:#000;}
-        .s21-strict .footer-date { margin-left: 18px; }
 
-        /* ANALYTICS TAB SPREADSHEET STYLES */
+        .s21-page * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
+
+        .s21-page .title { position: absolute; top: 33px; left: 0; width: 1448px; margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; }
+        .s21-page .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; }
+        .s21-page .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
+        .s21-page .detail.name { top: 0; }
+        .s21-page .detail.birth { top: 35px; }
+        .s21-page .detail.baptism { top: 70px; }
+        .s21-page .detail-label { flex: 0 0 205px; white-space: nowrap; }
+        .s21-page .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; outline: 0; background: transparent; color: #000; font: 700 27px/35px Arial, Helvetica, sans-serif; min-width: 0; overflow: hidden; white-space: nowrap; }
+        
+        .s21-page .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
+        .s21-page .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
+        .s21-page .identity .male { left: 0; top: 0; }
+        .s21-page .identity .female { left: 248px; top: 0; }
+        .s21-page .identity .sheep { left: 0; top: 35px; }
+        .s21-page .identity .anointed { left: 248px; top: 35px; }
+
+        .s21-page .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
+        .s21-page .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
+
+        /* The Custom Checkbox Engine for S-21 */
+        .s21-page .identity input, .s21-page .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; border: 2px solid #111; border-radius: 0; background: transparent; position: relative; cursor: pointer; }
+        .s21-page .identity input:checked::after, .s21-page .check-label input:checked::after { content: ""; position: absolute; left: 3px; top: -3px; width: 9px; height: 15px; border-right: 3px solid #111; border-bottom: 3px solid #111; transform: rotate(45deg); }
+
+        .s21-page .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
+        .s21-page .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; grid-template-rows: 120px repeat(12, 43px); border: 2px solid #202020; background: #fff; }
+        .s21-page .cell { min-width: 0; min-height: 0; border-right: 1px solid #404040; border-bottom: 1px solid #404040; overflow: hidden; background: #fff; display: flex; align-items: center; }
+        .s21-page .cell:nth-child(6n) { border-right: 0; }
+        .s21-page .cell.header { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 7px; font-size: 25px; line-height: 28px; font-weight: 700; }
+        .s21-page .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
+        
+        .s21-page .month { display: flex; align-items: center; padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; }
+        .s21-page .center { display: flex; align-items: center; justify-content: center; }
+        .s21-page .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; }
+        .s21-page .hours-header .sub { display: block; font-weight: 400; }
+        
+        .s21-page .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+        .s21-page .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+
+        .s21-page .month-check { appearance: none; -webkit-appearance: none; display: block; width: 26px; height: 26px; margin: 0; padding: 0; border: 2px solid #111; border-radius: 0; background: transparent; position: relative; cursor: pointer; }
+        .s21-page .month-check:checked::after { content: ""; position: absolute; left: 6px; top: 0px; width: 10px; height: 16px; border-right: 3px solid #111; border-bottom: 3px solid #111; transform: rotate(45deg); }
+
+        .s21-page .total-row { width: 1369px; height: 45px; position: relative; }
+        .s21-page .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
+        .s21-page .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: 2px solid #202020; background: #fff; box-shadow: inset -1px 0 0 #202020; }
+        .s21-page .total-box .slot { min-width: 0; height: 41px; overflow: hidden; }
+        .s21-page .total-box .slot + .slot { border-left: 1px solid #404040; }
+        
+        .s21-page .total-input { width: 100%; height: 41px; margin: 0; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+        
+        .s21-page .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; }
+        .s21-page .footer-date { margin-left: 18px; }
+
+        /* ANALYTICS TABLE STYLES */
         .analytics-table { width: 100%; border: 2px solid #000; background: #fff; color: #000; font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 24px; border-collapse: collapse; }
         .analytics-table th, .analytics-table td { border: 1px solid #000; padding: 6px; }
         .analytics-table .header-row { font-weight: bold; text-align: center; font-size: 16px; border-bottom: 2px solid #000; }
         .analytics-table .sub-header { font-weight: bold; text-align: center; background: #f0f0f0; }
         .analytics-table .metric-row { display: flex; justify-content: space-between; border-bottom: 1px solid #000; }
-        
-        /* ---------------- NATIVE PRINT ENGINE OVERRIDE ---------------- */
+
+        /* -------------------------------------------------------------------------- */
+        /* NATIVE PRINT OVERRIDE (For perfect S-21 extraction)                        */
+        /* -------------------------------------------------------------------------- */
         @media print {
             @page {
-                size: landscape;
-                margin: 0.5cm !important; /* Adjusted margin for better native fitting */
+                size: 1448px 1025px landscape;
+                margin: 0;
             }
-            
             body { 
-                background: #ffffff !important; 
+                background: #fff !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            body > * { display: none !important; } 
             
-            /* Unhide necessary wrappers */
-            .main-content { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
-            #tab-s21 { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+            /* Hide EVERYTHING by default during print */
+            body.printing-s21 > *:not(.main-content) { display: none !important; }
+            body.printing-s21 .main-content > *:not(#tab-s21) { display: none !important; }
+            body.printing-s21 .no-print { display: none !important; }
             
-            .no-print { display: none !important; }
+            /* Expand the render area */
+            body.printing-s21 .main-content { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+            body.printing-s21 #tab-s21 { display: block !important; }
+            body.printing-s21 #s21-render-area { padding: 0 !important; margin: 0 !important; display: block !important; width: 100%; overflow: visible !important; }
             
-            #s21-render-area {
-                display: block !important;
-                background: #ffffff !important;
-                padding: 0 !important;
+            /* Ensure the cards print perfectly */
+            body.printing-s21 .s21-page {
                 margin: 0 !important;
-                width: 100% !important; /* Ensure it takes full width */
-            }
-            
-            .s21-strict {
-                position: relative !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
                 page-break-after: always !important;
-                break-after: page !important;
-                page-break-inside: avoid !important;
-                /* Safely scale to fit A4 Landscape while maintaining layout */
-                transform: scale(0.72) !important;
-                transform-origin: top left !important;
-                /* Override strict dimensions for print scaling */
-                width: 1448px !important;
-                height: 1025px !important;
+                transform: none !important;
             }
             
-            /* Center the scaled container in the printed page */
-            .s21-wrapper {
-                align-items: flex-start !important;
-                justify-content: flex-start !important;
-            }
-
-            /* Ensure grids and borders survive Tailwind's print resets */
-            .s21-strict .table-grid { border: 2px solid #202020 !important; }
-            .s21-strict .cell { border-right: 1px solid #404040 !important; border-bottom: 1px solid #404040 !important; }
-            .s21-strict .total-box { border: 2px solid #202020 !important; border-top: 2px solid #202020 !important; box-shadow: inset -1px 0 0 #202020 !important; }
-            .s21-strict .total-box .slot { border-left: 1px solid #404040 !important; }
-            
-            /* Fix for input fields background in print */
-            .s21-strict input { background: transparent !important; }
+            /* Force rigid styling protection against Tailwind print resets */
+            .s21-page .table-grid { border: 2px solid #202020 !important; }
+            .s21-page .cell { border-right: 1px solid #404040 !important; border-bottom: 1px solid #404040 !important; }
+            .s21-page .total-box { border: 2px solid #202020 !important; box-shadow: inset -1px 0 0 #202020 !important; }
         }
-        
     </style>
 </head>
 <body class="text-sm">
@@ -248,7 +243,7 @@
             <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">FS</div>
             <h2 class="text-2xl font-bold text-white mb-2">Service Manager Portal</h2>
             <p class="text-teal-200/70 text-sm mb-6">Restricted Access. Enter master password.</p>
-            <input type="password" id="auth-pass" placeholder="Password" class="w-full px-5 py-3 rounded-xl mb-4 text-center bg-black/40 border border-white/20 text-white outline-none focus:border-teal-400">
+            <input type="password" id="auth-pass" placeholder="Password" class="w-full px-5 py-3 rounded-xl mb-4 text-center app-input">
             <button onclick="auth.login()" class="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)]">Unlock Database</button>
         </div>
     </div>
@@ -260,13 +255,13 @@
                 <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.3)]">FS</div>
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
-            <!-- Reordered Tabs -->
+            <!-- Reordered Tabs: Dashboard, Groups, Printer, Analytics, Publishers -->
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
                 <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
-                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
                 <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
+                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
             </div>
         </div>
     </nav>
@@ -281,8 +276,8 @@
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
+                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -291,8 +286,7 @@
             </div>
             
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
-            <div id="dash-pio-stats" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
-
+            
             <!-- AP Review Board (For Revoking accidental AP hours) -->
             <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
                 <div class="bg-black/30 px-6 py-4 border-b border-amber-500/20 flex justify-between items-center">
@@ -327,7 +321,7 @@
                                 <th class="px-6 py-4 font-semibold text-center">Shared</th>
                                 <th class="px-6 py-4 font-semibold text-center">Studies</th>
                                 <th class="px-6 py-4 font-semibold text-center">Hours</th>
-                                <th class="px-6 py-4 font-semibold">Remarks</th>
+                                <th class="px-6 py-4 font-semibold text-center">Remarks</th>
                             </tr>
                         </thead>
                         <tbody id="dash-reports-table" class="divide-y divide-white/10 text-teal-50"></tbody>
@@ -358,8 +352,8 @@
                     <p class="text-teal-200/70 mt-1">Compile and print pixel-perfect S-21 records</p>
                 </div>
                 <div class="flex gap-3 flex-wrap">
-                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
+                    <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input"></select>
+                    <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
                     <!-- Triggers Native Browser Print -->
                     <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
@@ -369,7 +363,38 @@
                 </div>
             </div>
             
-            <div id="s21-render-area" class="s21-wrapper bg-gray-900 p-8 rounded-xl overflow-x-auto"></div>
+            <div id="s21-render-area" class="s21-wrapper bg-gray-900 rounded-xl"></div>
+        </div>
+
+        <!-- ANALYTICS TAB (6-Month Summary) -->
+        <div id="tab-analytics" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
+                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
+            </div>
+            
+            <!-- 6-Month Grid -->
+            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Detailed Roster Table -->
+            <div class="glass-panel mt-10 p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
+                    <div class="flex gap-3">
+                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
+                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
+                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="analytics-roster" class="overflow-x-auto">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
         </div>
 
         <!-- PUBLISHERS TAB -->
@@ -414,44 +439,13 @@
             </div>
         </div>
 
-        <!-- ANALYTICS TAB (6-Month Summary) -->
-        <div id="tab-analytics" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
-                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
-            </div>
-            
-            <!-- 6-Month Grid -->
-            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto">
-                <!-- Populated dynamically -->
-            </div>
-
-            <!-- Detailed Roster Explorer -->
-            <div class="glass-panel mt-10 p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
-                    <div class="flex gap-3">
-                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
-                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
-                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="analytics-roster" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-        </div>
-
         <!-- S-4 FORM (Strict Public View) -->
         <div id="tab-s4" class="tab-content">
             <div class="w-full flex flex-col items-center justify-center p-4">
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
-                        <p class="text-teal-200/80 text-sm mt-1">Please select your name.</p>
+                        <p class="text-teal-200/80 text-sm mt-1">Please select your name to begin.</p>
                     </div>
                     <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
@@ -473,9 +467,9 @@
                             <tbody>
                                 <tr>
                                     <td colspan="2" class="ministry-cell">
-                                        <span class="ministry-text">Check the box if you shared in any form<br>of the ministry during the month</span>
+                                        <span style="display:block; font-size:29px; line-height:34px;">Check the box if you shared in any form<br>of the ministry during the month</span>
                                         <div class="checkbox-wrapper">
-                                            <input id="s4-ministry" class="checkbox" type="checkbox" checked>
+                                            <input id="s4-ministry" class="checkbox" type="checkbox" checked onchange="ui.enforceS4Logic()">
                                             <span class="checkmark">✔</span>
                                         </div>
                                     </td>
@@ -522,11 +516,11 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Full Name</label>
-                        <input type="text" id="pub-name" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-name" required class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Service Group Designation</label>
-                        <input type="text" id="pub-group" placeholder="e.g. Group A" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-group" placeholder="e.g. Group A" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                 </div>
                 
@@ -561,22 +555,22 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date of Birth</label>
-                        <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-dob" placeholder="dd-mm-yyyy" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Date Baptized</label>
-                        <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone</label>
-                        <input type="text" id="pub-phone" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-phone" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                     <div class="col-span-2 md:col-span-1 space-y-2">
                         <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Address</label>
-                        <input type="text" id="pub-address" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                        <input type="text" id="pub-address" class="w-full app-input rounded-xl px-4 py-2.5 outline-none">
                     </div>
                 </div>
 
@@ -917,13 +911,17 @@
                                 el.innerHTML += `<option value="${i}">${i-1}-${i}</option>`;
                             }
                             el.value = istInfo.serviceYear;
+                            el.classList.add('app-input');
                         }
                     });
                     
                     const mSelects = ['dash-month', 'analytics-month'];
                     mSelects.forEach(id => {
                         const el = document.getElementById(id);
-                        if(el) el.value = istInfo.month;
+                        if(el) {
+                            el.value = istInfo.month;
+                            el.classList.add('app-input');
+                        }
                     });
 
                     ui.switchTab('dashboard');
@@ -1092,9 +1090,8 @@
                 const pubs = db.getPublishers();
                 const reports = db.getReports(sy, month);
                 
-                let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
+                let stats = { totalRep: 0, apCount: 0, rpCount: 0 };
                 const apReviewHtml = [];
-                const rpReviewHtml = [];
                 
                 document.getElementById('dash-reports-table').innerHTML = '';
                 
@@ -1105,16 +1102,9 @@
                         if (r.sharedInMinistry) stats.totalRep++;
                         
                         if (p.isRP || p.isSP || p.isFM) { 
-                            stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
-                            rpReviewHtml.push(`
-                                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                    <td class="px-6 py-3 font-medium">${p.name}</td>
-                                    <td class="px-6 py-3 text-center font-mono">${h}</td>
-                                    <td class="px-6 py-3 text-center font-mono">${s}</td>
-                                </tr>
-                            `);
+                            stats.rpCount++; 
                         } else if (r.isAP) { 
-                            stats.apCount++; stats.apHours += h; stats.apStudies += s; 
+                            stats.apCount++; 
                             apReviewHtml.push(`
                                 <tr class="border-b border-white/5 bg-emerald-900/10 hover:bg-emerald-900/20 transition-colors">
                                     <td class="px-6 py-3 font-medium">${p.name}</td>
@@ -1125,13 +1115,12 @@
                             `);
                         }
                         
-                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
+                        document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-center text-xs truncate max-w-[200px] text-teal-100/70">${r.comments||''}</td></tr>`;
                     } else {
                         document.getElementById('dash-reports-table').innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
                     }
                 });
 
-                document.getElementById('dash-rp-table') ? document.getElementById('dash-rp-table').innerHTML = rpReviewHtml.length ? rpReviewHtml.join('') : `<tr><td colspan="3" class="px-6 py-4 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>` : null;
                 document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
@@ -1143,32 +1132,13 @@
                         <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div>
                         <div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div>
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400">
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
                         <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div>
                         <div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div>
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400">
                         <div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div>
                         <div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div>
-                    </div>
-                `;
-                
-                document.getElementById('dash-pio-stats').innerHTML = `
-                    <div class="glass-panel p-5 rounded-2xl">
-                        <div class="text-cyan-400 font-bold mb-3 tracking-wide">Regular Pioneers Pipeline</div>
-                        <div class="grid grid-cols-3 gap-3 text-center text-white">
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.rpCount}</div><div class="text-xs text-teal-100/60 uppercase">Count</div></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.rpHours}</div><div class="text-xs text-teal-100/60 uppercase">Hours</div></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.rpStudies}</div><div class="text-xs text-teal-100/60 uppercase">Studies</div></div>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-5 rounded-2xl border border-amber-500/20">
-                        <div class="text-amber-400 font-bold mb-3 tracking-wide">Auxiliary Pioneers Pipeline</div>
-                        <div class="grid grid-cols-3 gap-3 text-center text-white">
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.apCount}</div><div class="text-xs text-teal-100/60 uppercase">Count</div></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.apHours}</div><div class="text-xs text-teal-100/60 uppercase">Hours</div></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><div class="text-2xl font-bold">${stats.apStudies}</div><div class="text-xs text-teal-100/60 uppercase">Studies</div></div>
-                        </div>
                     </div>
                 `;
             },
@@ -1243,7 +1213,7 @@
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
                         if(r.isAP) stats.aps++;
-                        tableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-2 px-3 font-medium text-white">${p.name}</td><td class="py-2 px-3 text-center text-emerald-400">${r.sharedInMinistry?'✔':'No'}</td><td class="py-2 px-3 text-center">${r.studies||'-'}</td><td class="py-2 px-3 text-center">${r.hours||'-'}</td><td class="py-2 px-3 text-xs truncate max-w-[150px] text-teal-100/70">${r.comments||''}</td></tr>`;
+                        tableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-2 px-3 font-medium text-white">${p.name}</td><td class="py-2 px-3 text-center text-emerald-400">${r.sharedInMinistry?'✔':'No'}</td><td class="py-2 px-3 text-center">${r.studies||'-'}</td><td class="py-2 px-3 text-center">${r.hours||'-'}</td><td class="py-2 px-3 text-center text-xs truncate max-w-[150px] text-teal-100/70">${r.comments||''}</td></tr>`;
                     } else {
                         pending.push(p.name);
                         tableHtml += `<tr class="border-b border-white/5 text-teal-100/50 bg-black/20"><td class="py-2 px-3">${p.name}</td><td colspan="4" class="py-2 px-3 text-center italic text-xs">Pending</td></tr>`;
@@ -1262,7 +1232,6 @@
                         </div>
                         <div class="flex gap-2">
                             <button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button>
-                            <button onclick="ui.batchS21Group('${groupName}')" class="bg-teal-600/80 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">Download S-21</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-3 mb-6 text-center text-white">
@@ -1273,9 +1242,9 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div>
-                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70 overflow-visible">${membersList.join('<br>')}</div></div>
+                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70">${membersList.join('<br>')}</div></div>
                     </div>
-                    <div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>
+                    <div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2 text-center">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>
                 `;
             },
 
@@ -1291,19 +1260,6 @@
                     ui.showToast('Public Link Copied!');
                 } catch (err) { console.error(err); }
                 document.body.removeChild(textArea);
-            },
-            
-            batchS21Group: (groupName) => {
-                ui.switchTab('s21');
-                const sel = document.getElementById('s21-publisher-select');
-                if(sel) {
-                    const opt = document.createElement('option');
-                    opt.value = `GROUP:${groupName}`;
-                    opt.text = `Group: ${groupName}`;
-                    sel.appendChild(opt);
-                    sel.value = `GROUP:${groupName}`;
-                    ui.renderS21();
-                }
             },
 
             /* ---------------------------------------------------------------------- */
@@ -1385,22 +1341,32 @@
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if(r && r.sharedInMinistry) {
-                        const str = `${p.name} <span class="float-right font-mono text-xs opacity-70">${r.hours||'-'}h / ${r.studies||'-'}s</span>`;
-                        if (p.isRP || p.isSP || p.isFM) rps.push(str);
-                        else if (r.isAP) aps.push(str);
-                        else normals.push(p.name + ` <span class="float-right font-mono text-xs opacity-70">${r.studies||'0'}s</span>`);
+                        const trHtml = `<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">${r.hours||'-'}</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`;
+                        if (p.isRP || p.isSP || p.isFM) rps.push(trHtml);
+                        else if (r.isAP) aps.push(trHtml);
+                        else normals.push(`<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`);
                     } else {
-                        inactives.push(p.name);
+                        inactives.push(`<tr class="border-b border-white/10"><td class="px-4 py-2 text-rose-300">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">-</td></tr>`);
                     }
                 });
                 
-                const box = (title, arr, color) => `
-                    <div class="bg-black/30 border border-${color}-500/30 rounded-xl p-4 overflow-y-auto max-h-[300px] custom-scrollbar">
-                        <div class="text-${color}-300 font-bold border-b border-${color}-500/20 pb-2 mb-2 text-sm sticky top-0 bg-black/90">${title} (${arr.length})</div>
-                        <div class="text-white text-sm space-y-1.5">${arr.length?arr.join('<br>'):'<span class="opacity-50 italic">None</span>'}</div>
+                const box = (title, rows, color) => `
+                    <div class="bg-black/30 border border-${color}-500/30 rounded-xl overflow-hidden">
+                        <div class="bg-black/60 text-${color}-300 font-bold px-4 py-3 text-sm flex justify-between"><span>${title}</span><span>${rows.length}</span></div>
+                        <table class="w-full text-left text-sm text-white">
+                            <thead class="bg-black/40 text-${color}-100/50 text-xs uppercase"><tr><th class="px-4 py-2">Name</th><th class="px-4 py-2 text-center w-20">Hours</th><th class="px-4 py-2 text-center w-20">Studies</th></tr></thead>
+                            <tbody>${rows.length ? rows.join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-white/30 italic">None</td></tr>`}</tbody>
+                        </table>
                     </div>`;
                     
-                area.innerHTML = box('Regular Pioneers', rps, 'cyan') + box('Auxiliary Pioneers', aps, 'teal') + box('Publishers', normals, 'slate') + box('Inactive / Pending', inactives, 'rose');
+                area.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${box('Regular Pioneers', rps, 'cyan')}
+                        ${box('Auxiliary Pioneers', aps, 'teal')}
+                        ${box('Publishers', normals, 'slate')}
+                        ${box('Inactive / Pending', inactives, 'rose')}
+                    </div>
+                `;
             },
 
             setupS21Tab: () => {
@@ -1440,7 +1406,6 @@
                 else if (filter === 'BATCH_ELDER') pubs = pubs.filter(p => p.isElder);
                 else if (filter === 'BATCH_MS') pubs = pubs.filter(p => p.isMS);
                 else if (filter === 'BATCH_UBP') pubs = pubs.filter(p => !p.baptized);
-                else if (filter.startsWith('GROUP:')) pubs = pubs.filter(p => p.group === filter.replace('GROUP:', ''));
                 else if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
                 
                 if(pubs.length === 0) { area.innerHTML = `<div class="text-teal-100/50 p-10 font-mono">No data matched for this batch request.</div>`; return; }
@@ -1449,7 +1414,7 @@
                 
                 pubs.forEach(pub => {
                     const card = document.createElement('div');
-                    card.className = 's21-strict';
+                    card.className = 's21-page';
                     let rowsHtml = '', totalHours = 0, totalRemarksNum = 0;
                     
                     monthOrder.forEach(m => {
@@ -1462,16 +1427,16 @@
                             totalRemarksNum += utils.extractNumbers(r.comments);
                         }
                         
-                        const chkShared = r.sharedInMinistry ? '✔' : '';
-                        const chkAP = r.isAP ? '✔' : '';
+                        const chkShared = r.sharedInMinistry ? 'checked' : '';
+                        const chkAP = r.isAP ? 'checked' : '';
                         
                         rowsHtml += `
                             <div class="cell month">${utils.getMonthName(m)}</div>
-                            <div class="cell center"><div class="print-check">${chkShared}</div></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}" readonly></div>
-                            <div class="cell center"><div class="print-check">${chkAP}</div></div>
-                            <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}" readonly></div>
-                            <div class="cell"><input class="remarks-input" type="text" value="${r.comments||''}" readonly></div>
+                            <div class="cell center"><input class="month-check" type="checkbox" ${chkShared}></div>
+                            <div class="cell"><input class="cell-input" type="text" value="${r.studies||''}"></div>
+                            <div class="cell center"><input class="month-check" type="checkbox" ${chkAP}></div>
+                            <div class="cell"><input class="cell-input" type="text" value="${r.hours||''}"></div>
+                            <div class="cell"><textarea class="remarks-input">${r.comments||''}</textarea></div>
                         `;
                     });
 
@@ -1481,21 +1446,21 @@
                     card.innerHTML = `
                         <h1 class="title">CONGREGATION’S PUBLISHER RECORD</h1>
                         <section class="personal">
-                            <div class="detail name"><label class="detail-label">Name:</label><input class="detail-input" type="text" value="${pub.name}" readonly></div>
-                            <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}" readonly></div>
-                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${bapText}" readonly></div>
+                            <div class="detail name"><label class="detail-label">Name:</label><input class="detail-input" type="text" value="${pub.name}"></div>
+                            <div class="detail birth"><label class="detail-label">Date of birth:</label><input class="detail-input" type="text" value="${pub.dob||''}"></div>
+                            <div class="detail baptism"><label class="detail-label">Date of baptism:</label><input class="detail-input" type="text" value="${bapText}"></div>
                             <div class="identity">
-                                <label class="male"><div class="print-check small">${pub.gender==='Male'?'✔':''}</div><span>Male</span></label>
-                                <label class="female"><div class="print-check small">${pub.gender==='Female'?'✔':''}</div><span>Female</span></label>
-                                <label class="sheep"><div class="print-check small">${pub.hope==='Other Sheep'?'✔':''}</div><span>Other sheep</span></label>
-                                <label class="anointed"><div class="print-check small">${pub.hope==='Anointed'?'✔':''}</div><span>Anointed</span></label>
+                                <label class="male"><input type="checkbox" ${pub.gender==='Male'?'checked':''}><span>Male</span></label>
+                                <label class="female"><input type="checkbox" ${pub.gender==='Female'?'checked':''}><span>Female</span></label>
+                                <label class="sheep"><input type="checkbox" ${pub.hope==='Other Sheep'?'checked':''}><span>Other sheep</span></label>
+                                <label class="anointed"><input type="checkbox" ${pub.hope==='Anointed'?'checked':''}><span>Anointed</span></label>
                             </div>
                             <div class="role-options">
-                                <label class="check-label"><div class="print-check small">${pub.isElder?'✔':''}</div><span>Elder</span></label>
-                                <label class="check-label"><div class="print-check small">${pub.isMS?'✔':''}</div><span>Ministerial servant</span></label>
-                                <label class="check-label"><div class="print-check small">${pub.isRP?'✔':''}</div><span>Regular pioneer</span></label>
-                                <label class="check-label"><div class="print-check small">${pub.isSP?'✔':''}</div><span>Special pioneer</span></label>
-                                <label class="check-label"><div class="print-check small">${pub.isFM?'✔':''}</div><span>Field missionary</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isElder?'checked':''}><span>Elder</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isMS?'checked':''}><span>Ministerial servant</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isRP?'checked':''}><span>Regular pioneer</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isSP?'checked':''}><span>Special pioneer</span></label>
+                                <label class="check-label"><input type="checkbox" ${pub.isFM?'checked':''}><span>Field missionary</span></label>
                             </div>
                         </section>
                         <section class="form-table">
@@ -1511,8 +1476,8 @@
                             <div class="total-row">
                                 <div class="total-label">Total</div>
                                 <div class="total-box">
-                                    <div class="slot"><input class="total-input" type="text" value="${totalHours > 0 ? totalHours : ''}" readonly></div>
-                                    <div class="slot"><input class="total-input remarks" type="text" value="${remarksOutput}" readonly></div>
+                                    <div class="slot"><input class="total-input" type="text" value="${totalHours > 0 ? totalHours : ''}"></div>
+                                    <div class="slot"><input class="total-input remarks" type="text" value="${remarksOutput}"></div>
                                 </div>
                             </div>
                         </section>
@@ -1520,7 +1485,7 @@
                     `;
                     area.appendChild(card);
                 });
-                ui.showToast(`Compiled ${pubs.length} cards. Ready for Print.`);
+                ui.showToast(`Compiled ${pubs.length} cards. Ready for Native Print.`);
             },
 
             exportPDF: () => {
@@ -1529,11 +1494,9 @@
                     ui.showToast('Compile the queue first.', 'error');
                     return;
                 }
-                
-                ui.showToast('Preparing Native Print View. Ensure Layout is Landscape.');
-                setTimeout(() => {
-                    window.print();
-                }, 500);
+                document.body.classList.add('printing-s21');
+                window.print();
+                setTimeout(() => { document.body.classList.remove('printing-s21'); }, 1000);
             },
 
             setupS4Tab: () => {
@@ -1562,6 +1525,16 @@
                 } else {
                     s4.style.transform = 'scale(1)';
                     wrapper.style.height = '625px';
+                }
+            },
+
+            enforceS4Logic: () => {
+                const ministryCheckbox = document.getElementById('s4-ministry');
+                const hoursInput = document.getElementById('s4-hours');
+                const studiesInput = document.getElementById('s4-studies');
+                if (!ministryCheckbox.checked) {
+                    hoursInput.value = '';
+                    studiesInput.value = '';
                 }
             },
 
@@ -1597,15 +1570,13 @@
                 
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
-                let isAP = false;
                 const studies = parseInt(document.getElementById('s4-studies').value) || 0;
+                let isAP = false;
 
                 if (!sharedInMinistry) {
-                    hours = 0; isAP = false;
-                }
-                
-                if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) {
-                    isAP = true;
+                    hours = 0; 
+                } else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) {
+                    isAP = true; // Auto AP Logic
                 }
                 
                 const report = {
@@ -1617,12 +1588,18 @@
                 
                 await db.saveReport(report);
                 ui.showToast(`Report submitted successfully.`);
+                
+                // Reset form gracefully
+                document.getElementById('s4-pub-select').value = "";
+                document.getElementById('s4-name').value = "";
+                document.getElementById('s4-ministry').checked = true;
+                document.getElementById('s4-studies').value = '';
+                document.getElementById('s4-hours').value = '';
+                document.getElementById('s4-comments').value = '';
             }
         };
 
-        window.addEventListener('load', () => {
-            if (auth.check()) window.db.init();
-        });
+        window.addEventListener('load', () => window.db.init());
     </script>
 </body>
 </html>
