@@ -115,18 +115,38 @@
         /* -------------------------------------------------------------------------- */
         /* EXACT S-21 PAGE STYLES (From User's editable_3.html)                       */
         /* -------------------------------------------------------------------------- */
-        .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; overflow-x: auto; padding: 20px; }
+        .s21-wrapper { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 40px; /* Increased gap between scaled cards */
+            align-items: center; 
+            width: 100%; 
+            padding: 20px 0; /* Removed horizontal padding to allow full scaling */
+            /* Removed overflow-x to allow scaling down instead of scrolling */
+        }
         
+        .s21-page-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            /* Container scales down on smaller screens */
+            container-type: inline-size;
+        }
+
         .s21-page {
             position: relative;
             width: 1448px;
             height: 1025px;
-            min-width: 1448px;
-            margin: 0 auto;
+            /* Remove min-width to allow transform scaling */
+            margin: 0; 
             background: #fff;
             color: #000;
             font-family: Arial, Helvetica, sans-serif;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* Transform scaling to fit within typical screens (approx 70% for standard view) */
+            transform-origin: top center;
+            /* We will apply the scale inline via JS based on wrapper width */
+            
             /* Required for correct multi-page native printing */
             page-break-after: always;
             break-after: page;
@@ -153,9 +173,24 @@
         .s21-page .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
         .s21-page .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
 
-        /* The Custom Checkbox Engine for S-21 */
-        .s21-page .identity input, .s21-page .check-label input { appearance: none; -webkit-appearance: none; width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; border: 2px solid #111; border-radius: 0; background: transparent; position: relative; cursor: pointer; }
-        .s21-page .identity input:checked::after, .s21-page .check-label input:checked::after { content: ""; position: absolute; left: 3px; top: -3px; width: 9px; height: 15px; border-right: 3px solid #111; border-bottom: 3px solid #111; transform: rotate(45deg); }
+        .s21-page .identity input, .s21-page .check-label input { 
+            appearance: none; -webkit-appearance: none; 
+            width: 21px; height: 21px; flex: 0 0 21px; 
+            margin: 0 9px 0 0; padding: 0; 
+            border: 2px solid #111; border-radius: 0; 
+            background: #fff; position: relative; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        .s21-page .identity input:checked::after, .s21-page .check-label input:checked::after { 
+            content: "✔"; 
+            position: absolute; 
+            color: #000;
+            font-size: 22px; /* Sized to fit exactly inside 21x21 box */
+            line-height: 1;
+            font-weight: bold;
+            top: -3px; /* Nudge to center visually */
+            left: 1px;
+        }
 
         .s21-page .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
         .s21-page .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; grid-template-rows: 120px repeat(12, 43px); border: 2px solid #202020; background: #fff; }
@@ -172,8 +207,23 @@
         .s21-page .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
         .s21-page .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
 
-        .s21-page .month-check { appearance: none; -webkit-appearance: none; display: block; width: 26px; height: 26px; margin: 0; padding: 0; border: 2px solid #111; border-radius: 0; background: transparent; position: relative; cursor: pointer; }
-        .s21-page .month-check:checked::after { content: ""; position: absolute; left: 6px; top: 0px; width: 10px; height: 16px; border-right: 3px solid #111; border-bottom: 3px solid #111; transform: rotate(45deg); }
+        .s21-page .month-check { 
+            appearance: none; -webkit-appearance: none; display: block; 
+            width: 26px; height: 26px; margin: 0; padding: 0; 
+            border: 2px solid #111; border-radius: 0; 
+            background: #fff; position: relative; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        .s21-page .month-check:checked::after { 
+            content: "✔"; 
+            position: absolute; 
+            color: #000;
+            font-size: 28px; /* Sized to fit inside 26x26 box */
+            line-height: 1;
+            font-weight: bold;
+            top: -4px; /* Nudge to center */
+            left: 1px;
+        }
 
         .s21-page .total-row { width: 1369px; height: 45px; position: relative; }
         .s21-page .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
@@ -220,12 +270,20 @@
             body.printing-s21 #s21-render-area { padding: 0 !important; margin: 0 !important; display: block !important; width: 100%; overflow: visible !important; }
             
             /* Ensure the cards print perfectly */
+            body.printing-s21 .s21-page-container {
+                height: 1025px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
             body.printing-s21 .s21-page {
                 margin: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
                 page-break-after: always !important;
                 transform: none !important;
+                left: 0 !important;
+                top: 0 !important;
             }
             
             /* Force rigid styling protection against Tailwind print resets */
@@ -928,7 +986,10 @@
                         ui.switchTab('dashboard');
                     }
                 }
-                window.addEventListener('resize', ui.scaleS4);
+                window.addEventListener('resize', () => {
+                    ui.scaleS4();
+                    ui.scaleS21();
+                });
             },
             
             switchTab: (tabId) => {
@@ -1415,6 +1476,9 @@
                 const monthOrder = [8,9,10,11,0,1,2,3,4,5,6,7];
                 
                 pubs.forEach(pub => {
+                    const container = document.createElement('div');
+                    container.className = 's21-page-container';
+                    
                     const card = document.createElement('div');
                     card.className = 's21-page';
                     let rowsHtml = '', totalHours = 0, totalRemarksNum = 0;
@@ -1485,9 +1549,47 @@
                         </section>
                         <footer class="footer"><span>S-21-E</span><span class="footer-date">11/23</span></footer>
                     `;
-                    area.appendChild(card);
+                    container.appendChild(card);
+                    area.appendChild(container);
                 });
+                
+                // Apply scaling immediately after rendering
+                ui.scaleS21();
                 ui.showToast(`Compiled ${pubs.length} cards. Ready for Native Print.`);
+            },
+            
+            scaleS21: () => {
+                const wrapper = document.getElementById('s21-render-area');
+                if (!wrapper) return;
+                
+                const w = wrapper.clientWidth;
+                const targetWidth = 1448; // Native width of S-21
+                
+                const containers = document.querySelectorAll('.s21-page-container');
+                const pages = document.querySelectorAll('.s21-page');
+                
+                if (pages.length === 0) return;
+                
+                if (w < targetWidth) {
+                    // Calculate scale to fit within wrapper, leaving a little margin
+                    const scale = (w - 20) / targetWidth;
+                    
+                    pages.forEach(page => {
+                        page.style.transform = `scale(${scale})`;
+                    });
+                    
+                    // Adjust container height to match scaled content height so they stack properly
+                    containers.forEach(container => {
+                        container.style.height = `${1025 * scale}px`;
+                    });
+                } else {
+                    pages.forEach(page => {
+                        page.style.transform = 'scale(1)';
+                    });
+                    containers.forEach(container => {
+                        container.style.height = '1025px';
+                    });
+                }
             },
 
             exportPDF: () => {
