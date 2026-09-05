@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
-    <!-- Tailwind CSS -->
+    <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase UMD Module -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -67,16 +65,8 @@
             outline: none;
         }
 
-        /* ---------------- S-4 STRICT PUBLIC VIEW STYLES ---------------- */
-        #s4-container-wrapper {
-            width: 100%; max-width: 834px; height: 625px; margin: 0 auto;
-            position: relative; overflow: hidden; display: flex; justify-content: center;
-        }
-        .s4-strict {
-            width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000;
-            font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden;
-        }
+        #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
+        .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
         .s4-strict * { font-family: Arial, Helvetica, sans-serif !important; box-sizing: border-box; }
         .s4-strict .title { position: absolute; top: 22px; left: 0; width: 834px; height: 38px; text-align: center; font-size: 31px; font-weight: 700; color: #000; }
         .s4-strict .identity { position: absolute; left: 158px; top: 77px; width: 647px; height: 83px; background: #f1f4ff; }
@@ -87,10 +77,10 @@
         .s4-strict .report-table td { border: 1px solid #222222; vertical-align: middle; }
         .s4-strict .ministry-cell { position: relative; width: 100%; height: 87px; padding: 10px 75px 8px 15px; }
         
-        /* Flexbox Checkmark for S-4 */
+        /* Flexbox Checkmark for perfect centering */
         .s4-strict .checkbox-wrapper { position: absolute; right: 29px; top: 24px; width: 41px; height: 41px; border: 2px solid #222222; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
         .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; margin: 0; }
-        .s4-strict .checkmark { font-size: 34px; color: #000; font-weight: bold; display: none; line-height: 1; }
+        .s4-strict .checkmark { font-size: 34px; color: #000; font-weight: bold; display: none; line-height: 1; margin-top: -4px;}
         .s4-strict .checkbox:checked + .checkmark { display: block; }
 
         .s4-strict .study-label { padding: 0 14px 0 15px; width: 670px; height: 44px; font-size: 25px; line-height: 28px; white-space: normal; }
@@ -103,17 +93,36 @@
         .s4-strict .footer-code { position: absolute; left: 29px; top: 580px; font-size: 19px; color: #000; }
         .s4-strict .footer-date { position: absolute; left: 100px; top: 580px; font-size: 19px; color: #000; }
 
-        /* ANALYTICS TABLE STYLES */
         .analytics-table { width: 100%; border: 2px solid #000; background: #fff; color: #000; font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 24px; border-collapse: collapse; }
         .analytics-table th, .analytics-table td { border: 1px solid #000; padding: 6px; }
         .analytics-table .header-row { font-weight: bold; text-align: center; font-size: 16px; border-bottom: 2px solid #000; }
         .analytics-table .sub-header { font-weight: bold; text-align: center; background: #f0f0f0; }
         .analytics-table .metric-row { display: flex; justify-content: space-between; border-bottom: 1px solid #000; }
+
+        /* S-21 Dynamic Iframe Scaling Fix */
+        #s21-render-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            background: #111;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            transition: height 0.3s;
+        }
+        #s21-render-frame {
+            width: 1448px;
+            height: 1025px;
+            border: none;
+            background: #fff;
+            transform-origin: top center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
     </style>
 </head>
 <body class="text-sm">
 
-    <!-- PASSWORD OVERLAY -->
     <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 to-teal-900 z-[10000] flex flex-col items-center justify-center">
         <div class="glass-panel p-10 rounded-3xl text-center max-w-md w-full border border-teal-500/30 shadow-2xl">
             <div class="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-lg mx-auto mb-6 text-2xl">FS</div>
@@ -124,14 +133,12 @@
         </div>
     </div>
 
-    <!-- Global Navigation -->
     <nav id="app-header" class="glass-panel sticky top-0 z-50 border-b border-teal-400/20">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.3)]">FS</div>
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
-            <!-- Logical Tab Order -->
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
@@ -161,12 +168,10 @@
                 </div>
             </div>
             
-            <!-- Core Statistics -->
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
             
-            <!-- AP and RP Dedicated Tables -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-                <!-- Regular Pioneers Table -->
+                <!-- Regular Pioneers Log -->
                 <div class="glass-panel rounded-2xl overflow-hidden border border-cyan-500/30">
                     <div class="bg-black/30 px-5 py-3 border-b border-cyan-500/20 text-cyan-300 font-bold">Regular Pioneers Log</div>
                     <div class="overflow-x-auto">
@@ -179,16 +184,16 @@
                     </div>
                 </div>
                 
-                <!-- Auxiliary Pioneers Table & Review Log -->
+                <!-- Auxiliary Pioneers Review Log -->
                 <div class="glass-panel rounded-2xl overflow-hidden border border-emerald-500/30">
-                    <div class="bg-black/30 px-5 py-3 border-b border-emerald-500/20 text-emerald-300 font-bold flex justify-between">
-                        <span>Auxiliary Pioneers Log</span>
-                        <span class="text-[10px] uppercase text-emerald-200/50">Auto-flagged entries</span>
+                    <div class="bg-black/30 px-5 py-3 border-b border-emerald-500/20 text-emerald-300 font-bold flex justify-between items-center">
+                        <span>Auxiliary Pioneer Review Log</span>
+                        <span class="text-[10px] uppercase text-emerald-200/50">Review publishers mapped to AP this month</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap text-white">
                             <thead class="bg-black/40 text-emerald-100/60 text-xs uppercase">
-                                <tr><th class="px-5 py-2">Name</th><th class="px-5 py-2 text-center w-20">Hours</th><th class="px-5 py-2 text-center w-20">Studies</th><th class="px-5 py-2 text-right">Action</th></tr>
+                                <tr><th class="px-5 py-2">Publisher</th><th class="px-5 py-2 text-center w-20">Hours</th><th class="px-5 py-2 text-center w-20">Studies</th><th class="px-5 py-2 text-right">Admin Action</th></tr>
                             </thead>
                             <tbody id="dash-ap-review-table" class="divide-y divide-white/5"></tbody>
                         </table>
@@ -196,11 +201,11 @@
                 </div>
             </div>
             
-            <!-- General Submissions Log -->
+            <!-- Monthly Submissions Log -->
             <div class="glass-panel rounded-2xl overflow-hidden mt-6">
                 <div class="bg-black/30 px-6 py-4 border-b border-white/10 flex justify-between items-center">
                     <h3 class="font-semibold text-white">Monthly Submissions Log</h3>
-                    <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded">☁️ Synced</span>
+                    <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded flex items-center gap-1">☁️ Cloud Synced</span>
                 </div>
                 <div class="overflow-x-auto max-h-[500px] custom-scrollbar">
                     <table class="w-full text-left text-sm whitespace-nowrap relative">
@@ -229,7 +234,6 @@
             </div>
         </div>
 
-        <!-- S-21 PRINTER TAB (iFrame Engine) -->
         <div id="tab-s21" class="tab-content space-y-6">
             <div class="flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
@@ -240,7 +244,7 @@
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
-                    <!-- Triggers iFrame Native Print -->
+                    <!-- Trigger Native Print -->
                     <button onclick="ui.printCards()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
                         Print Cards
@@ -248,20 +252,19 @@
                 </div>
             </div>
             
-            <!-- ISOLATED IFRAME FOR 100% PURE HTML/CSS RENDERING -->
-            <div id="s21-render-area" class="w-full bg-gray-900 rounded-xl overflow-hidden shadow-inner flex justify-center p-4" style="height: 800px;">
-                <iframe id="s21-render-frame" class="w-full h-full bg-white shadow-2xl rounded" style="max-width: 1448px;"></iframe>
+            <!-- ISOLATED IFRAME FOR 100% PURE HTML/CSS RENDERING (Zero Tailwind interference) -->
+            <div id="s21-render-area">
+                <iframe id="s21-render-frame"></iframe>
             </div>
         </div>
 
-        <!-- ANALYTICS TAB (6-Month Summary) -->
+        <!-- ANALYTICS TAB -->
         <div id="tab-analytics" class="tab-content space-y-6">
             <div>
                 <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
                 <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
             </div>
-            
-            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto"></div>
+            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto text-black"></div>
 
             <div class="glass-panel mt-10 p-6 rounded-2xl">
                 <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
@@ -296,7 +299,6 @@
                     <button onclick="ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Export Reports</button>
 
                     <button onclick="ui.wipeAllData()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
-                    
                     <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
                         + Add Publisher
                     </button>
@@ -321,7 +323,6 @@
             </div>
         </div>
 
-        <!-- S-4 FORM (Strict Public View) -->
         <div id="tab-s4" class="tab-content">
             <div class="w-full flex flex-col items-center justify-center p-4">
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
@@ -445,17 +446,6 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="col-span-2 md:col-span-1 space-y-2">
-                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone</label>
-                        <input type="text" id="pub-phone" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
-                    </div>
-                    <div class="col-span-2 md:col-span-1 space-y-2">
-                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Address</label>
-                        <input type="text" id="pub-address" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
-                    </div>
-                </div>
-
                 <div class="pt-6 flex justify-end gap-4 border-t border-white/10">
                     <button type="button" onclick="ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all">Cancel</button>
                     <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Commit Record</button>
@@ -470,9 +460,6 @@
     </div>
 
     <script type="module">
-        /* -------------------------------------------------------------------------- */
-        /* MODULE 1: SUPABASE BAAS CONFIGURATION                                      */
-        /* -------------------------------------------------------------------------- */
         const { createClient } = window.supabase;
         
         const SUPABASE_URL = 'https://vffbprsuvrwkzvwnipvg.supabase.co'; 
@@ -481,35 +468,20 @@
         const isCloudEnabled = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_URL.startsWith('http');
         const supabaseClient = isCloudEnabled ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-        /* -------------------------------------------------------------------------- */
-        /* MODULE 2: CONSTANTS & UTILITIES                                            */
-        /* -------------------------------------------------------------------------- */
-        window.config = {
-            MASTER_PASSWORD: 'Admin' + '1234'
-        };
+        window.config = { MASTER_PASSWORD: 'Admin' + '1234' };
 
         window.auth = {
             check: () => {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('group')) {
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    return true;
-                }
-                if (localStorage.getItem('fs_auth') === 'true') {
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    return true;
-                }
+                if (urlParams.get('group')) { document.getElementById('auth-screen').classList.add('hidden'); return true; }
+                if (localStorage.getItem('fs_auth') === 'true') { document.getElementById('auth-screen').classList.add('hidden'); return true; }
                 return false;
             },
             login: () => {
                 const p = document.getElementById('auth-pass').value;
                 if (p === window.config.MASTER_PASSWORD) {
-                    localStorage.setItem('fs_auth', 'true');
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    window.db.init(); 
-                } else {
-                    alert("Invalid Master Password");
-                }
+                    localStorage.setItem('fs_auth', 'true'); document.getElementById('auth-screen').classList.add('hidden'); window.db.init(); 
+                } else { alert("Invalid Master Password"); }
             }
         };
 
@@ -521,8 +493,8 @@
                     return v.toString(16);
                 });
             },
-            getMonths: () => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            getMonthName: (idx) => window.utils.getMonths()[idx],
+            getMonths: () => ['September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'],
+            getMonthName: (idx) => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][idx],
             calculateAge: (dob) => {
                 if (!dob) return '-';
                 const parts = dob.split(/[-/]/);
@@ -533,17 +505,13 @@
                 return '-';
             },
             getCurrentServiceYearInfo: () => {
-                const now = new Date();
-                const m = now.getMonth();
-                const y = now.getFullYear();
+                const now = new Date(); const m = now.getMonth(); const y = now.getFullYear();
                 return { serviceYear: m >= 8 ? y + 1 : y, month: m };
             },
             getISTPreviousMonthInfo: () => {
-                const now = new Date();
-                const ist = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5));
+                const now = new Date(); const ist = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5));
                 ist.setMonth(ist.getMonth() - 1); 
-                const month = ist.getMonth();
-                const year = ist.getFullYear();
+                const month = ist.getMonth(); const year = ist.getFullYear();
                 return { month, year, serviceYear: month >= 8 ? year + 1 : year, displayString: `${window.utils.getMonthName(month)} ${year}` };
             },
             extractNumbers: (str) => {
@@ -553,24 +521,17 @@
             }
         };
 
-        /* -------------------------------------------------------------------------- */
-        /* MODULE 3: HYBRID DATABASE ABSTRACTION                                      */
-        /* -------------------------------------------------------------------------- */
         window.db = {
-            publishers: [],
-            reports: [],
+            publishers: [], reports: [],
 
             init: async () => {
                 if (isCloudEnabled) {
                     try {
                         const { data: pData, error: pErr } = await supabaseClient.from('publishers').select('*');
                         if (!pErr && pData) window.db.publishers = pData.map(db.mapPubFromDB);
-
                         const { data: rData, error: rErr } = await supabaseClient.from('reports').select('*');
                         if (!rErr && rData) window.db.reports = rData.map(db.mapRepFromDB);
-                        
-                        const syncEl = document.getElementById('sync-status');
-                        if(syncEl) syncEl.textContent = '☁️ Cloud Synced';
+                        const syncEl = document.getElementById('sync-status'); if(syncEl) syncEl.innerHTML = '☁️ Cloud Synced';
                     } catch (e) { console.error("Cloud fetch failed:", e); }
                 } else {
                     window.db.publishers = JSON.parse(localStorage.getItem('fs_pubs') || '[]');
@@ -579,26 +540,10 @@
                 ui.init();
             },
 
-            mapPubToDB: (p) => ({
-                id: p.id, name: p.name, service_group: p.group, gender: p.gender, hope: p.hope,
-                dob: p.dob || null, baptized: p.baptized || null, is_elder: p.isElder, is_ms: p.isMS,
-                is_rp: p.isRP, is_sp: p.isSP, is_fm: p.isFM, phone: p.phone, address: p.address
-            }),
-            mapPubFromDB: (r) => ({
-                id: r.id, name: r.name, group: r.service_group, gender: r.gender, hope: r.hope,
-                dob: r.dob, baptized: r.baptized, isElder: r.is_elder, isMS: r.is_ms,
-                isRP: r.is_rp, isSP: r.is_sp, isFM: r.is_fm, phone: r.phone, address: r.address
-            }),
-            mapRepToDB: (r) => ({
-                id: r.id, pub_id: r.pubId, service_year: r.serviceYear, month: r.month,
-                shared_in_ministry: r.sharedInMinistry, studies: r.studies ? parseInt(r.studies) : 0,
-                hours: r.hours ? parseFloat(r.hours) : 0, comments: r.comments, is_ap: r.isAP
-            }),
-            mapRepFromDB: (r) => ({
-                id: r.id, pubId: r.pub_id, serviceYear: r.service_year, month: r.month,
-                sharedInMinistry: r.shared_in_ministry, studies: r.studies, hours: r.hours,
-                comments: r.comments, isAP: r.is_ap
-            }),
+            mapPubToDB: (p) => ({ id: p.id, name: p.name, service_group: p.group, gender: p.gender, hope: p.hope, dob: p.dob || null, baptized: p.baptized || null, is_elder: p.isElder, is_ms: p.isMS, is_rp: p.isRP, is_sp: p.isSP, is_fm: p.isFM, phone: p.phone, address: p.address }),
+            mapPubFromDB: (r) => ({ id: r.id, name: r.name, group: r.service_group, gender: r.gender, hope: r.hope, dob: r.dob, baptized: r.baptized, isElder: r.is_elder, isMS: r.is_ms, isRP: r.is_rp, isSP: r.is_sp, isFM: r.is_fm, phone: r.phone, address: r.address }),
+            mapRepToDB: (r) => ({ id: r.id, pub_id: r.pubId, service_year: r.serviceYear, month: r.month, shared_in_ministry: r.sharedInMinistry, studies: r.studies ? parseInt(r.studies) : 0, hours: r.hours ? parseFloat(r.hours) : 0, comments: r.comments, is_ap: r.isAP }),
+            mapRepFromDB: (r) => ({ id: r.id, pubId: r.pub_id, serviceYear: r.service_year, month: r.month, sharedInMinistry: r.shared_in_ministry, studies: r.studies, hours: r.hours, comments: r.comments, isAP: r.is_ap }),
 
             getPublishers: () => window.db.publishers,
             getReports: (sy, month) => {
@@ -612,51 +557,41 @@
                 if (!pub.id) pub.id = utils.generateUUID();
                 const idx = window.db.publishers.findIndex(p => p.id === pub.id);
                 if (idx > -1) window.db.publishers[idx] = pub; else window.db.publishers.push(pub);
-                if (isCloudEnabled) await supabaseClient.from('publishers').upsert(db.mapPubToDB(pub));
-                else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                if (isCloudEnabled) await supabaseClient.from('publishers').upsert(db.mapPubToDB(pub)); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
             },
 
             deletePublisher: async (id) => {
                 if(!confirm('Execute cascading delete on this publisher record?')) return;
                 window.db.publishers = window.db.publishers.filter(p => p.id !== id);
-                if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id);
-                else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                ui.renderPublishers();
-                ui.showToast('Record purged successfully.');
+                if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                ui.renderPublishers(); ui.showToast('Record purged successfully.');
             },
 
             saveReport: async (report) => {
                 report.id = `${report.pubId}_${report.serviceYear}_${report.month}`;
                 const idx = window.db.reports.findIndex(r => r.id === report.id);
                 if (idx > -1) window.db.reports[idx] = report; else window.db.reports.push(report);
-                if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(report));
-                else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(report)); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
             },
 
             revokeAP: async (reportId) => {
                 const idx = window.db.reports.findIndex(r => r.id === reportId);
                 if(idx > -1) {
-                    window.db.reports[idx].isAP = false;
-                    window.db.reports[idx].hours = 0;
-                    if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(window.db.reports[idx]));
-                    else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    ui.renderDashboard();
-                    ui.showToast('Accidental AP hours revoked.');
+                    window.db.reports[idx].isAP = false; window.db.reports[idx].hours = 0;
+                    if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(window.db.reports[idx])); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                    ui.renderDashboard(); ui.showToast('Accidental AP hours revoked.');
                 }
             },
             
             importReports: async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+                const file = e.target.files[0]; if (!file) return;
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const lines = event.target.result.split('\n');
                     if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
                     let imported = 0; const dbRepsToUpsert = [];
-                    
                     for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue;
+                        const line = lines[i].trim(); if (!line) continue;
                         const values = []; let inQuotes = false, val = '';
                         for (let j = 0; j < line.length; j++) {
                             const char = line[j];
@@ -665,49 +600,36 @@
                             else val += char;
                         }
                         values.push(val);
-                        
-                        const pubName = values[0]?.trim();
-                        if (!pubName) continue;
-                        const pub = window.db.publishers.find(p => p.name.toLowerCase() === pubName.toLowerCase());
-                        if (!pub) continue; 
+                        const pubName = values[0]?.trim(); if (!pubName) continue;
+                        const pub = window.db.publishers.find(p => p.name.toLowerCase() === pubName.toLowerCase()); if (!pub) continue; 
                         
                         const isTrue = (v) => v && v.toUpperCase() === 'TRUE';
                         const monthName = values[2]?.trim();
-                        const monthIdx = utils.getMonths().findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+                        const monthIdx = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].findIndex(m => m.toLowerCase() === monthName.toLowerCase());
                         if(monthIdx === -1) continue;
 
-                        const repData = {
-                            pubId: pub.id, serviceYear: parseInt(values[1]), month: monthIdx,
-                            sharedInMinistry: isTrue(values[3]), studies: parseInt(values[4]) || 0,
-                            hours: parseFloat(values[5]) || 0, comments: values[6]?.trim() || '', isAP: isTrue(values[7])
-                        };
+                        const repData = { pubId: pub.id, serviceYear: parseInt(values[1]), month: monthIdx, sharedInMinistry: isTrue(values[3]), studies: parseInt(values[4]) || 0, hours: parseFloat(values[5]) || 0, comments: values[6]?.trim() || '', isAP: isTrue(values[7]) };
                         repData.id = `${repData.pubId}_${repData.serviceYear}_${repData.month}`;
                         
                         const idx = window.db.reports.findIndex(r => r.id === repData.id);
                         if (idx > -1) window.db.reports[idx] = repData; else window.db.reports.push(repData);
-                        dbRepsToUpsert.push(db.mapRepToDB(repData));
-                        imported++;
+                        dbRepsToUpsert.push(db.mapRepToDB(repData)); imported++;
                     }
-                    if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert);
-                    else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    ui.showToast(`Imported ${imported} historical reports`); 
-                    ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
+                    if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                    ui.showToast(`Imported ${imported} historical reports`); ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             },
 
             importContacts: async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+                const file = e.target.files[0]; if (!file) return;
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const lines = event.target.result.split('\n');
                     if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
                     let imported = 0; const dbPubsToUpsert = [];
-                    
                     for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue;
+                        const line = lines[i].trim(); if (!line) continue;
                         const values = []; let inQuotes = false, val = '';
                         for (let j = 0; j < line.length; j++) {
                             const char = line[j];
@@ -717,176 +639,123 @@
                         }
                         values.push(val);
                         
-                        const name = values[0]?.trim();
-                        if (!name) continue;
+                        const name = values[0]?.trim(); if (!name) continue;
                         const isTrue = (v) => v && v.toUpperCase() === 'TRUE';
                         
                         const pubData = {
-                            name: name, phone: values[1]?.trim() || '', address: values[2]?.trim() || '',
-                            dob: values[3]?.trim() || '', baptized: values[4]?.trim() || '',
-                            isElder: isTrue(values[5]), isMS: isTrue(values[6]), isRP: isTrue(values[7]),
-                            gender: isTrue(values[8]) ? 'Male' : 'Female', isSP: isTrue(values[10]), isFM: isTrue(values[11]),
-                            hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep', group: values[14]?.trim() || ''
+                            name: name, phone: values[1]?.trim() || '', address: values[2]?.trim() || '', dob: values[3]?.trim() || '', baptized: values[4]?.trim() || '',
+                            isElder: isTrue(values[5]), isMS: isTrue(values[6]), isRP: isTrue(values[7]), gender: isTrue(values[8]) ? 'Male' : 'Female', isSP: isTrue(values[10]), isFM: isTrue(values[11]), hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep', group: values[14]?.trim() || ''
                         };
                         const existing = window.db.publishers.find(p => p.name.toLowerCase() === name.toLowerCase());
                         pubData.id = existing ? existing.id : utils.generateUUID();
                         
                         const idx = window.db.publishers.findIndex(p => p.id === pubData.id);
                         if (idx > -1) window.db.publishers[idx] = pubData; else window.db.publishers.push(pubData);
-                        dbPubsToUpsert.push(db.mapPubToDB(pubData));
-                        imported++;
+                        dbPubsToUpsert.push(db.mapPubToDB(pubData)); imported++;
                     }
-                    if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert);
-                    else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                    if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
                     ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             }
         };
 
-        /* -------------------------------------------------------------------------- */
-        /* MODULE 4: S-21 PRINTER ENGINE (IFRAME ISOLATION + TEMPLATE INJECTION)      */
-        /* -------------------------------------------------------------------------- */
-        
-        // This constant contains the EXACT CSS from editable_3.html to ensure a perfect 1:1 match
-        // with absolutely no Tailwind CSS interference during the native browser print.
         const S21_ENGINE_CSS = `
-            :root {
-                --page-w: 1448px; --page-h: 1025px; --x: 40px; --table-w: 1369px;
-                --c1: 206px; --c2: 173px; --c3: 172px; --c4: 172px; --c5: 173px; --c6: 473px;
-                --header-h: 120px; --row-h: 43px; --line: #000000; --heavy: #000000;
+            @media print {
+                @page { size: landscape; margin: 0 !important; }
+                html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+                .page { width: 1448px !important; height: 1025px !important; margin: 0 auto !important; page-break-after: always !important; break-after: page !important; overflow: hidden !important; }
+                * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
+            :root { --page-w: 1448px; --page-h: 1025px; --x: 40px; --table-w: 1369px; --c1: 206px; --c2: 173px; --c3: 172px; --c4: 172px; --c5: 173px; --c6: 473px; --header-h: 120px; --row-h: 43px; --line: #111; --heavy: #000; }
             * { box-sizing: border-box; }
-            body { margin: 0; padding: 0; background: #fff; font-family: Arial, Helvetica, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 20px;}
-            
-            .page { position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto; background: #fff; overflow: hidden; flex-shrink: 0; }
+            html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; }
+            .page { position: relative; width: var(--page-w); height: var(--page-h); min-width: var(--page-w); margin: 0 auto; background: #fff; overflow: hidden; }
             .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; }
             .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; }
             .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
             .detail.name { top: 0; } .detail.birth { top: 35px; } .detail.baptism { top: 70px; }
             .detail-label { flex: 0 0 205px; white-space: nowrap; }
-            .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; color: #000; font: 700 27px/35px Arial, Helvetica, sans-serif; overflow: hidden; white-space: nowrap; }
-            .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
+            .detail-input { flex: 0 0 645px; width: 645px; height: 35px; padding: 0 4px; font: 700 27px/35px Arial; }
+            .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; font-weight: 700; }
             .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
             .identity .male { left: 0; top: 0; } .identity .female { left: 248px; top: 0; } .identity .sheep { left: 0; top: 35px; } .identity .anointed { left: 248px; top: 35px; }
             .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
-            .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
+            .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; font-weight: 700; }
+            
+            /* Rigid DIV check boxes for printing */
+            .box-check { display: flex; align-items: center; justify-content: center; width: 21px; height: 21px; border: 2px solid #000; margin-right: 9px; font-size: 22px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
+            .month-check { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid #000; font-size: 28px; font-weight: bold; color: #000; line-height: 1; overflow: hidden;}
             
             .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
             .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 3px solid var(--heavy); background: #fff; }
-            .cell { min-width: 0; min-height: 0; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); overflow: hidden; background: #fff; }
+            .cell { border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); overflow: hidden; background: #fff; }
             .cell:nth-child(6n) { border-right: 0; }
-            .cell.header { height: var(--header-h); display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 7px; font-size: 25px; line-height: 28px; font-weight: 700; }
+            .cell.header { height: var(--header-h); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 25px; font-weight: 700; }
             .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
-            .month { display: flex; align-items: center; padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; }
+            .month { display: flex; align-items: center; padding-left: 9px; font-size: 25px; }
             .center { display: flex; align-items: center; justify-content: center; }
-            .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; }
-            .hours-header .sub { display: block; font-weight: 400; }
+            .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 25px; font-weight: 700; text-align: center; } .hours-header .sub { font-weight: 400; }
             
-            .cell-input { display: block; width: 100%; height: 41px; padding: 0 5px; color: #000; font: 400 24px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
-            .remarks-input { display: block; width: 100%; height: 41px; padding: 0 7px; color: #000; font: 400 21px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
-            
-            /* Rigid DIV Checkboxes to prevent browser wipeout */
-            .check-box, .month-check { display: flex; align-items: center; justify-content: center; border: 2px solid #111; background: #fff; }
-            .check-box { width: 21px; height: 21px; flex: 0 0 21px; margin-right: 9px; }
-            .month-check { width: 26px; height: 26px; margin: 0 auto; }
-            .check-box.checked::after, .month-check.checked::after { content: "✔"; color: #111; font-weight: bold; font-size: 18px; line-height: 1; }
-            .month-check.checked::after { font-size: 22px; }
+            .cell-input { width: 100%; height: 41px; padding: 0 5px; text-align: center; font: 400 24px/41px Arial; overflow: hidden;}
+            .remarks-input { width: 100%; height: 41px; padding: 0 7px; text-align: center; font: 400 21px/41px Arial; overflow: hidden;}
             
             .total-row { width: var(--table-w); height: 45px; position: relative; }
-            .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
-            .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 3px solid var(--heavy); border-top: 3px solid var(--heavy); background: #fff; }
-            .total-box .slot { min-width: 0; height: 41px; overflow: hidden; border-left: 2px solid var(--line); }
-            .total-box .slot:first-child { border-left: none; }
-            .total-input { width: 100%; height: 41px; padding: 0 6px; color: #000; font: 700 23px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+            .total-label { position: absolute; left: 648px; top: 7px; width: 74px; text-align: right; font-size: 25px; font-weight: 700; }
+            .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 3px solid var(--heavy); border-top: 3px solid var(--heavy); background: #fff; }
+            .total-box .slot { height: 41px; overflow: hidden; }
+            .total-box .slot + .slot { border-left: 2px solid var(--line); }
+            .total-input { width: 100%; height: 41px; padding: 0 6px; text-align: center; font: 700 23px/41px Arial; overflow: hidden; }
+            .total-input.remarks { font-weight: 700; }
             
-            .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; }
-            .footer-date { margin-left: 18px; }
-
-            /* NATIVE BROWSER PRINT DIRECTIVES */
-            @media print {
-                @page { size: landscape; margin: 0 !important; }
-                body { margin: 0 !important; padding: 0 !important; display: block; }
-                .page { margin: 0 !important; box-shadow: none; border: none; page-break-after: always; }
-                /* Hides extra spaces to prevent blank pages */
-                html, body { height: 100%; overflow: hidden; } 
-            }
+            .footer { position: absolute; left: 39px; top: 970px; font-size: 19px; } .footer-date { margin-left: 18px; }
         `;
 
-        /* -------------------------------------------------------------------------- */
-        /* MODULE 5: USER INTERFACE CONTROLLER                                        */
-        /* -------------------------------------------------------------------------- */
         window.ui = {
-            currentTab: 'dashboard',
-            publicGroup: null,
+            currentTab: 'dashboard', publicGroup: null,
             
             init: () => {
-                if (window.auth.check()) {
-                    if (ui.publicGroup) return; // handled in check()
-                    
-                    const syInfo = utils.getCurrentServiceYearInfo();
-                    const istInfo = utils.getISTPreviousMonthInfo();
-                    
+                const urlParams = new URLSearchParams(window.location.search);
+                const groupParam = urlParams.get('group');
+                if (groupParam) { document.body.classList.add('public-mode'); ui.publicGroup = groupParam; ui.switchTab('s4'); } 
+                else {
+                    const syInfo = utils.getCurrentServiceYearInfo(); const istInfo = utils.getISTPreviousMonthInfo();
                     const selects = ['dash-year', 's21-year-select', 'analytics-year'];
                     selects.forEach(id => {
                         const el = document.getElementById(id);
                         if(el) {
                             el.innerHTML = '';
-                            for (let i = syInfo.serviceYear - 3; i <= syInfo.serviceYear + 1; i++) {
-                                el.innerHTML += `<option value="${i}">${i-1}-${i}</option>`;
-                            }
+                            for (let i = syInfo.serviceYear - 3; i <= syInfo.serviceYear + 1; i++) { el.innerHTML += `<option value="${i}">${i-1}-${i}</option>`; }
                             el.value = istInfo.serviceYear;
                         }
                     });
-                    
-                    const mSelects = ['dash-month', 'analytics-month'];
-                    mSelects.forEach(id => {
-                        const el = document.getElementById(id);
-                        if(el) el.value = istInfo.month;
-                    });
+                    const mSelects = ['dash-month', 'analytics-month']; mSelects.forEach(id => { const el = document.getElementById(id); if(el) el.value = istInfo.month; });
                     ui.switchTab('dashboard');
                 }
-                window.addEventListener('resize', ui.scaleS4);
+                window.addEventListener('resize', () => { ui.scaleS4(); ui.scaleS21Preview(); });
             },
             
             switchTab: (tabId) => {
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-                const targetTab = document.getElementById(`tab-${tabId}`);
-                if (targetTab) targetTab.classList.add('active');
-                
-                document.querySelectorAll('nav button').forEach(el => {
-                    el.classList.remove('bg-teal-500/80', 'text-white', 'shadow-lg');
-                    el.classList.add('hover:bg-white/10', 'text-teal-50/70');
-                });
-                const btn = document.getElementById(`btn-tab-${tabId}`);
-                if (btn) {
-                    btn.classList.remove('hover:bg-white/10', 'text-teal-50/70');
-                    btn.classList.add('bg-teal-500/80', 'text-white', 'shadow-lg');
-                }
-                
+                const targetTab = document.getElementById(`tab-${tabId}`); if (targetTab) targetTab.classList.add('active');
+                document.querySelectorAll('nav button').forEach(el => { el.classList.remove('bg-teal-500/80', 'text-white', 'shadow-lg'); el.classList.add('hover:bg-white/10', 'text-teal-50/70'); });
+                const btn = document.getElementById(`btn-tab-${tabId}`); if (btn) { btn.classList.remove('hover:bg-white/10', 'text-teal-50/70'); btn.classList.add('bg-teal-500/80', 'text-white', 'shadow-lg'); }
                 ui.currentTab = tabId;
                 if (tabId === 'dashboard') ui.renderDashboard();
                 if (tabId === 'publishers') ui.renderPublishers();
                 if (tabId === 'groups') ui.renderGroups();
                 if (tabId === 's4') ui.setupS4Tab();
-                if (tabId === 's21') ui.setupS21Tab();
+                if (tabId === 's21') { ui.setupS21Tab(); setTimeout(ui.scaleS21Preview, 100); }
                 if (tabId === 'analytics') { ui.renderAnalytics(); ui.renderDetailedRoster(); }
             },
 
             showToast: (msg, type = 'success') => {
-                const t = document.getElementById('toast');
-                document.getElementById('toast-msg').textContent = msg;
-                document.getElementById('toast-icon').textContent = type === 'success' ? '✅' : '⚠️';
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 3500);
+                const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; document.getElementById('toast-icon').textContent = type === 'success' ? '✅' : '⚠️';
+                t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500);
             },
 
             openModal: (id, isEdit = false) => {
-                if(id === 'modal-add-publisher' && !isEdit) {
-                    document.getElementById('form-publisher').reset();
-                    document.getElementById('pub-id').value = '';
-                    document.getElementById('modal-pub-title').textContent = 'Publisher Record';
-                }
+                if(id === 'modal-add-publisher' && !isEdit) { document.getElementById('form-publisher').reset(); document.getElementById('pub-id').value = ''; document.getElementById('modal-pub-title').textContent = 'Publisher Record'; }
                 document.getElementById(id).classList.remove('hidden');
             },
             closeModal: (id) => document.getElementById(id).classList.add('hidden'),
@@ -895,33 +764,21 @@
                 e.preventDefault();
                 const id = document.getElementById('pub-id').value;
                 const pub = {
-                    id: id || utils.generateUUID(), name: document.getElementById('pub-name').value,
-                    gender: document.querySelector('input[name="pub-gender"]:checked')?.value || 'Male',
-                    hope: document.querySelector('input[name="pub-hope"]:checked')?.value || 'Other Sheep',
-                    dob: document.getElementById('pub-dob').value, baptized: document.getElementById('pub-baptized').value,
-                    isElder: document.getElementById('pub-elder').checked, isMS: document.getElementById('pub-ms').checked,
-                    isRP: document.getElementById('pub-rp').checked, isSP: document.getElementById('pub-sp').checked,
-                    isFM: document.getElementById('pub-fm').checked, phone: document.getElementById('pub-phone').value,
-                    address: document.getElementById('pub-address').value, group: document.getElementById('pub-group').value
+                    id: id || utils.generateUUID(), name: document.getElementById('pub-name').value, gender: document.querySelector('input[name="pub-gender"]:checked')?.value || 'Male', hope: document.querySelector('input[name="pub-hope"]:checked')?.value || 'Other Sheep',
+                    dob: document.getElementById('pub-dob').value, baptized: document.getElementById('pub-baptized').value, isElder: document.getElementById('pub-elder').checked, isMS: document.getElementById('pub-ms').checked, isRP: document.getElementById('pub-rp').checked, isSP: document.getElementById('pub-sp').checked, isFM: document.getElementById('pub-fm').checked, phone: document.getElementById('pub-phone').value, address: document.getElementById('pub-address').value, group: document.getElementById('pub-group').value
                 };
-                await db.savePublisher(pub);
-                ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!');
-                ui.closeModal('modal-add-publisher'); ui.renderPublishers();
+                await db.savePublisher(pub); ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!'); ui.closeModal('modal-add-publisher'); ui.renderPublishers();
             },
-            
+
             editPublisher: (id) => {
-                const pub = db.getPublishers().find(p => p.id === id);
-                if (!pub) return;
+                const pub = db.getPublishers().find(p => p.id === id); if (!pub) return;
                 document.getElementById('pub-id').value = pub.id; document.getElementById('pub-name').value = pub.name;
                 const gSel = document.querySelector(`input[name="pub-gender"][value="${pub.gender==='Female'?'Female':'Male'}"]`); if(gSel) gSel.checked = true;
                 const hSel = document.querySelector(`input[name="pub-hope"][value="${pub.hope==='Anointed'?'Anointed':'Other Sheep'}"]`); if(hSel) hSel.checked = true;
                 document.getElementById('pub-dob').value = pub.dob || ''; document.getElementById('pub-baptized').value = pub.baptized || '';
-                document.getElementById('pub-elder').checked = !!pub.isElder; document.getElementById('pub-ms').checked = !!pub.isMS;
-                document.getElementById('pub-rp').checked = !!pub.isRP; document.getElementById('pub-sp').checked = !!pub.isSP;
-                document.getElementById('pub-fm').checked = !!pub.isFM; document.getElementById('pub-phone').value = pub.phone || '';
-                document.getElementById('pub-address').value = pub.address || ''; document.getElementById('pub-group').value = pub.group || '';
-                document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record';
-                ui.openModal('modal-add-publisher', true);
+                document.getElementById('pub-elder').checked = !!pub.isElder; document.getElementById('pub-ms').checked = !!pub.isMS; document.getElementById('pub-rp').checked = !!pub.isRP; document.getElementById('pub-sp').checked = !!pub.isSP; document.getElementById('pub-fm').checked = !!pub.isFM;
+                document.getElementById('pub-phone').value = pub.phone || ''; document.getElementById('pub-address').value = pub.address || ''; document.getElementById('pub-group').value = pub.group || '';
+                document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record'; ui.openModal('modal-add-publisher', true);
             },
 
             wipeAllData: async () => {
@@ -929,49 +786,32 @@
                 if(pass !== window.config.MASTER_PASSWORD) { alert("Incorrect password."); return; }
                 if(confirm("Are you absolutely sure? This will delete ALL publishers and reports permanently.")) {
                     window.db.publishers = []; window.db.reports = [];
-                    if(isCloudEnabled) {
-                        await supabaseClient.from('reports').delete().neq('id', '0');
-                        await supabaseClient.from('publishers').delete().neq('name', '0');
-                    } else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
+                    if(isCloudEnabled) { await supabaseClient.from('reports').delete().neq('id', '0'); await supabaseClient.from('publishers').delete().neq('name', '0'); } 
+                    else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
                     ui.showToast("Database Wiped.", "error"); ui.renderPublishers();
                 }
             },
 
             downloadContacts: () => {
-                const pubs = db.getPublishers();
-                if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
+                const pubs = db.getPublishers(); if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
                 let csv = 'Name,Phone,Address,DOB,Baptized,Elder,MS,RP,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
-                pubs.forEach(p => {
-                    const cleanAddress = (p.address || '').replace(/,/g, ' ');
-                    csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",${!!p.isElder?'TRUE':'FALSE'},${!!p.isMS?'TRUE':'FALSE'},${!!p.isRP?'TRUE':'FALSE'},${p.gender==='Male'?'TRUE':'FALSE'},${p.gender==='Female'?'TRUE':'FALSE'},${!!p.isSP?'TRUE':'FALSE'},${!!p.isFM?'TRUE':'FALSE'},${p.hope==='Anointed'?'TRUE':'FALSE'},${p.hope==='Other Sheep'?'TRUE':'FALSE'},"${p.group || ''}"\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Publishers_Master_Backup.csv'; a.click();
+                pubs.forEach(p => { const cleanAddress = (p.address || '').replace(/,/g, ' '); csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",${!!p.isElder?'TRUE':'FALSE'},${!!p.isMS?'TRUE':'FALSE'},${!!p.isRP?'TRUE':'FALSE'},${p.gender==='Male'?'TRUE':'FALSE'},${p.gender==='Female'?'TRUE':'FALSE'},${!!p.isSP?'TRUE':'FALSE'},${!!p.isFM?'TRUE':'FALSE'},${p.hope==='Anointed'?'TRUE':'FALSE'},${p.hope==='Other Sheep'?'TRUE':'FALSE'},"${p.group || ''}"\n`; });
+                const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Publishers_Master_Backup.csv'; a.click();
             },
 
             downloadReports: () => {
-                const reps = db.getReports(); const pubs = db.getPublishers();
-                if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
+                const reps = db.getReports(); const pubs = db.getPublishers(); if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
                 let csv = 'Publisher Name,Service Year,Month,Shared In Ministry,Studies,Hours,Remarks,Is Auxiliary Pioneer\n';
-                reps.forEach(r => {
-                    const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown';
-                    const monthName = utils.getMonthName(r.month);
-                    const cleanComments = (r.comments || '').replace(/"/g, '""');
-                    csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Historical_Reports_Backup.csv'; a.click();
+                reps.forEach(r => { const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown'; const monthName = utils.getMonthName(r.month); const cleanComments = (r.comments || '').replace(/"/g, '""'); csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`; });
+                const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Historical_Reports_Backup.csv'; a.click();
             },
 
             renderDashboard: () => {
-                const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month');
-                if(!dYear || !dMonth) return;
-                
+                const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month'); if(!dYear || !dMonth) return;
                 const sy = parseInt(dYear.value); const month = parseInt(dMonth.value);
                 const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
-                
                 let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
-                let rpTableHtml = '', apTableHtml = '', apReviewHtml = '';
+                let rpTableHtml = '', apTableHtml = '';
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
@@ -983,13 +823,13 @@
                             rpTableHtml += `<tr class="border-b border-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                         } else if (r.isAP) { 
                             stats.apCount++; stats.apHours += h; stats.apStudies += s; 
-                            apReviewHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
+                            apTableHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
                         }
                     }
                 });
 
                 document.getElementById('dash-rp-table').innerHTML = rpTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
-                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged.</td></tr>`;
+                document.getElementById('dash-ap-review-table').innerHTML = apTableHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div><div class="text-4xl font-bold text-white mt-2">${pubs.length}</div></div>
@@ -998,8 +838,7 @@
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div><div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div></div>
                 `;
 
-                const tbody = document.getElementById('dash-reports-table');
-                tbody.innerHTML = '';
+                const tbody = document.getElementById('dash-reports-table'); tbody.innerHTML = '';
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) tbody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
@@ -1008,130 +847,64 @@
             },
 
             renderPublishers: () => {
-                const tbody = document.getElementById('publisher-table-body');
-                if(!tbody) return;
-                const pubs = db.getPublishers();
-                tbody.innerHTML = '';
-                
+                const tbody = document.getElementById('publisher-table-body'); if(!tbody) return;
+                const pubs = db.getPublishers(); tbody.innerHTML = '';
                 pubs.sort((a,b)=> a.name.localeCompare(b.name)).forEach(p => {
                     let badges = [];
                     if(p.isElder) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">Elder</span>');
                     if(p.isMS) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">MS</span>');
                     if(p.isRP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">RP</span>');
                     if(p.isSP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">SP</span>');
-                    
                     const age = p.dob ? utils.calculateAge(p.dob) + ' yrs' : '-';
                     const bapText = !p.baptized ? '<span class="text-rose-300 font-semibold border border-rose-500/40 bg-rose-900/50 px-1.5 py-0.5 rounded text-[10px] uppercase">UBP</span>' : p.baptized;
-                    
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
-                            <td class="px-6 py-4"><div class="font-bold text-white text-base">${p.name}</div><div class="text-[11px] text-teal-300 mt-1 uppercase tracking-widest font-semibold">${p.group || 'UNASSIGNED'}</div></td>
-                            <td class="px-6 py-4"><div class="flex flex-wrap gap-2">${badges.join('')}</div></td>
-                            <td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${age}<br><span class="text-[11px] font-sans text-teal-100/60 mt-1 block">${bapText}</span></td>
-                            <td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${p.phone || '-'}<div class="text-xs font-sans truncate max-w-[150px] text-teal-100/60 mt-1">${p.address || ''}</div></td>
-                            <td class="px-6 py-4 text-right space-x-3">
-                                <button onclick="ui.editPublisher('${p.id}')" class="text-cyan-400 hover:text-cyan-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
-                                <button onclick="db.deletePublisher('${p.id}')" class="text-rose-400 hover:text-rose-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += `<tr class="hover:bg-white/5 transition-colors border-b border-white/5"><td class="px-6 py-4"><div class="font-bold text-white text-base">${p.name}</div><div class="text-[11px] text-teal-300 mt-1 uppercase tracking-widest font-semibold">${p.group || 'UNASSIGNED'}</div></td><td class="px-6 py-4"><div class="flex flex-wrap gap-2">${badges.join('')}</div></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${age}<br><span class="text-[11px] font-sans text-teal-100/60 mt-1 block">${bapText}</span></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${p.phone || '-'}<div class="text-xs font-sans truncate max-w-[150px] text-teal-100/60 mt-1">${p.address || ''}</div></td><td class="px-6 py-4 text-right space-x-3"><button onclick="ui.editPublisher('${p.id}')" class="text-cyan-400 hover:text-cyan-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button onclick="db.deletePublisher('${p.id}')" class="text-rose-400 hover:text-rose-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                 });
             },
 
             renderGroups: () => {
-                const pubs = db.getPublishers();
-                const groups = [...new Set(pubs.map(p => p.group).filter(g => g && g.trim() !== ''))].sort();
-                const sidebar = document.getElementById('groups-sidebar');
-                if(!sidebar) return;
-                
-                if (groups.length === 0) {
-                    sidebar.innerHTML = '<div class="glass-panel p-4 text-center text-teal-100/60">No groups assigned.</div>';
-                    document.getElementById('group-details').classList.add('hidden'); return;
-                }
-                
+                const pubs = db.getPublishers(); const groups = [...new Set(pubs.map(p => p.group).filter(g => g && g.trim() !== ''))].sort();
+                const sidebar = document.getElementById('groups-sidebar'); if(!sidebar) return;
+                if (groups.length === 0) { sidebar.innerHTML = '<div class="glass-panel p-4 text-center text-teal-100/60">No groups assigned.</div>'; document.getElementById('group-details').classList.add('hidden'); return; }
                 sidebar.innerHTML = groups.map(g => `<button onclick="ui.showGroup('${g}')" class="group-btn w-full glass-panel text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all font-medium flex justify-between items-center text-white mb-2">${g} <span class="bg-black/40 text-teal-300 text-xs px-2.5 py-1 rounded-full">${pubs.filter(p=>p.group===g).length}</span></button>`).join('');
                 ui.showGroup(groups[0]);
             },
 
             showGroup: (groupName) => {
                 document.querySelectorAll('.group-btn').forEach(btn => btn.classList.remove('bg-teal-600/50', 'border-teal-400/50'));
-                const btn = Array.from(document.querySelectorAll('.group-btn')).find(b => b.textContent.includes(groupName));
-                if(btn) btn.classList.add('bg-teal-600/50', 'border-teal-400/50');
-                
+                const btn = Array.from(document.querySelectorAll('.group-btn')).find(b => b.textContent.includes(groupName)); if(btn) btn.classList.add('bg-teal-600/50', 'border-teal-400/50');
                 const details = document.getElementById('group-details'); details.classList.remove('hidden');
                 
                 const pubs = db.getPublishers().filter(p => p.group === groupName);
-                const istInfo = utils.getISTPreviousMonthInfo();
-                const reports = db.getReports(istInfo.serviceYear, istInfo.month);
-                
-                let stats = { elders: 0, rps: 0, aps: 0 };
-                let pending = [], membersList = [], tableHtml = '';
+                const istInfo = utils.getISTPreviousMonthInfo(); const reports = db.getReports(istInfo.serviceYear, istInfo.month);
+                let stats = { elders: 0, rps: 0, aps: 0 }; let pending = [], membersList = [], tableHtml = '';
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
-                    membersList.push(p.name);
-                    if(p.isElder) stats.elders++; if(p.isRP) stats.rps++;
+                    membersList.push(p.name); if(p.isElder) stats.elders++; if(p.isRP) stats.rps++;
                     const r = reports.find(x => x.pubId === p.id);
                     if (r) {
                         if(r.isAP) stats.aps++;
                         tableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-2 px-3 font-medium text-white">${p.name}</td><td class="py-2 px-3 text-center text-emerald-400">${r.sharedInMinistry?'✔':'No'}</td><td class="py-2 px-3 text-center">${r.studies||'-'}</td><td class="py-2 px-3 text-center">${r.hours||'-'}</td><td class="py-2 px-3 text-center text-xs truncate max-w-[150px] text-teal-100/70">${r.comments||''}</td></tr>`;
-                    } else {
-                        pending.push(p.name);
-                        tableHtml += `<tr class="border-b border-white/5 text-teal-100/50 bg-black/20"><td class="py-2 px-3">${p.name}</td><td colspan="4" class="py-2 px-3 text-center italic text-xs">Pending</td></tr>`;
-                    }
+                    } else { pending.push(p.name); tableHtml += `<tr class="border-b border-white/5 text-teal-100/50 bg-black/20"><td class="py-2 px-3">${p.name}</td><td colspan="4" class="py-2 px-3 text-center italic text-xs">Pending</td></tr>`; }
                 });
                 
                 let pendingHtml = pending.length > 0 ? `<ol class="list-decimal pl-5 space-y-1 text-rose-300 text-sm">${pending.map(name => `<li>${name}</li>`).join('')}</ol>` : '<div class="text-emerald-400 text-sm">All submitted!</div>';
-                    
-                details.innerHTML = `
-                    <div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4">
-                        <div><h3 class="text-2xl font-bold text-white">${groupName}</h3><div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div></div>
-                        <div class="flex gap-2"><button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button></div>
-                    </div>
-                    <div class="grid grid-cols-4 gap-3 mb-6 text-center text-white">
-                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div>
-                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-cyan-300">${stats.elders}</div><div class="text-xs text-teal-100/60">Elders</div></div>
-                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-teal-300">${stats.rps}</div><div class="text-xs text-teal-100/60">RPs</div></div>
-                        <div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-amber-300">${stats.aps}</div><div class="text-xs text-amber-100/60">APs</div></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div>
-                        <div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70">${membersList.join('<br>')}</div></div>
-                    </div>
-                    <div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2 text-center">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>
-                `;
+                details.innerHTML = `<div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4"><div><h3 class="text-2xl font-bold text-white">${groupName}</h3><div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div></div><div class="flex gap-2"><button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button></div></div><div class="grid grid-cols-4 gap-3 mb-6 text-center text-white"><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-cyan-300">${stats.elders}</div><div class="text-xs text-teal-100/60">Elders</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-teal-300">${stats.rps}</div><div class="text-xs text-teal-100/60">RPs</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-amber-300">${stats.aps}</div><div class="text-xs text-amber-100/60">APs</div></div></div><div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70">${membersList.join('<br>')}</div></div></div><div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2 text-center">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>`;
             },
 
             copyGroupLink: (groupName) => {
-                const baseUrl = window.location.href.split('?')[0];
-                const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
+                const baseUrl = window.location.href.split('?')[0]; const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
                 const textArea = document.createElement("textarea"); textArea.value = url; document.body.appendChild(textArea);
-                textArea.focus(); textArea.select();
-                try { document.execCommand('copy'); ui.showToast('Public Link Copied!'); } catch (err) { console.error(err); }
-                document.body.removeChild(textArea);
+                textArea.focus(); textArea.select(); try { document.execCommand('copy'); ui.showToast('Public Link Copied!'); } catch (err) { console.error(err); } document.body.removeChild(textArea);
             },
 
-            /* ---------------------------------------------------------------------- */
-            /* ANALYTICS ENGINE (6-Month Table View)                                  */
-            /* ---------------------------------------------------------------------- */
             renderAnalytics: () => {
-                const grid = document.getElementById('analytics-grid');
-                if(!grid) return;
-                
-                const pubs = db.getPublishers();
-                const now = new Date();
-                const currentMonthDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5));
-                currentMonthDate.setMonth(currentMonthDate.getMonth() - 1); 
-                
+                const grid = document.getElementById('analytics-grid'); if(!grid) return;
+                const pubs = db.getPublishers(); const now = new Date(); const currentMonthDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5.5)); currentMonthDate.setMonth(currentMonthDate.getMonth() - 1); 
                 let html = '';
-                
                 for(let i=0; i<6; i++) {
-                    const targetDate = new Date(currentMonthDate.getTime());
-                    targetDate.setMonth(currentMonthDate.getMonth() - i);
-                    const tMonth = targetDate.getMonth(); const tYear = targetDate.getFullYear();
-                    const tSy = tMonth >= 8 ? tYear + 1 : tYear;
-                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`;
-                    const reports = db.getReports(tSy, tMonth);
-                    
+                    const targetDate = new Date(currentMonthDate.getTime()); targetDate.setMonth(currentMonthDate.getMonth() - i);
+                    const tMonth = targetDate.getMonth(); const tYear = targetDate.getFullYear(); const tSy = tMonth >= 8 ? tYear + 1 : tYear;
+                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`; const reports = db.getReports(tSy, tMonth);
                     let pubCount = 0, pubStudies = 0, apCount = 0, apStudies = 0, apHours = 0, rpCount = 0, rpStudies = 0, rpHours = 0, inactiveCount = 0;
                     
                     pubs.forEach(p => {
@@ -1144,62 +917,43 @@
                         } else inactiveCount++;
                     });
                     
-                    html += `
-                        <div class="analytics-table">
-                            <div class="header-row py-2">Summary of ${displayMonth}</div>
-                            <div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div>
-                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div>
-                            <div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div>
-                            <div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div>
-                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
-                            <div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div>
-                            <div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div>
-                            <div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div>
-                            <div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div>
-                            <div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div>
-                        </div>
-                    `;
+                    html += `<div class="analytics-table"><div class="header-row py-2">Summary of ${displayMonth}</div><div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div><div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div><div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div><div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div><div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div></div>`;
                 }
                 grid.innerHTML = html;
             },
             
             renderDetailedRoster: () => {
                 const area = document.getElementById('analytics-roster'); if(!area) return;
-                const sy = parseInt(document.getElementById('analytics-year').value);
-                const month = parseInt(document.getElementById('analytics-month').value);
-                const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
-                let rps=[], aps=[], normals=[], inactives=[];
-                
+                const sy = parseInt(document.getElementById('analytics-year').value); const month = parseInt(document.getElementById('analytics-month').value);
+                const pubs = db.getPublishers(); const reports = db.getReports(sy, month); let rps=[], aps=[], normals=[], inactives=[];
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if(r && r.sharedInMinistry) {
                         const trHtml = `<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">${r.hours||'-'}</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`;
-                        if (p.isRP || p.isSP || p.isFM) rps.push(trHtml);
-                        else if (r.isAP) aps.push(trHtml);
-                        else normals.push(`<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`);
+                        if (p.isRP || p.isSP || p.isFM) rps.push(trHtml); else if (r.isAP) aps.push(trHtml); else normals.push(`<tr class="border-b border-white/10 hover:bg-white/5"><td class="px-4 py-2">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">${r.studies||'-'}</td></tr>`);
                     } else inactives.push(`<tr class="border-b border-white/10"><td class="px-4 py-2 text-rose-300">${p.name}</td><td class="px-4 py-2 text-center">-</td><td class="px-4 py-2 text-center">-</td></tr>`);
                 });
-                
                 const box = (title, rows, color) => `<div class="bg-black/30 border border-${color}-500/30 rounded-xl overflow-hidden"><div class="bg-black/60 text-${color}-300 font-bold px-4 py-3 text-sm flex justify-between"><span>${title}</span><span>${rows.length}</span></div><table class="w-full text-left text-sm text-white"><thead class="bg-black/40 text-${color}-100/50 text-xs uppercase"><tr><th class="px-4 py-2">Name</th><th class="px-4 py-2 text-center w-20">Hours</th><th class="px-4 py-2 text-center w-20">Studies</th></tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-white/30 italic">None</td></tr>`}</tbody></table></div>`;
                 area.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">${box('Regular Pioneers', rps, 'cyan')}${box('Auxiliary Pioneers', aps, 'teal')}${box('Publishers', normals, 'slate')}${box('Inactive / Pending', inactives, 'rose')}</div>`;
             },
 
-            /* ---------------------------------------------------------------------- */
-            /* ISOLATED IFRAME S-21 PRINTER ENGINE (VIRGIN DOM)                       */
-            /* ---------------------------------------------------------------------- */
             setupS21Tab: () => {
                 const sel = document.getElementById('s21-publisher-select'); if(!sel) return;
                 sel.innerHTML = `<option value="ALL">-- All Publishers --</option><option value="BATCH_RP">All Regular Pioneers</option><option value="BATCH_AP">All Auxiliary Pioneers (Current)</option><option value="BATCH_ELDER">All Elders</option><option value="BATCH_MS">All Ministerial Servants</option><option value="BATCH_UBP">All Unbaptized</option><optgroup label="Individuals">`;
-                db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
-                sel.innerHTML += `</optgroup>`;
+                db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`); sel.innerHTML += `</optgroup>`;
+            },
+
+            scaleS21Preview: () => {
+                const frame = document.getElementById('s21-render-frame'); const wrapper = document.getElementById('s21-render-area');
+                if(frame && wrapper && frame.srcdoc) {
+                    const scale = Math.min(1, wrapper.clientWidth / 1448);
+                    frame.style.transform = `scale(${scale})`; wrapper.style.height = `${1025 * scale + 40}px`; // +40 for padding
+                }
             },
 
             renderS21: () => {
-                const sy = parseInt(document.getElementById('s21-year-select').value);
-                const filter = document.getElementById('s21-publisher-select').value;
-                let pubs = db.getPublishers();
-                const currentMonth = utils.getISTPreviousMonthInfo().month;
-                const currentReports = db.getReports(sy, currentMonth);
+                const sy = parseInt(document.getElementById('s21-year-select').value); const filter = document.getElementById('s21-publisher-select').value;
+                let pubs = db.getPublishers(); const currentMonth = utils.getISTPreviousMonthInfo().month; const currentReports = db.getReports(sy, currentMonth);
                 
                 if (filter === 'BATCH_RP') pubs = pubs.filter(p => p.isRP);
                 else if (filter === 'BATCH_AP') pubs = pubs.filter(p => { const r = currentReports.find(x => x.pubId === p.id); return r && r.isAP; });
@@ -1209,11 +963,7 @@
                 else if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
                 
                 const iframe = document.getElementById('s21-render-frame');
-                
-                if(pubs.length === 0) { 
-                    iframe.srcdoc = `<html><body style="font-family:sans-serif; text-align:center; padding: 50px; color: #555;">No records found.</body></html>`;
-                    return; 
-                }
+                if(pubs.length === 0) { iframe.srcdoc = `<html><body style="font-family:sans-serif; text-align:center; padding: 50px;">No records found.</body></html>`; setTimeout(ui.scaleS21Preview, 50); return; }
 
                 let pagesHtml = '';
                 const monthOrder = [8,9,10,11,0,1,2,3,4,5,6,7];
@@ -1224,12 +974,11 @@
                         const r = db.getReports(sy, m).find(x => x.pubId === pub.id) || {};
                         if(r.hours && !isNaN(parseFloat(r.hours))) totalHours += parseFloat(r.hours);
                         if(r.comments) totalRemarksNum += utils.extractNumbers(r.comments);
-                        
                         rowsHtml += `
-                            <div class="cell month">${utils.getMonthName(m)}</div>
-                            <div class="cell center"><div class="month-check ${r.sharedInMinistry ? 'checked' : ''}"></div></div>
+                            <div class="cell month">${utils.getMonths()[m]}</div>
+                            <div class="cell center"><div class="month-check">${r.sharedInMinistry ? '✔' : ''}</div></div>
                             <div class="cell"><div class="cell-input">${r.studies||''}</div></div>
-                            <div class="cell center"><div class="month-check ${r.isAP ? 'checked' : ''}"></div></div>
+                            <div class="cell center"><div class="month-check">${r.isAP ? '✔' : ''}</div></div>
                             <div class="cell"><div class="cell-input">${r.hours||''}</div></div>
                             <div class="cell"><div class="remarks-input">${r.comments||''}</div></div>
                         `;
@@ -1246,17 +995,17 @@
                                 <div class="detail birth"><label class="detail-label">Date of birth:</label><div class="detail-input">${pub.dob||''}</div></div>
                                 <div class="detail baptism"><label class="detail-label">Date of baptism:</label><div class="detail-input">${bapText}</div></div>
                                 <div class="identity">
-                                    <label class="male"><div class="check-box ${pub.gender==='Male'?'checked':''}"></div><span>Male</span></label>
-                                    <label class="female"><div class="check-box ${pub.gender==='Female'?'checked':''}"></div><span>Female</span></label>
-                                    <label class="sheep"><div class="check-box ${pub.hope==='Other Sheep'?'checked':''}"></div><span>Other sheep</span></label>
-                                    <label class="anointed"><div class="check-box ${pub.hope==='Anointed'?'checked':''}"></div><span>Anointed</span></label>
+                                    <label class="male"><div class="box-check">${pub.gender==='Male'?'✔':''}</div><span>Male</span></label>
+                                    <label class="female"><div class="box-check">${pub.gender==='Female'?'✔':''}</div><span>Female</span></label>
+                                    <label class="sheep"><div class="box-check">${pub.hope==='Other Sheep'?'✔':''}</div><span>Other sheep</span></label>
+                                    <label class="anointed"><div class="box-check">${pub.hope==='Anointed'?'✔':''}</div><span>Anointed</span></label>
                                 </div>
                                 <div class="role-options">
-                                    <label class="check-label"><div class="check-box ${pub.isElder?'checked':''}"></div><span>Elder</span></label>
-                                    <label class="check-label"><div class="check-box ${pub.isMS?'checked':''}"></div><span>Ministerial servant</span></label>
-                                    <label class="check-label"><div class="check-box ${pub.isRP?'checked':''}"></div><span>Regular pioneer</span></label>
-                                    <label class="check-label"><div class="check-box ${pub.isSP?'checked':''}"></div><span>Special pioneer</span></label>
-                                    <label class="check-label"><div class="check-box ${pub.isFM?'checked':''}"></div><span>Field missionary</span></label>
+                                    <label class="check-label"><div class="box-check">${pub.isElder?'✔':''}</div><span>Elder</span></label>
+                                    <label class="check-label"><div class="box-check">${pub.isMS?'✔':''}</div><span>Ministerial servant</span></label>
+                                    <label class="check-label"><div class="box-check">${pub.isRP?'✔':''}</div><span>Regular pioneer</span></label>
+                                    <label class="check-label"><div class="box-check">${pub.isSP?'✔':''}</div><span>Special pioneer</span></label>
+                                    <label class="check-label"><div class="box-check">${pub.isFM?'✔':''}</div><span>Field missionary</span></label>
                                 </div>
                             </section>
                             <section class="form-table">
@@ -1282,29 +1031,23 @@
                     `;
                 });
                 
-                const fullIframeHtml = `
-                    <!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <style>${S21_ENGINE_CSS}</style>
-                    </head>
-                    <body>${pagesHtml}</body>
-                    </html>
-                `;
-                
-                iframe.srcdoc = fullIframeHtml;
-                ui.showToast('Cards Compiled!');
+                iframe.srcdoc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${S21_ENGINE_CSS}</style></head><body>${pagesHtml}</body></html>`;
+                iframe.onload = () => setTimeout(ui.scaleS21Preview, 100);
+                ui.showToast('Cards Compiled natively!');
             },
 
             printCards: () => {
-                const iframe = document.getElementById('s21-render-frame');
-                if (!iframe.srcdoc || iframe.srcdoc.includes('No records found')) {
-                    ui.showToast('Compile the queue first.', 'error'); return;
-                }
-                // Native instant print execution within the virgin iframe wrapper
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
+                const iframe = document.getElementById('s21-render-frame'); const wrapper = document.getElementById('s21-render-area');
+                if (!iframe.srcdoc || iframe.srcdoc.includes('No records found')) { ui.showToast('Compile the queue first.', 'error'); return; }
+                
+                // CRITICAL: Remove CSS transform scale instantly so the browser prints 1448px pure HTML instead of a shrunken box
+                iframe.style.transform = 'none'; wrapper.style.height = 'auto';
+                
+                setTimeout(() => {
+                    iframe.contentWindow.focus(); iframe.contentWindow.print();
+                    // Restore preview scale immediately after print dialog opens
+                    setTimeout(ui.scaleS21Preview, 1000);
+                }, 50);
             },
 
             setupS4Tab: () => {
@@ -1318,53 +1061,35 @@
 
             scaleS4: () => {
                 const wrapper = document.getElementById('s4-container-wrapper'); const s4 = document.getElementById('s4-container');
-                if (!wrapper || !s4) return;
-                const w = wrapper.clientWidth;
-                if (w < 834) {
-                    const scale = w / 834;
-                    s4.style.transform = `scale(${scale})`; wrapper.style.height = `${625 * scale}px`; 
+                if (!wrapper || !s4) return; const w = wrapper.clientWidth;
+                if (w < 834) { const scale = w / 834; s4.style.transform = `scale(${scale})`; wrapper.style.height = `${625 * scale}px`; 
                 } else { s4.style.transform = 'scale(1)'; wrapper.style.height = '625px'; }
             },
 
             enforceS4Logic: () => {
                 const ministryCheckbox = document.getElementById('s4-ministry');
-                if (!ministryCheckbox.checked) {
-                    document.getElementById('s4-hours').value = '';
-                    document.getElementById('s4-studies').value = '';
-                }
+                if (!ministryCheckbox.checked) { document.getElementById('s4-hours').value = ''; document.getElementById('s4-studies').value = ''; }
             },
 
             loadS4: () => {
                 const pubId = document.getElementById('s4-pub-select').value; if(!pubId) return;
-                const pub = db.getPublishers().find(p => p.id === pubId);
-                const istInfo = utils.getISTPreviousMonthInfo();
+                const pub = db.getPublishers().find(p => p.id === pubId); const istInfo = utils.getISTPreviousMonthInfo();
                 document.getElementById('s4-name').value = pub.name;
                 const existing = db.getReports(istInfo.serviceYear, istInfo.month).find(r => r.pubId === pubId);
                 if (existing) {
-                    document.getElementById('s4-ministry').checked = !!existing.sharedInMinistry;
-                    document.getElementById('s4-studies').value = existing.studies || '';
-                    document.getElementById('s4-hours').value = existing.hours || '';
-                    document.getElementById('s4-comments').value = existing.comments || '';
+                    document.getElementById('s4-ministry').checked = !!existing.sharedInMinistry; document.getElementById('s4-studies').value = existing.studies || '';
+                    document.getElementById('s4-hours').value = existing.hours || ''; document.getElementById('s4-comments').value = existing.comments || '';
                 } else {
-                    document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = '';
-                    document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
+                    document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = ''; document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
                 }
             },
 
             saveS4: async () => {
-                const pubId = document.getElementById('s4-pub-select').value;
-                if(!pubId) { ui.showToast('Please select your name.', 'error'); return; }
-                const pub = db.getPublishers().find(p => p.id === pubId);
-                const istInfo = utils.getISTPreviousMonthInfo();
-                
+                const pubId = document.getElementById('s4-pub-select').value; if(!pubId) { ui.showToast('Please select your name.', 'error'); return; }
+                const pub = db.getPublishers().find(p => p.id === pubId); const istInfo = utils.getISTPreviousMonthInfo();
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
-                let hours = parseFloat(document.getElementById('s4-hours').value) || 0;
-                let studies = parseInt(document.getElementById('s4-studies').value) || 0;
-                let isAP = false;
-
-                if (!sharedInMinistry) { hours = 0; studies = 0; }
-                else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) { isAP = true; }
-                
+                let hours = parseFloat(document.getElementById('s4-hours').value) || 0; let studies = parseInt(document.getElementById('s4-studies').value) || 0; let isAP = false;
+                if (!sharedInMinistry) { hours = 0; studies = 0; } else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) { isAP = true; }
                 const report = { pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month, sharedInMinistry: sharedInMinistry, studies: studies, hours: hours, comments: document.getElementById('s4-comments').value, isAP: isAP };
                 await db.saveReport(report); ui.showToast(`Report submitted successfully.`);
             }
