@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
-    <!-- Tailwind CSS -->
+    <!-- External Dependencies: Tailwind CSS and HTML2PDF -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase UMD Module -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* -------------------------------------------------------------------------- */
-        /* GLOBAL APP STYLES (Aqua Glass Theme)                                       */
-        /* -------------------------------------------------------------------------- */
         :root {
             --glass-bg: rgba(13, 148, 136, 0.15);
             --glass-border: rgba(255, 255, 255, 0.08);
@@ -54,26 +51,23 @@
         }
         #toast.show { transform: translateY(0) scale(1); opacity: 1; }
 
-        /* Public Mode (S-4 Submissions via Public Link) */
         body.public-mode #app-header { display: none !important; }
         body.public-mode .main-content { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
         body.public-mode #tab-s4 { display: block !important; width: 100%; }
         
-        input.app-input, select.app-input {
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
             transition: all 0.2s;
         }
-        input.app-input:focus, select.app-input:focus {
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
             border-color: rgba(20, 184, 166, 0.6);
             box-shadow: 0 0 10px rgba(20, 184, 166, 0.2);
             outline: none;
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* S-4 STRICT PUBLIC FORM STYLES (Refined to match user screenshot)           */
-        /* -------------------------------------------------------------------------- */
+        /* ---------------- S-4 STRICT STYLES ---------------- */
         #s4-container-wrapper {
             width: 100%; max-width: 834px; height: 625px; margin: 0 auto;
             position: relative; overflow: hidden; display: flex; justify-content: center;
@@ -84,84 +78,84 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden;
         }
         .s4-strict * { font-family: Arial, Helvetica, sans-serif !important; box-sizing: border-box; }
-        .s4-strict .title { position: absolute; top: 35px; left: 0; width: 834px; text-align: center; font-size: 32px; font-weight: bold; color: #000; }
+        .s4-strict .title { position: absolute; top: 25px; left: 0; width: 834px; text-align: center; font-size: 32px; font-weight: bold; color: #000; }
         
-        .s4-strict .identity { position: absolute; left: 50px; top: 90px; width: 734px; }
+        .s4-strict .identity { position: absolute; left: 60px; top: 90px; width: 714px; }
         .s4-strict .identity-row { display: flex; align-items: center; margin-bottom: 12px; }
-        .s4-strict .identity-label { width: 130px; font-size: 28px; font-weight: bold; color: #000; }
-        .s4-strict .identity-input { flex: 1; height: 45px; border: 0; border-bottom: 2px dotted #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; outline: none; }
+        .s4-strict .identity-label { width: 110px; font-size: 28px; font-weight: bold; color: #000; }
+        .s4-strict .identity-input { flex: 1; height: 40px; border: 0; border-bottom: 2px dotted #000; background: #f1f4ff !important; font-size: 26px; color: #000; padding: 0 10px; border-radius: 0; outline: none; }
         
-        .s4-strict .report-table { position: absolute; left: 50px; top: 220px; width: 734px; border: 2px solid #000; border-collapse: collapse; font-size: 26px; background: #ffffff; color: #000; }
+        .s4-strict .report-table { position: absolute; left: 60px; top: 220px; width: 714px; border: 2px solid #000; border-collapse: collapse; font-size: 26px; background: #ffffff; color: #000; }
         .s4-strict .report-table td { border: 1px solid #000; padding: 12px 15px; vertical-align: middle; }
         .s4-strict .ministry-cell { position: relative; width: 100%; height: 90px; }
         
-        /* Custom Checkmark for S-4 */
-        .s4-strict .checkbox-wrapper { position: absolute; right: 15px; top: 20px; width: 45px; height: 45px; border: 1.5px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
+        .s4-strict .checkbox-wrapper { position: absolute; right: 20px; top: 20px; width: 45px; height: 45px; border: 2px solid #000; background: #f1f4ff; display: flex; justify-content: center; align-items: center; }
         .s4-strict .checkbox { width: 100%; height: 100%; opacity: 0; position: absolute; cursor: pointer; z-index: 2; margin: 0; }
         .s4-strict .checkmark { font-size: 38px; color: #000; font-weight: bold; display: none; line-height: 1; margin-top: -6px; }
         .s4-strict .checkbox:checked + .checkmark { display: block; }
         
-        .s4-strict .study-label { width: 550px; font-size: 25px; }
+        .s4-strict .study-label { width: 530px; font-size: 24px; }
         .s4-strict .study-value, .s4-strict .hours-value { width: 184px; padding: 0 !important; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 65px; border: 0; outline: none; background: transparent !important; font-size: 30px; text-align: center !important; color: #000; border-radius: 0; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; min-height: 60px; border: 0; outline: none; background: transparent !important; font-size: 30px; text-align: center !important; color: #000; border-radius: 0; }
         
-        .s4-strict .comments { position: absolute; left: 50px; top: 480px; width: 734px; height: 80px; border: 2px solid #000; background: #f1f4ff; display: flex; align-items: center; }
+        .s4-strict .comments { position: absolute; left: 60px; top: 480px; width: 714px; height: 80px; border: 2px solid #000; background: #f1f4ff; display: flex; align-items: center; }
         .s4-strict .comments-label { font-size: 28px; font-weight: bold; color: #000; padding: 0 15px; }
         .s4-strict .comments-input { flex: 1; height: 100%; resize: none; border: 0; outline: none; background: transparent !important; font-size: 24px; color: #000; padding: 25px 10px 10px 10px; border-radius: 0; }
         
-        .s4-strict .footer-code { position: absolute; left: 50px; top: 580px; font-size: 19px; color: #000; }
+        .s4-strict .footer-code { position: absolute; left: 60px; top: 580px; font-size: 19px; color: #000; }
         .s4-strict .footer-date { position: absolute; left: 130px; top: 580px; font-size: 19px; color: #000; }
 
-        /* -------------------------------------------------------------------------- */
-        /* EXACT S-21 PAGE STYLES (From User's editable_3.html)                       */
-        /* -------------------------------------------------------------------------- */
+        /* ---------------- S-21 EXACT PIXEL-PERFECT TEMPLATE STYLES ---------------- */
         .s21-wrapper { 
             display: flex; 
             flex-direction: column; 
-            gap: 40px; /* Increased gap between scaled cards */
             align-items: center; 
             width: 100%; 
-            padding: 20px 0; /* Removed horizontal padding to allow full scaling */
-            /* Removed overflow-x to allow scaling down instead of scrolling */
+            padding: 20px 0; 
         }
         
         .s21-page-container {
             width: 100%;
             display: flex;
             justify-content: center;
-            /* Container scales down on smaller screens */
-            container-type: inline-size;
+            margin-bottom: 20px;
         }
 
         .s21-page {
+            --page-w: 1448px;
+            --page-h: 1025px;
+            --x: 40px;
+            --table-w: 1369px;
+            --c1: 206px;
+            --c2: 173px;
+            --c3: 172px;
+            --c4: 172px;
+            --c5: 173px;
+            --c6: 473px;
+            --header-h: 120px;
+            --row-h: 43px;
+            --line: #222222; /* Thickened */
+            --heavy: #000000; /* Thickened */
+
             position: relative;
-            width: 1448px;
-            height: 1025px;
-            /* Remove min-width to allow transform scaling */
-            margin: 0; 
+            width: var(--page-w);
+            height: var(--page-h);
             background: #fff;
             color: #000;
             font-family: Arial, Helvetica, sans-serif;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            /* Transform scaling to fit within typical screens (approx 70% for standard view) */
             transform-origin: top center;
-            /* We will apply the scale inline via JS based on wrapper width */
-            
-            /* Required for correct multi-page native printing */
-            page-break-after: always;
-            break-after: page;
         }
 
         .s21-page * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif !important; }
-
-        .s21-page .title { position: absolute; top: 33px; left: 0; width: 1448px; margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; }
-        .s21-page .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; }
+        .s21-page .title { position: absolute; top: 33px; left: 0; width: var(--page-w); margin: 0; text-align: center; font-size: 34px; line-height: 42px; font-weight: 700; white-space: nowrap; color: #000; }
+        .s21-page .personal { position: absolute; top: 95px; left: 39px; width: 1370px; height: 137px; font-size: 27px; line-height: 35px; font-weight: 700; color: #000;}
         .s21-page .detail { position: absolute; left: 0; width: 850px; height: 35px; display: flex; align-items: center; }
         .s21-page .detail.name { top: 0; }
         .s21-page .detail.birth { top: 35px; }
         .s21-page .detail.baptism { top: 70px; }
         .s21-page .detail-label { flex: 0 0 205px; white-space: nowrap; }
-        .s21-page .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; outline: 0; background: transparent; color: #000; font: 700 27px/35px Arial, Helvetica, sans-serif; min-width: 0; overflow: hidden; white-space: nowrap; }
+        .s21-page .detail-input { flex: 0 0 645px; width: 645px; height: 35px; margin: 0; padding: 0 4px; border: 0; outline: 0; background: transparent; color: #000; font: 700 27px/35px Arial; min-width: 0; overflow: hidden; white-space: nowrap; }
         
         .s21-page .identity { position: absolute; left: 898px; top: 35px; width: 470px; height: 70px; font-size: 27px; line-height: 35px; font-weight: 700; }
         .s21-page .identity label { position: absolute; display: flex; align-items: center; width: 220px; height: 35px; white-space: nowrap; }
@@ -169,71 +163,54 @@
         .s21-page .identity .female { left: 248px; top: 0; }
         .s21-page .identity .sheep { left: 0; top: 35px; }
         .s21-page .identity .anointed { left: 248px; top: 35px; }
-
         .s21-page .role-options { position: absolute; left: 0; top: 105px; width: 1370px; height: 35px; display: flex; align-items: center; justify-content: space-between; font-size: 27px; line-height: 35px; font-weight: 700; }
         .s21-page .check-label { display: inline-flex; align-items: center; height: 35px; white-space: nowrap; }
 
+        /* PERFECTED FLEXBOX CHECKMARKS */
         .s21-page .identity input, .s21-page .check-label input { 
             appearance: none; -webkit-appearance: none; 
-            width: 21px; height: 21px; flex: 0 0 21px; 
-            margin: 0 9px 0 0; padding: 0; 
-            border: 2px solid #111; border-radius: 0; 
-            background: #fff; position: relative; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center;
+            width: 21px; height: 21px; flex: 0 0 21px; margin: 0 9px 0 0; padding: 0; 
+            border: 2px solid var(--heavy); border-radius: 0; background: #fff; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
         }
         .s21-page .identity input:checked::after, .s21-page .check-label input:checked::after { 
-            content: "✔"; 
-            position: absolute; 
-            color: #000;
-            font-size: 22px; /* Sized to fit exactly inside 21x21 box */
-            line-height: 1;
-            font-weight: bold;
-            top: -3px; /* Nudge to center visually */
-            left: 1px;
+            content: "✔"; font-size: 18px; color: #000; font-weight: bold; line-height: 1;
         }
 
-        .s21-page .form-table { position: absolute; top: 264px; left: 40px; width: 1369px; }
-        .s21-page .table-grid { width: 1369px; display: grid; grid-template-columns: 206px 173px 172px 172px 173px 473px; grid-template-rows: 120px repeat(12, 43px); border: 2px solid #202020; background: #fff; }
-        .s21-page .cell { min-width: 0; min-height: 0; border-right: 1px solid #404040; border-bottom: 1px solid #404040; overflow: hidden; background: #fff; display: flex; align-items: center; }
+        .s21-page .form-table { position: absolute; top: 264px; left: var(--x); width: var(--table-w); }
+        .s21-page .table-grid { width: var(--table-w); display: grid; grid-template-columns: var(--c1) var(--c2) var(--c3) var(--c4) var(--c5) var(--c6); grid-template-rows: var(--header-h) repeat(12, var(--row-h)); border: 2px solid var(--heavy); background: #fff; }
+        .s21-page .cell { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; background: #fff; display: flex; align-items: center; }
         .s21-page .cell:nth-child(6n) { border-right: 0; }
-        .s21-page .cell.header { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 7px; font-size: 25px; line-height: 28px; font-weight: 700; }
+        .s21-page .cell.header { height: var(--header-h); justify-content: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; color: #000;}
         .s21-page .table-grid .cell:nth-last-child(-n+6) { border-bottom: 0; }
         
-        .s21-page .month { display: flex; align-items: center; padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; }
-        .s21-page .center { display: flex; align-items: center; justify-content: center; }
-        .s21-page .hours-header { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 25px; line-height: 28px; font-weight: 700; }
-        .s21-page .hours-header .sub { display: block; font-weight: 400; }
+        .s21-page .month { padding: 0 0 0 9px; font-size: 25px; line-height: 30px; font-weight: 400; white-space: nowrap; color: #000; }
+        .s21-page .center { justify-content: center; }
+        .s21-page .hours-header { flex-direction: column; }
+        .s21-page .hours-header .sub { font-weight: 400; }
         
-        .s21-page .cell-input { display: block; width: 100%; height: 41px; margin: 0; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
-        .s21-page .remarks-input { display: block; width: 100%; height: 41px; margin: 0; padding: 3px 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
+        .s21-page .cell-input { width: 100%; height: 41px; padding: 0 5px; border: 0; outline: 0; background: transparent; color: #000; font: 400 24px/30px Arial; text-align: center; }
+        .s21-page .remarks-input { width: 100%; height: 41px; padding: 0 7px; border: 0; outline: 0; resize: none; background: transparent; color: #000; font: 400 21px/41px Arial; text-align: center; white-space: nowrap; overflow: hidden; }
 
         .s21-page .month-check { 
-            appearance: none; -webkit-appearance: none; display: block; 
+            appearance: none; -webkit-appearance: none; 
             width: 26px; height: 26px; margin: 0; padding: 0; 
-            border: 2px solid #111; border-radius: 0; 
-            background: #fff; position: relative; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center;
+            border: 2px solid var(--heavy); border-radius: 0; background: #fff; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
         }
         .s21-page .month-check:checked::after { 
-            content: "✔"; 
-            position: absolute; 
-            color: #000;
-            font-size: 28px; /* Sized to fit inside 26x26 box */
-            line-height: 1;
-            font-weight: bold;
-            top: -4px; /* Nudge to center */
-            left: 1px;
+            content: "✔"; font-size: 24px; color: #000; font-weight: bold; line-height: 1;
         }
 
-        .s21-page .total-row { width: 1369px; height: 45px; position: relative; }
-        .s21-page .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; }
-        .s21-page .total-box { position: absolute; left: 723px; top: 0; width: 646px; height: 45px; display: grid; grid-template-columns: 173px 473px; border: 2px solid #202020; border-top: 2px solid #202020; background: #fff; box-shadow: inset -1px 0 0 #202020; }
-        .s21-page .total-box .slot { min-width: 0; height: 41px; overflow: hidden; }
-        .s21-page .total-box .slot + .slot { border-left: 1px solid #404040; }
+        .s21-page .total-row { width: var(--table-w); height: 45px; position: relative; }
+        .s21-page .total-label { position: absolute; left: 648px; top: 7px; width: 74px; height: 35px; text-align: right; font-size: 25px; line-height: 35px; font-weight: 700; white-space: nowrap; color: #000;}
+        .s21-page .total-box { position: absolute; left: calc(var(--c1) + var(--c2) + var(--c3) + var(--c4)); top: 0; width: calc(var(--c5) + var(--c6)); height: 45px; display: grid; grid-template-columns: var(--c5) var(--c6); border: 2px solid var(--heavy); border-top: 2px solid var(--heavy); background: #fff; box-shadow: inset -1px 0 0 var(--heavy); }
+        .s21-page .total-box .slot { height: 41px; overflow: hidden; }
+        .s21-page .total-box .slot + .slot { border-left: 1px solid var(--line); }
+        .s21-page .total-input { width: 100%; height: 41px; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/41px Arial; text-align: center; }
+        .s21-page .total-input.remarks { font-weight: 700; }
         
-        .s21-page .total-input { width: 100%; height: 41px; margin: 0; padding: 0 6px; border: 0; outline: 0; background: transparent; color: #000; font: 700 23px/41px Arial, Helvetica, sans-serif; text-align: center; overflow: hidden; white-space: nowrap; }
-        
-        .s21-page .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; }
+        .s21-page .footer { position: absolute; left: 39px; top: 970px; height: 28px; font-size: 19px; line-height: 25px; white-space: nowrap; color: #000;}
         .s21-page .footer-date { margin-left: 18px; }
 
         /* ANALYTICS TABLE STYLES */
@@ -242,55 +219,6 @@
         .analytics-table .header-row { font-weight: bold; text-align: center; font-size: 16px; border-bottom: 2px solid #000; }
         .analytics-table .sub-header { font-weight: bold; text-align: center; background: #f0f0f0; }
         .analytics-table .metric-row { display: flex; justify-content: space-between; border-bottom: 1px solid #000; }
-
-        /* -------------------------------------------------------------------------- */
-        /* NATIVE PRINT OVERRIDE (For perfect S-21 extraction)                        */
-        /* -------------------------------------------------------------------------- */
-        @media print {
-            @page {
-                size: 1448px 1025px landscape;
-                margin: 0;
-            }
-            body { 
-                background: #fff !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            /* Hide EVERYTHING by default during print */
-            body.printing-s21 > *:not(.main-content) { display: none !important; }
-            body.printing-s21 .main-content > *:not(#tab-s21) { display: none !important; }
-            body.printing-s21 .no-print { display: none !important; }
-            
-            /* Expand the render area */
-            body.printing-s21 .main-content { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-            body.printing-s21 #tab-s21 { display: block !important; }
-            body.printing-s21 #s21-render-area { padding: 0 !important; margin: 0 !important; display: block !important; width: 100%; overflow: visible !important; }
-            
-            /* Ensure the cards print perfectly */
-            body.printing-s21 .s21-page-container {
-                height: 1025px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            body.printing-s21 .s21-page {
-                margin: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-                page-break-after: always !important;
-                transform: none !important;
-                left: 0 !important;
-                top: 0 !important;
-            }
-            
-            /* Force rigid styling protection against Tailwind print resets */
-            .s21-page .table-grid { border: 2px solid #202020 !important; }
-            .s21-page .cell { border-right: 1px solid #404040 !important; border-bottom: 1px solid #404040 !important; }
-            .s21-page .total-box { border: 2px solid #202020 !important; box-shadow: inset -1px 0 0 #202020 !important; }
-        }
     </style>
 </head>
 <body class="text-sm">
@@ -313,13 +241,13 @@
                 <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300 font-bold border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.3)]">FS</div>
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Manager</span>
             </div>
-            <!-- Reordered Tabs: Dashboard, Groups, Printer, Analytics, Publishers -->
+            <!-- Tab Order: Dashboard, Groups, Printer, Publishers, Analytics -->
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
                 <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
                 <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
                 <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
-                <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
                 <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
+                <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
             </div>
         </div>
     </nav>
@@ -345,28 +273,40 @@
             
             <div id="dash-stats" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
             
-            <!-- AP Review Board (For Revoking accidental AP hours) -->
-            <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                <div class="bg-black/30 px-6 py-4 border-b border-amber-500/20 flex justify-between items-center">
-                    <h3 class="font-semibold text-amber-300">Auxiliary Pioneer Review Log</h3>
-                    <span class="text-xs text-amber-200/60">Review publishers mapped to AP this month</span>
+            <!-- AP and RP Dedicated Tables -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+                <!-- Regular Pioneers Table -->
+                <div class="glass-panel rounded-2xl overflow-hidden border border-cyan-500/30">
+                    <div class="bg-black/30 px-5 py-3 border-b border-cyan-500/20 text-cyan-300 font-bold">Regular Pioneers Log</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap text-white">
+                            <thead class="bg-black/40 text-cyan-100/60 text-xs uppercase">
+                                <tr><th class="px-5 py-2">Name</th><th class="px-5 py-2 text-center w-20">Hours</th><th class="px-5 py-2 text-center w-20">Studies</th></tr>
+                            </thead>
+                            <tbody id="dash-rp-table" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-black/50 text-amber-100/70">
-                            <tr>
-                                <th class="px-6 py-3 font-semibold">Publisher</th>
-                                <th class="px-6 py-3 font-semibold text-center">Hours</th>
-                                <th class="px-6 py-3 font-semibold text-center">Studies</th>
-                                <th class="px-6 py-3 font-semibold text-right">Admin Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dash-ap-review-table" class="divide-y divide-white/5 text-amber-50"></tbody>
-                    </table>
+                
+                <!-- Auxiliary Pioneers Table & Review Log -->
+                <div class="glass-panel rounded-2xl overflow-hidden border border-emerald-500/30">
+                    <div class="bg-black/30 px-5 py-3 border-b border-emerald-500/20 text-emerald-300 font-bold flex justify-between">
+                        <span>Auxiliary Pioneers Log</span>
+                        <span class="text-[10px] uppercase text-emerald-200/50">Auto-flagged entries</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap text-white">
+                            <thead class="bg-black/40 text-emerald-100/60 text-xs uppercase">
+                                <tr><th class="px-5 py-2">Name</th><th class="px-5 py-2 text-center w-20">Hours</th><th class="px-5 py-2 text-center w-20">Studies</th><th class="px-5 py-2 text-right">Action</th></tr>
+                            </thead>
+                            <tbody id="dash-ap-review-table" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div class="glass-panel rounded-2xl overflow-hidden">
+            <!-- General Submissions Log -->
+            <div class="glass-panel rounded-2xl overflow-hidden mt-6">
                 <div class="bg-black/30 px-6 py-4 border-b border-white/10 flex justify-between items-center">
                     <h3 class="font-semibold text-white">Monthly Submissions Log</h3>
                     <span id="sync-status" class="text-xs font-mono text-teal-300 bg-teal-900/40 px-2 py-1 rounded">☁️ Synced</span>
@@ -391,68 +331,33 @@
         <!-- GROUPS TAB -->
         <div id="tab-groups" class="tab-content space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-1 space-y-3" id="groups-sidebar">
-                    <!-- Groups populated dynamically -->
-                </div>
+                <div class="md:col-span-1 space-y-3" id="groups-sidebar"></div>
                 <div class="md:col-span-3">
-                    <div id="group-details" class="hidden glass-panel p-8 rounded-2xl">
-                        <!-- Group details populated dynamically -->
-                    </div>
+                    <div id="group-details" class="hidden glass-panel p-8 rounded-2xl"></div>
                 </div>
             </div>
         </div>
 
         <!-- S-21 PRINTER TAB -->
         <div id="tab-s21" class="tab-content space-y-6">
-            <div class="no-print flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
+            <div class="flex justify-between items-center glass-panel p-6 rounded-2xl flex-wrap gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-white drop-shadow-md">Document Printer</h2>
-                    <p class="text-teal-200/70 mt-1">Compile and print pixel-perfect S-21 records</p>
+                    <p class="text-teal-200/70 mt-1">Compile and download pixel-perfect S-21 records</p>
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
-                    <!-- Triggers Native Browser Print -->
+                    <!-- HTML2PDF Download Trigger -->
                     <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
-                        Print Cards
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
+                        Download PDF
                     </button>
                 </div>
             </div>
             
             <div id="s21-render-area" class="s21-wrapper bg-gray-900 rounded-xl"></div>
-        </div>
-
-        <!-- ANALYTICS TAB (6-Month Summary) -->
-        <div id="tab-analytics" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
-                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
-            </div>
-            
-            <!-- 6-Month Grid -->
-            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto">
-                <!-- Populated dynamically -->
-            </div>
-
-            <!-- Detailed Roster Table -->
-            <div class="glass-panel mt-10 p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
-                    <div class="flex gap-3">
-                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
-                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
-                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
-                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="analytics-roster" class="overflow-x-auto">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
         </div>
 
         <!-- PUBLISHERS TAB -->
@@ -497,13 +402,38 @@
             </div>
         </div>
 
+        <!-- ANALYTICS TAB (6-Month Summary) -->
+        <div id="tab-analytics" class="tab-content space-y-6">
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
+                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
+            </div>
+            
+            <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto"></div>
+
+            <div class="glass-panel mt-10 p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h3 class="text-xl font-bold text-white">Detailed Monthly Roster</h3>
+                    <div class="flex gap-3">
+                        <select id="analytics-year" class="px-4 py-2 rounded-xl text-sm outline-none app-input"></select>
+                        <select id="analytics-month" onchange="ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none app-input">
+                            <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                            <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                            <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="analytics-roster" class="overflow-x-auto"></div>
+            </div>
+        </div>
+
         <!-- S-4 FORM (Strict Public View) -->
         <div id="tab-s4" class="tab-content">
             <div class="w-full flex flex-col items-center justify-center p-4">
                 <div class="mb-8 w-full max-w-[834px] glass-panel p-6 rounded-2xl flex flex-col sm:flex-row gap-6 items-center justify-between">
                     <div class="text-white">
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
-                        <p class="text-teal-200/80 text-sm mt-1">Please select your name to begin.</p>
+                        <p class="text-teal-200/80 text-sm mt-1">Please select your name.</p>
                     </div>
                     <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
@@ -537,7 +467,7 @@
                                     <td class="study-value"><input id="s4-studies" type="number" min="0" step="1"></td>
                                 </tr>
                                 <tr>
-                                    <td class="hours-label">Hours (if auxiliary, regular, or special pioneer<br>or field missionary)</td>
+                                    <td class="hours-label" style="font-size:28px; line-height: 32px;">Hours (if auxiliary, regular, or special pioneer<br>or field missionary)</td>
                                     <td class="hours-value"><input id="s4-hours" type="number" min="0" step="0.25"></td>
                                 </tr>
                             </tbody>
@@ -767,7 +697,7 @@
             }),
             mapRepToDB: (r) => ({
                 id: r.id, pub_id: r.pubId, service_year: r.serviceYear, month: r.month,
-                shared_in_ministry: r.sharedInMinistry, studies: r.studies ? parseInt(r.studies) : 0,
+                shared_in_ministry: r.shared_in_ministry, studies: r.studies ? parseInt(r.studies) : 0,
                 hours: r.hours ? parseFloat(r.hours) : 0, comments: r.comments, is_ap: r.isAP
             }),
             mapRepFromDB: (r) => ({
@@ -1155,6 +1085,7 @@
                 
                 let stats = { totalRep: 0, apCount: 0, rpCount: 0 };
                 const apReviewHtml = [];
+                let rpTableHtml = '', apTableHtml = '';
                 
                 document.getElementById('dash-reports-table').innerHTML = '';
                 
@@ -1166,8 +1097,10 @@
                         
                         if (p.isRP || p.isSP || p.isFM) { 
                             stats.rpCount++; 
+                            rpTableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                         } else if (r.isAP) { 
                             stats.apCount++; 
+                            apTableHtml += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                             apReviewHtml.push(`
                                 <tr class="border-b border-white/5 bg-emerald-900/10 hover:bg-emerald-900/20 transition-colors">
                                     <td class="px-6 py-3 font-medium">${p.name}</td>
@@ -1184,7 +1117,9 @@
                     }
                 });
 
-                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers recorded this month.</td></tr>`;
+                document.getElementById('dash-ap-review-table').innerHTML = apReviewHtml.length ? apReviewHtml.join('') : `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auto-flagged Pioneers.</td></tr>`;
+                document.getElementById('dash-rp-table').innerHTML = rpTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
+                document.getElementById('dash-ap-table').innerHTML = apTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers found.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300">
@@ -1553,9 +1488,7 @@
                     area.appendChild(container);
                 });
                 
-                // Apply scaling immediately after rendering
                 ui.scaleS21();
-                ui.showToast(`Compiled ${pubs.length} cards. Ready for Native Print.`);
             },
             
             scaleS21: () => {
@@ -1563,44 +1496,92 @@
                 if (!wrapper) return;
                 
                 const w = wrapper.clientWidth;
-                const targetWidth = 1448; // Native width of S-21
-                
-                const containers = document.querySelectorAll('.s21-page-container');
                 const pages = document.querySelectorAll('.s21-page');
+                const containers = document.querySelectorAll('.s21-page-container');
                 
                 if (pages.length === 0) return;
                 
-                if (w < targetWidth) {
-                    // Calculate scale to fit within wrapper, leaving a little margin
-                    const scale = (w - 20) / targetWidth;
-                    
-                    pages.forEach(page => {
-                        page.style.transform = `scale(${scale})`;
-                    });
-                    
-                    // Adjust container height to match scaled content height so they stack properly
-                    containers.forEach(container => {
-                        container.style.height = `${1025 * scale}px`;
-                    });
+                if (w < 1448) {
+                    const scale = (w - 20) / 1448;
+                    pages.forEach(page => page.style.transform = `scale(${scale})`);
+                    containers.forEach(container => container.style.height = `${1025 * scale}px`);
                 } else {
-                    pages.forEach(page => {
-                        page.style.transform = 'scale(1)';
-                    });
-                    containers.forEach(container => {
-                        container.style.height = '1025px';
-                    });
+                    pages.forEach(page => page.style.transform = 'scale(1)');
+                    containers.forEach(container => container.style.height = '1025px');
                 }
             },
 
-            exportPDF: () => {
-                const element = document.getElementById('s21-render-area');
-                if (!element.hasChildNodes()) {
+            exportPDF: async () => {
+                const wrapper = document.getElementById('s21-render-area');
+                if (!wrapper.hasChildNodes()) {
                     ui.showToast('Compile the queue first.', 'error');
                     return;
                 }
-                document.body.classList.add('printing-s21');
-                window.print();
-                setTimeout(() => { document.body.classList.remove('printing-s21'); }, 1000);
+                
+                ui.showToast('Generating PDF... Please wait.');
+                
+                // Show loading overlay
+                const loader = document.createElement('div');
+                loader.className = 'fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center text-white text-2xl font-bold';
+                loader.textContent = 'Rendering PDF Engine...';
+                document.body.appendChild(loader);
+                
+                // Sync inputs to attributes so html2pdf captures user edits
+                wrapper.querySelectorAll('input[type="text"]').forEach(input => input.setAttribute('value', input.value));
+                wrapper.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
+                wrapper.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+                    if(chk.checked) chk.setAttribute('checked', 'checked');
+                    else chk.removeAttribute('checked');
+                });
+
+                // Temporarily remove scaling from the live DOM for 1:1 pixel rendering
+                const pages = wrapper.querySelectorAll('.s21-page');
+                const containers = wrapper.querySelectorAll('.s21-page-container');
+                const originalTransforms = [];
+                const originalHeights = [];
+                const originalMargins = [];
+                
+                pages.forEach((page, i) => {
+                    originalTransforms.push(page.style.transform);
+                    page.style.transform = 'none';
+                    if(i < pages.length - 1) {
+                        page.classList.add('html2pdf__page-break'); // Force precise page breaks
+                    }
+                });
+                containers.forEach(c => {
+                    originalHeights.push(c.style.height);
+                    originalMargins.push(c.style.marginBottom);
+                    c.style.height = '1025px';
+                    c.style.marginBottom = '0px'; // Remove gaps for PDF edge-to-edge
+                });
+
+                const opt = {
+                    margin:       0,
+                    filename:     `S21_Records_${Date.now()}.pdf`,
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: 1448 },
+                    jsPDF:        { unit: 'px', format: [1448, 1025], orientation: 'landscape' }
+                };
+
+                try {
+                    // Instantly downloads without print dialog
+                    await html2pdf().set(opt).from(wrapper).save();
+                    ui.showToast('PDF Export Completed!');
+                } catch(e) {
+                    console.error(e);
+                    ui.showToast('PDF Generation failed', 'error');
+                } finally {
+                    // Restore live DOM styling instantly
+                    pages.forEach((page, i) => {
+                        page.style.transform = originalTransforms[i];
+                        page.classList.remove('html2pdf__page-break');
+                    });
+                    containers.forEach((c, i) => {
+                        c.style.height = originalHeights[i];
+                        c.style.marginBottom = originalMargins[i];
+                    });
+                    document.body.removeChild(loader);
+                }
             },
 
             setupS4Tab: () => {
@@ -1693,7 +1674,6 @@
                 await db.saveReport(report);
                 ui.showToast(`Report submitted successfully.`);
                 
-                // Reset form gracefully
                 document.getElementById('s4-pub-select').value = "";
                 document.getElementById('s4-name').value = "";
                 document.getElementById('s4-ministry').checked = true;
