@@ -113,7 +113,7 @@
         .s4-strict .footer-date { position: absolute; left: 130px; top: 580px; font-size: 19px; color: #000; }
 
         /* -------------------------------------------------------------------------- */
-        /* EXACT S-21 PAGE STYLES (From User's editable_5.html)                       */
+        /* EXACT S-21 PAGE STYLES (From User's editable_3.html)                       */
         /* -------------------------------------------------------------------------- */
         .s21-wrapper { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; overflow-x: auto; padding: 20px; }
         
@@ -924,7 +924,9 @@
                         }
                     });
 
-                    ui.switchTab('dashboard');
+                    if(document.getElementById('auth-screen').classList.contains('hidden')) {
+                        ui.switchTab('dashboard');
+                    }
                 }
                 window.addEventListener('resize', ui.scaleS4);
             },
