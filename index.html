@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Field Service Manager</title>
     
-    <!-- External Dependencies: Tailwind CSS and HTML2PDF -->
+    <!-- External Dependencies: Tailwind CSS, html2canvas, and jsPDF -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -349,7 +350,7 @@
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none app-input max-w-[250px]"></select>
                     <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
-                    <!-- HTML2PDF Download Trigger -->
+                    <!-- jsPDF/html2canvas Download Trigger -->
                     <button onclick="ui.exportPDF()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
                         Download PDF
@@ -1513,7 +1514,9 @@
 
             exportPDF: async () => {
                 const wrapper = document.getElementById('s21-render-area');
-                if (!wrapper.hasChildNodes()) {
+                const pages = wrapper.querySelectorAll('.s21-page');
+
+                if (pages.length === 0) {
                     ui.showToast('Compile the queue first.', 'error');
                     return;
                 }
@@ -1525,62 +1528,67 @@
                 loader.className = 'fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center text-white text-2xl font-bold';
                 loader.textContent = 'Rendering PDF Engine...';
                 document.body.appendChild(loader);
-                
-                // Sync inputs to attributes so html2pdf captures user edits
-                wrapper.querySelectorAll('input[type="text"]').forEach(input => input.setAttribute('value', input.value));
-                wrapper.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
-                wrapper.querySelectorAll('input[type="checkbox"]').forEach(chk => {
-                    if(chk.checked) chk.setAttribute('checked', 'checked');
-                    else chk.removeAttribute('checked');
-                });
-
-                // Temporarily remove scaling from the live DOM for 1:1 pixel rendering
-                const pages = wrapper.querySelectorAll('.s21-page');
-                const containers = wrapper.querySelectorAll('.s21-page-container');
-                const originalTransforms = [];
-                const originalHeights = [];
-                const originalMargins = [];
-                
-                pages.forEach((page, i) => {
-                    originalTransforms.push(page.style.transform);
-                    page.style.transform = 'none';
-                    if(i < pages.length - 1) {
-                        page.classList.add('html2pdf__page-break'); // Force precise page breaks
-                    }
-                });
-                containers.forEach(c => {
-                    originalHeights.push(c.style.height);
-                    originalMargins.push(c.style.marginBottom);
-                    c.style.height = '1025px';
-                    c.style.marginBottom = '0px'; // Remove gaps for PDF edge-to-edge
-                });
-
-                const opt = {
-                    margin:       0,
-                    filename:     `S21_Records_${Date.now()}.pdf`,
-                    image:        { type: 'jpeg', quality: 1.0 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: 1448 },
-                    jsPDF:        { unit: 'px', format: [1448, 1025], orientation: 'landscape' }
-                };
 
                 try {
-                    // Instantly downloads without print dialog
-                    await html2pdf().set(opt).from(wrapper).save();
+                    // Sync inputs to attributes so html2canvas captures user edits
+                    wrapper.querySelectorAll('input[type="text"]').forEach(input => input.setAttribute('value', input.value));
+                    wrapper.querySelectorAll('textarea').forEach(ta => ta.textContent = ta.value);
+                    wrapper.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+                        if(chk.checked) chk.setAttribute('checked', 'checked');
+                        else chk.removeAttribute('checked');
+                    });
+
+                    // Initialize jsPDF instance
+                    const { jsPDF } = window.jspdf;
+                    // Format: [width, height] in pixels.
+                    // We use the exact S-21 dimensions to avoid scaling issues.
+                    const pdf = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'px',
+                        format: [1448, 1025] 
+                    });
+
+                    for (let i = 0; i < pages.length; i++) {
+                        const page = pages[i];
+                        
+                        // Temporarily remove transform for accurate canvas capture
+                        const originalTransform = page.style.transform;
+                        page.style.transform = 'none';
+
+                        // Create canvas
+                        const canvas = await html2canvas(page, {
+                            scale: 2, // Higher resolution
+                            useCORS: true,
+                            logging: false,
+                            width: 1448,
+                            height: 1025
+                        });
+
+                        // Restore original transform immediately after capture
+                        page.style.transform = originalTransform;
+
+                        // Add image to PDF
+                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                        
+                        if (i > 0) {
+                            pdf.addPage([1448, 1025], 'landscape');
+                        }
+                        
+                        pdf.addImage(imgData, 'JPEG', 0, 0, 1448, 1025);
+                    }
+
+                    // Save the completed PDF
+                    pdf.save(`S21_Records_${Date.now()}.pdf`);
                     ui.showToast('PDF Export Completed!');
+
                 } catch(e) {
-                    console.error(e);
+                    console.error("PDF Generation Error:", e);
                     ui.showToast('PDF Generation failed', 'error');
                 } finally {
-                    // Restore live DOM styling instantly
-                    pages.forEach((page, i) => {
-                        page.style.transform = originalTransforms[i];
-                        page.classList.remove('html2pdf__page-break');
-                    });
-                    containers.forEach((c, i) => {
-                        c.style.height = originalHeights[i];
-                        c.style.marginBottom = originalMargins[i];
-                    });
-                    document.body.removeChild(loader);
+                    // Clean up loading overlay
+                    if(document.body.contains(loader)) {
+                        document.body.removeChild(loader);
+                    }
                 }
             },
 
