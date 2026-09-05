@@ -64,6 +64,17 @@
             box-shadow: 0 0 10px rgba(20, 184, 166, 0.2);
             outline: none;
         }
+        
+        #auth-pass {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+            color: white;
+        }
+        #auth-pass:focus {
+            border-color: rgba(20, 184, 166, 0.8);
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
+            outline: none;
+        }
 
         #s4-container-wrapper { width: 100%; max-width: 834px; height: 625px; margin: 0 auto; position: relative; overflow: hidden; display: flex; justify-content: center; }
         .s4-strict { width: 834px; height: 625px; min-width: 834px; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif !important; position: relative; transform-origin: top center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
@@ -663,8 +674,9 @@
         const S21_ENGINE_CSS = `
             @media print {
                 @page { size: landscape; margin: 0 !important; }
-                html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
-                .page { width: 1448px !important; height: 1025px !important; margin: 0 auto !important; page-break-after: always !important; break-after: page !important; overflow: hidden !important; }
+                html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+                .page { width: 1448px !important; height: 1025px !important; margin: 0 auto !important; overflow: hidden !important; page-break-inside: avoid !important; }
+                .page:not(:last-child) { page-break-after: always !important; break-after: page !important; }
                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
             :root { --page-w: 1448px; --page-h: 1025px; --x: 40px; --table-w: 1369px; --c1: 206px; --c2: 173px; --c3: 172px; --c4: 172px; --c5: 173px; --c6: 473px; --header-h: 120px; --row-h: 43px; --line: #111; --heavy: #000; }
@@ -829,13 +841,13 @@
                 });
 
                 document.getElementById('dash-rp-table').innerHTML = rpTableHtml || `<tr><td colspan="3" class="px-5 py-3 text-center text-cyan-200/50 italic text-xs">No Regular Pioneers found.</td></tr>`;
-                document.getElementById('dash-ap-review-table').innerHTML = apTableHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged.</td></tr>`;
+                document.getElementById('dash-ap-review-table').innerHTML = apTableHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged for this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div><div class="text-4xl font-bold text-white mt-2">${pubs.length}</div></div>
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div></div>
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div></div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div><div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div><div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div><div class="text-xs text-amber-200/70 mt-1">${pubs.length - stats.totalRep} pending</div></div>
                 `;
 
                 const tbody = document.getElementById('dash-reports-table'); tbody.innerHTML = '';
