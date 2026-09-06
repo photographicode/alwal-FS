@@ -18,7 +18,8 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #020617, #064e3b, #083344);
+            /* Smoother premium gradient */
+            background: radial-gradient(circle at top left, #064e3b 0%, #020617 50%, #083344 100%);
             background-attachment: fixed;
             color: #f8fafc;
             min-height: 100vh;
@@ -91,8 +92,8 @@
         .s4-strict .checkbox:checked + .checkmark { display: block; }
 
         .s4-strict .study-label { padding: 0 14px 0 15px; width: 670px; height: 44px; font-size: 25px; line-height: 28px; white-space: normal; }
-        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; }
-        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent !important; font-size: 27px; text-align: center; color: #000; border-radius: 0; }
+        .s4-strict .study-value, .s4-strict .hours-value { width: 103px; height: 44px; padding: 0; background: #f1f4ff; transition: opacity 0.3s; }
+        .s4-strict .study-value input, .s4-strict .hours-value input { width: 100%; height: 100%; padding: 0 7px; border: 0; outline: none; background: transparent !important; font-size: 27px; text-align: center; color: #000; border-radius: 0; transition: background 0.3s; }
         .s4-strict .hours-label { width: 670px; height: 88px; padding: 9px 14px 7px 15px; font-size: 29px; line-height: 34px; }
         .s4-strict .comments { position: absolute; left: 29px; top: 456px; width: 776px; height: 96px; border: 2px solid #222222; background: #ffffff; }
         .s4-strict .comments-label { position: absolute; left: 15px; top: 8px; font-size: 29px; font-weight: 700; color: #000; }
@@ -144,7 +145,7 @@
         </div>
     </div>
 
-    <!-- Custom Dialogs for Admin Actions (Replaces Native Alerts) -->
+    <!-- Custom Dialogs for Admin Actions -->
     <div id="sys-prompt-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center p-4">
         <div class="glass-panel p-8 rounded-3xl text-center max-w-md w-full border border-rose-500/30 shadow-[0_0_30px_rgba(225,29,72,0.3)]">
             <div class="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold border border-rose-500/30 shadow-lg mx-auto mb-6 text-3xl">⚠️</div>
@@ -170,11 +171,11 @@
                 <span class="font-bold text-xl tracking-wide text-white drop-shadow-lg">Service Reports Manager</span>
             </div>
             <div class="flex gap-1 bg-black/30 p-1.5 rounded-xl border border-white/10 overflow-x-auto max-w-full">
-                <button onclick="ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
-                <button onclick="ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
-                <button onclick="ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
-                <button onclick="ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
-                <button onclick="ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
+                <button onclick="window.ui.switchTab('dashboard')" id="btn-tab-dashboard" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Dashboard</button>
+                <button onclick="window.ui.switchTab('groups')" id="btn-tab-groups" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Groups</button>
+                <button onclick="window.ui.switchTab('s21')" id="btn-tab-s21" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Printer</button>
+                <button onclick="window.ui.switchTab('analytics')" id="btn-tab-analytics" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Analytics</button>
+                <button onclick="window.ui.switchTab('publishers')" id="btn-tab-publishers" class="px-5 py-2 rounded-lg font-medium text-sm transition-all hover:bg-white/10 text-teal-50/70 whitespace-nowrap">Publishers</button>
             </div>
         </div>
     </nav>
@@ -189,8 +190,8 @@
                     <p class="text-teal-200/70 mt-1">Real-time telemetry and service totals</p>
                 </div>
                 <div class="flex gap-3">
-                    <select id="dash-year" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="dash-month" onchange="ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                    <select id="dash-year" onchange="window.ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                    <select id="dash-month" onchange="window.ui.renderDashboard()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
                         <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
                         <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
@@ -273,16 +274,16 @@
                 <div class="flex gap-3 flex-wrap">
                     <select id="s21-year-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
                     <select id="s21-publisher-select" class="px-4 py-2.5 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white max-w-[250px]"></select>
-                    <button onclick="ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
+                    <button onclick="window.ui.renderS21()" class="bg-black/40 hover:bg-black/60 border border-white/20 text-white px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg">Compile Queue</button>
                     <!-- Trigger Native Print -->
-                    <button onclick="ui.printCards()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
+                    <button onclick="window.ui.printCards()" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.5)] flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> 
                         Print Cards
                     </button>
                 </div>
             </div>
             
-            <!-- ISOLATED IFRAME FOR 100% PURE HTML/CSS RENDERING (Zero Tailwind interference) -->
+            <!-- ISOLATED IFRAME FOR 100% PURE HTML/CSS RENDERING -->
             <div id="s21-render-area">
                 <iframe id="s21-render-frame"></iframe>
             </div>
@@ -290,19 +291,18 @@
 
         <!-- ANALYTICS TAB -->
         <div id="tab-analytics" class="tab-content space-y-6">
-            <div class="flex justify-between items-end flex-wrap gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics & Roster</h2>
-                    <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
-                </div>
-                <div class="flex gap-3">
-                    <select id="analytics-year" onchange="ui.renderAnalytics(); ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
-                    <select id="analytics-month" onchange="ui.renderAnalytics(); ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
-                        <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                        <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
-                        <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
-                    </select>
-                </div>
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">6-Month Analytics</h2>
+                <p class="text-teal-200/70 mt-1">Rolling statistical summaries and historical data</p>
+            </div>
+            
+            <div class="flex gap-3 mb-4">
+                <select id="analytics-year" onchange="window.ui.renderAnalytics(); window.ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white"></select>
+                <select id="analytics-month" onchange="window.ui.renderAnalytics(); window.ui.renderDetailedRoster()" class="px-4 py-2 rounded-xl text-sm outline-none bg-black/40 border border-white/20 text-white">
+                    <option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                    <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option>
+                    <option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option>
+                </select>
             </div>
             
             <div id="analytics-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-8 rounded-xl overflow-x-auto text-black"></div>
@@ -324,15 +324,15 @@
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     <button onclick="document.getElementById('csv-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Import Contacts</button>
-                    <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="db.importContacts(event)">
-                    <button onclick="ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export Contacts</button>
+                    <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="window.db.importContacts(event)">
+                    <button onclick="window.ui.downloadContacts()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-white/20">Export Contacts</button>
                     
                     <button onclick="document.getElementById('csv-report-file').click()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Import Reports</button>
-                    <input type="file" id="csv-report-file" accept=".csv" class="hidden" onchange="db.importReports(event)">
-                    <button onclick="ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Export Reports</button>
+                    <input type="file" id="csv-report-file" accept=".csv" class="hidden" onchange="window.db.importReports(event)">
+                    <button onclick="window.ui.downloadReports()" class="glass-panel px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 border border-amber-500/30 text-amber-200">Export Reports</button>
 
-                    <button onclick="ui.confirmWipeDatabase()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
-                    <button onclick="ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
+                    <button onclick="window.ui.confirmWipeDatabase()" class="bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border border-rose-500/50 shadow-lg">⚠️ Wipe Database</button>
+                    <button onclick="window.ui.openModal('modal-add-publisher')" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center gap-2">
                         + Add Publisher
                     </button>
                 </div>
@@ -356,6 +356,7 @@
             </div>
         </div>
 
+        <!-- S-4 TAB -->
         <div id="tab-s4" class="tab-content">
             <!-- Confidential Success State -->
             <div id="s4-success-msg" class="hidden flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -374,7 +375,7 @@
                         <h3 class="font-bold text-2xl tracking-tight">Submit Field Service Report</h3>
                         <p class="text-teal-200/80 text-sm mt-1">Please select your name.</p>
                     </div>
-                    <select id="s4-pub-select" onchange="ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
+                    <select id="s4-pub-select" onchange="window.ui.loadS4()" class="w-full sm:w-72 bg-black/50 border border-white/20 text-white rounded-xl px-4 py-3 outline-none focus:border-teal-400 shadow-inner"></select>
                 </div>
                 
                 <div id="s4-container-wrapper">
@@ -396,7 +397,8 @@
                                     <td colspan="2" class="ministry-cell">
                                         <span style="display:block; font-size:29px; line-height:34px;">Check the box if you shared in any form<br>of the ministry during the month</span>
                                         <div class="checkbox-wrapper">
-                                            <input id="s4-ministry" class="checkbox" type="checkbox" checked onchange="ui.enforceS4Logic()">
+                                            <!-- Checkbox enforcement handler -->
+                                            <input id="s4-ministry" class="checkbox" type="checkbox" checked onchange="window.ui.enforceS4Logic()">
                                             <span class="checkmark">✔</span>
                                         </div>
                                     </td>
@@ -423,7 +425,7 @@
                 </div>
 
                 <div class="mt-8 w-full max-w-[834px] flex justify-end">
-                    <button onclick="ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
+                    <button onclick="window.ui.saveS4()" class="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-900 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_25px_rgba(20,184,166,0.6)]">Submit Report</button>
                 </div>
             </div>
         </div>
@@ -434,11 +436,12 @@
         <div class="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/20">
             <div class="bg-black/40 px-8 py-5 flex justify-between items-center border-b border-white/10">
                 <h3 id="modal-pub-title" class="text-xl font-bold text-white tracking-tight">Publisher Record</h3>
-                <button onclick="ui.closeModal('modal-add-publisher')" class="text-teal-200/50 hover:text-white transition-colors">
+                <button onclick="window.ui.closeModal('modal-add-publisher')" class="text-teal-200/50 hover:text-white transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <form id="form-publisher" onsubmit="ui.savePublisher(event)" class="p-8 space-y-6">
+            <!-- Ensure onsubmit points safely to window.ui -->
+            <form id="form-publisher" onsubmit="window.ui.savePublisher(event)" class="p-8 space-y-6">
                 <input type="hidden" id="pub-id">
                 <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2 md:col-span-1 space-y-2">
@@ -489,9 +492,21 @@
                         <input type="text" id="pub-baptized" placeholder="dd-mm-yyyy" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
                     </div>
                 </div>
+                
+                <!-- Added missing Phone and Address fields to fix edit/delete bug -->
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="col-span-2 md:col-span-1 space-y-2">
+                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Phone Number</label>
+                        <input type="text" id="pub-phone" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                    </div>
+                    <div class="col-span-2 md:col-span-1 space-y-2">
+                        <label class="text-xs text-teal-200/80 font-bold uppercase tracking-wider">Address</label>
+                        <input type="text" id="pub-address" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-teal-400">
+                    </div>
+                </div>
 
                 <div class="pt-6 flex justify-end gap-4 border-t border-white/10">
-                    <button type="button" onclick="ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all">Cancel</button>
+                    <button type="button" onclick="window.ui.closeModal('modal-add-publisher')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-teal-100/70 hover:bg-white/10 transition-all">Cancel</button>
                     <button type="submit" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-900 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.4)]">Commit Record</button>
                 </div>
             </form>
@@ -539,7 +554,7 @@
                     document.getElementById('auth-screen').classList.add('hidden'); 
                     window.db.init(); 
                 } else { 
-                    ui.showToast("Invalid Password", "error"); 
+                    window.ui.showToast("Invalid Password", "error"); 
                 }
             }
         };
@@ -596,7 +611,7 @@
                     window.db.publishers = JSON.parse(localStorage.getItem('fs_pubs') || '[]');
                     window.db.reports = JSON.parse(localStorage.getItem('fs_reps') || '[]');
                 }
-                ui.init();
+                window.ui.init();
             },
 
             mapPubToDB: (p) => ({ id: p.id, name: p.name, service_group: p.group, gender: p.gender, hope: p.hope, dob: p.dob || null, baptized: p.baptized || null, is_elder: p.isElder, is_ms: p.isMS, is_rp: p.isRP, is_sp: p.isSP, is_fm: p.isFM, phone: p.phone, address: p.address }),
@@ -616,18 +631,18 @@
                 if (!pub.id) pub.id = utils.generateUUID();
                 const idx = window.db.publishers.findIndex(p => p.id === pub.id);
                 if (idx > -1) window.db.publishers[idx] = pub; else window.db.publishers.push(pub);
-                if (isCloudEnabled) await supabaseClient.from('publishers').upsert(db.mapPubToDB(pub)); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
+                if (isCloudEnabled) await supabaseClient.from('publishers').upsert(window.db.mapPubToDB(pub)); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
             },
 
             deletePublisher: async (id) => {
-                ui.openSysPrompt(
+                window.ui.openSysPrompt(
                     "Delete Publisher Record", 
                     "Are you sure you want to delete this publisher? This action cannot be undone.", 
                     false, 
                     async () => {
                         window.db.publishers = window.db.publishers.filter(p => p.id !== id);
                         if (isCloudEnabled) await supabaseClient.from('publishers').delete().eq('id', id); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                        ui.renderPublishers(); ui.showToast('Record purged successfully.');
+                        window.ui.renderPublishers(); window.ui.showToast('Record purged successfully.');
                     }
                 );
             },
@@ -636,15 +651,15 @@
                 report.id = `${report.pubId}_${report.serviceYear}_${report.month}`;
                 const idx = window.db.reports.findIndex(r => r.id === report.id);
                 if (idx > -1) window.db.reports[idx] = report; else window.db.reports.push(report);
-                if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(report)); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                if (isCloudEnabled) await supabaseClient.from('reports').upsert(window.db.mapRepToDB(report)); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
             },
 
             revokeAP: async (reportId) => {
                 const idx = window.db.reports.findIndex(r => r.id === reportId);
                 if(idx > -1) {
                     window.db.reports[idx].isAP = false; window.db.reports[idx].hours = 0;
-                    if (isCloudEnabled) await supabaseClient.from('reports').upsert(db.mapRepToDB(window.db.reports[idx])); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    ui.renderDashboard(); ui.showToast('Accidental AP hours revoked.');
+                    if (isCloudEnabled) await supabaseClient.from('reports').upsert(window.db.mapRepToDB(window.db.reports[idx])); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
+                    window.ui.renderDashboard(); window.ui.showToast('Accidental AP hours revoked.');
                 }
             },
             
@@ -653,7 +668,7 @@
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const lines = event.target.result.split('\n');
-                    if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
+                    if (lines.length < 2) { window.ui.showToast('Invalid CSV format', 'error'); return; }
                     let imported = 0; const dbRepsToUpsert = [];
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim(); if (!line) continue;
@@ -678,10 +693,10 @@
                         
                         const idx = window.db.reports.findIndex(r => r.id === repData.id);
                         if (idx > -1) window.db.reports[idx] = repData; else window.db.reports.push(repData);
-                        dbRepsToUpsert.push(db.mapRepToDB(repData)); imported++;
+                        dbRepsToUpsert.push(window.db.mapRepToDB(repData)); imported++;
                     }
                     if (isCloudEnabled && dbRepsToUpsert.length > 0) await supabaseClient.from('reports').upsert(dbRepsToUpsert); else localStorage.setItem('fs_reps', JSON.stringify(window.db.reports));
-                    ui.showToast(`Imported ${imported} historical reports`); ui.renderDashboard(); ui.renderAnalytics(); e.target.value = ''; 
+                    window.ui.showToast(`Imported ${imported} historical reports`); window.ui.renderDashboard(); window.ui.renderAnalytics(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             },
@@ -691,7 +706,7 @@
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const lines = event.target.result.split('\n');
-                    if (lines.length < 2) { ui.showToast('Invalid CSV format', 'error'); return; }
+                    if (lines.length < 2) { window.ui.showToast('Invalid CSV format', 'error'); return; }
                     let imported = 0; const dbPubsToUpsert = [];
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim(); if (!line) continue;
@@ -712,14 +727,14 @@
                             isElder: isTrue(values[5]), isMS: isTrue(values[6]), isRP: isTrue(values[7]), gender: isTrue(values[8]) ? 'Male' : 'Female', isSP: isTrue(values[10]), isFM: isTrue(values[11]), hope: isTrue(values[12]) ? 'Anointed' : 'Other Sheep', group: values[14]?.trim() || ''
                         };
                         const existing = window.db.publishers.find(p => p.name.toLowerCase() === name.toLowerCase());
-                        pubData.id = existing ? existing.id : utils.generateUUID();
+                        pubData.id = existing ? existing.id : window.utils.generateUUID();
                         
                         const idx = window.db.publishers.findIndex(p => p.id === pubData.id);
                         if (idx > -1) window.db.publishers[idx] = pubData; else window.db.publishers.push(pubData);
-                        dbPubsToUpsert.push(db.mapPubToDB(pubData)); imported++;
+                        dbPubsToUpsert.push(window.db.mapPubToDB(pubData)); imported++;
                     }
                     if (isCloudEnabled && dbPubsToUpsert.length > 0) await supabaseClient.from('publishers').upsert(dbPubsToUpsert); else localStorage.setItem('fs_pubs', JSON.stringify(window.db.publishers));
-                    ui.showToast(`Imported ${imported} profiles`); ui.renderPublishers(); ui.renderGroups(); e.target.value = ''; 
+                    window.ui.showToast(`Imported ${imported} profiles`); window.ui.renderPublishers(); window.ui.renderGroups(); e.target.value = ''; 
                 };
                 reader.readAsText(file);
             }
@@ -733,23 +748,21 @@
                     padding: 0 !important;
                     background: #fff !important;
                     width: 100% !important;
+                    height: 100% !important;
+                    overflow: hidden !important;
                 }
                 .page {
                     width: 1448px !important;
                     height: 1025px !important;
-                    margin: 0 auto !important;
+                    margin: 0 !important;
                     padding: 0 !important;
                     border: none !important;
                     page-break-inside: avoid !important;
                     page-break-after: always !important;
-                    break-after: page !important;
                     zoom: 0.76 !important;
-                    overflow: hidden !important;
-                    box-sizing: border-box !important;
                 }
                 .page:last-of-type {
                     page-break-after: auto !important;
-                    break-after: auto !important;
                 }
                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             }
@@ -805,12 +818,12 @@
                 const groupParam = urlParams.get('group');
                 if (groupParam) { 
                     document.body.classList.add('public-mode'); 
-                    ui.publicGroup = groupParam; 
-                    ui.switchTab('s4'); 
+                    window.ui.publicGroup = groupParam; 
+                    window.ui.switchTab('s4'); 
                     document.getElementById('auth-screen').classList.add('hidden');
                 } else {
-                    if (auth.check()) {
-                        const syInfo = utils.getCurrentServiceYearInfo(); const istInfo = utils.getISTPreviousMonthInfo();
+                    if (window.auth.check()) {
+                        const syInfo = window.utils.getCurrentServiceYearInfo(); const istInfo = window.utils.getISTPreviousMonthInfo();
                         const selects = ['dash-year', 's21-year-select', 'analytics-year'];
                         selects.forEach(id => {
                             const el = document.getElementById(id);
@@ -821,10 +834,10 @@
                             }
                         });
                         const mSelects = ['dash-month', 'analytics-month']; mSelects.forEach(id => { const el = document.getElementById(id); if(el) el.value = istInfo.month; });
-                        ui.switchTab('dashboard');
+                        window.ui.switchTab('dashboard');
                     }
                 }
-                window.addEventListener('resize', () => { ui.scaleS4(); ui.scaleS21Preview(); });
+                window.addEventListener('resize', () => { window.ui.scaleS4(); window.ui.scaleS21Preview(); });
             },
             
             switchTab: (tabId) => {
@@ -832,13 +845,13 @@
                 const targetTab = document.getElementById(`tab-${tabId}`); if (targetTab) targetTab.classList.add('active');
                 document.querySelectorAll('nav button').forEach(el => { el.classList.remove('bg-teal-500/80', 'text-white', 'shadow-lg'); el.classList.add('hover:bg-white/10', 'text-teal-50/70'); });
                 const btn = document.getElementById(`btn-tab-${tabId}`); if (btn) { btn.classList.remove('hover:bg-white/10', 'text-teal-50/70'); btn.classList.add('bg-teal-500/80', 'text-white', 'shadow-lg'); }
-                ui.currentTab = tabId;
-                if (tabId === 'dashboard') ui.renderDashboard();
-                if (tabId === 'publishers') ui.renderPublishers();
-                if (tabId === 'groups') ui.renderGroups();
-                if (tabId === 's4') ui.setupS4Tab();
-                if (tabId === 's21') { ui.setupS21Tab(); setTimeout(ui.scaleS21Preview, 100); }
-                if (tabId === 'analytics') { ui.renderAnalytics(); ui.renderDetailedRoster(); }
+                window.ui.currentTab = tabId;
+                if (tabId === 'dashboard') window.ui.renderDashboard();
+                if (tabId === 'publishers') window.ui.renderPublishers();
+                if (tabId === 'groups') window.ui.renderGroups();
+                if (tabId === 's4') window.ui.setupS4Tab();
+                if (tabId === 's21') { window.ui.setupS21Tab(); setTimeout(window.ui.scaleS21Preview, 100); }
+                if (tabId === 'analytics') { window.ui.renderAnalytics(); window.ui.renderDetailedRoster(); }
             },
 
             showToast: (msg, type = 'success') => {
@@ -865,18 +878,18 @@
             handleSysPromptConfirm: () => {
                 if (window.sysPromptState.requiresPassword) {
                     const p = document.getElementById('sys-prompt-input').value;
-                    if (p !== window.config.MASTER_PASSWORD) { ui.showToast("Incorrect Master Password", "error"); return; }
+                    if (p !== window.config.MASTER_PASSWORD) { window.ui.showToast("Incorrect Master Password", "error"); return; }
                 }
                 if (typeof window.sysPromptState.actionCallback === 'function') { window.sysPromptState.actionCallback(); }
-                ui.closeSysPrompt();
+                window.ui.closeSysPrompt();
             },
 
             confirmWipeDatabase: () => {
-                ui.openSysPrompt("DANGER: Wipe Database", "This action will permanently delete ALL publishers and reports. Enter your Master Password to proceed.", true, async () => {
+                window.ui.openSysPrompt("DANGER: Wipe Database", "This action will permanently delete ALL publishers and reports. Enter your Master Password to proceed.", true, async () => {
                     window.db.publishers = []; window.db.reports = [];
                     if(isCloudEnabled) { await supabaseClient.from('reports').delete().neq('id', '0'); await supabaseClient.from('publishers').delete().neq('name', '0'); } 
                     else { localStorage.removeItem('fs_pubs'); localStorage.removeItem('fs_reps'); }
-                    ui.showToast("Database Wiped Permanently.", "error"); ui.renderPublishers(); ui.renderDashboard();
+                    window.ui.showToast("Database Wiped Permanently.", "error"); window.ui.renderPublishers(); window.ui.renderDashboard();
                 });
             },
 
@@ -890,41 +903,41 @@
                 e.preventDefault();
                 const id = document.getElementById('pub-id').value;
                 const pub = {
-                    id: id || utils.generateUUID(), name: document.getElementById('pub-name').value, gender: document.querySelector('input[name="pub-gender"]:checked')?.value || 'Male', hope: document.querySelector('input[name="pub-hope"]:checked')?.value || 'Other Sheep',
+                    id: id || window.utils.generateUUID(), name: document.getElementById('pub-name').value, gender: document.querySelector('input[name="pub-gender"]:checked')?.value || 'Male', hope: document.querySelector('input[name="pub-hope"]:checked')?.value || 'Other Sheep',
                     dob: document.getElementById('pub-dob').value, baptized: document.getElementById('pub-baptized').value, isElder: document.getElementById('pub-elder').checked, isMS: document.getElementById('pub-ms').checked, isRP: document.getElementById('pub-rp').checked, isSP: document.getElementById('pub-sp').checked, isFM: document.getElementById('pub-fm').checked, phone: document.getElementById('pub-phone').value, address: document.getElementById('pub-address').value, group: document.getElementById('pub-group').value
                 };
-                await db.savePublisher(pub); ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!'); ui.closeModal('modal-add-publisher'); ui.renderPublishers();
+                await window.db.savePublisher(pub); window.ui.showToast(id ? 'Profile updated!' : 'Profile successfully provisioned!'); window.ui.closeModal('modal-add-publisher'); window.ui.renderPublishers();
             },
 
             editPublisher: (id) => {
-                const pub = db.getPublishers().find(p => p.id === id); if (!pub) return;
+                const pub = window.db.getPublishers().find(p => p.id === id); if (!pub) return;
                 document.getElementById('pub-id').value = pub.id; document.getElementById('pub-name').value = pub.name;
                 const gSel = document.querySelector(`input[name="pub-gender"][value="${pub.gender==='Female'?'Female':'Male'}"]`); if(gSel) gSel.checked = true;
                 const hSel = document.querySelector(`input[name="pub-hope"][value="${pub.hope==='Anointed'?'Anointed':'Other Sheep'}"]`); if(hSel) hSel.checked = true;
                 document.getElementById('pub-dob').value = pub.dob || ''; document.getElementById('pub-baptized').value = pub.baptized || '';
                 document.getElementById('pub-elder').checked = !!pub.isElder; document.getElementById('pub-ms').checked = !!pub.isMS; document.getElementById('pub-rp').checked = !!pub.isRP; document.getElementById('pub-sp').checked = !!pub.isSP; document.getElementById('pub-fm').checked = !!pub.isFM;
                 document.getElementById('pub-phone').value = pub.phone || ''; document.getElementById('pub-address').value = pub.address || ''; document.getElementById('pub-group').value = pub.group || '';
-                document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record'; ui.openModal('modal-add-publisher', true);
+                document.getElementById('modal-pub-title').textContent = 'Edit Publisher Record'; window.ui.openModal('modal-add-publisher', true);
             },
 
             downloadContacts: () => {
-                const pubs = db.getPublishers(); if (pubs.length === 0) { ui.showToast('No contacts to export', 'error'); return; }
+                const pubs = window.db.getPublishers(); if (pubs.length === 0) { window.ui.showToast('No contacts to export', 'error'); return; }
                 let csv = 'Name,Phone,Address,DOB,Baptized,Elder,MS,RP,Male,Female,Special Pioneer,Field Missionary,Anointed,Other Sheep,Group\n';
                 pubs.forEach(p => { const cleanAddress = (p.address || '').replace(/,/g, ' '); csv += `"${p.name}","${p.phone || ''}","${cleanAddress}","${p.dob || ''}","${p.baptized || ''}",${!!p.isElder?'TRUE':'FALSE'},${!!p.isMS?'TRUE':'FALSE'},${!!p.isRP?'TRUE':'FALSE'},${p.gender==='Male'?'TRUE':'FALSE'},${p.gender==='Female'?'TRUE':'FALSE'},${!!p.isSP?'TRUE':'FALSE'},${!!p.isFM?'TRUE':'FALSE'},${p.hope==='Anointed'?'TRUE':'FALSE'},${p.hope==='Other Sheep'?'TRUE':'FALSE'},"${p.group || ''}"\n`; });
                 const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Publishers_Master_Backup.csv'; a.click();
             },
 
             downloadReports: () => {
-                const reps = db.getReports(); const pubs = db.getPublishers(); if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
+                const reps = window.db.getReports(); const pubs = window.db.getPublishers(); if (reps.length === 0) { window.ui.showToast('No reports to export', 'error'); return; }
                 let csv = 'Publisher Name,Service Year,Month,Shared In Ministry,Studies,Hours,Remarks,Is Auxiliary Pioneer\n';
-                reps.forEach(r => { const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown'; const monthName = utils.getMonthName(r.month); const cleanComments = (r.comments || '').replace(/"/g, '""'); csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`; });
+                reps.forEach(r => { const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown'; const monthName = window.utils.getMonthName(r.month); const cleanComments = (r.comments || '').replace(/"/g, '""'); csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`; });
                 const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Historical_Reports_Backup.csv'; a.click();
             },
 
             renderDashboard: () => {
                 const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month'); if(!dYear || !dMonth) return;
                 const sy = parseInt(dYear.value); const month = parseInt(dMonth.value);
-                const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
+                const pubs = window.db.getPublishers(); const reports = window.db.getReports(sy, month);
                 let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
                 let rpTableHtml = '', apTableHtml = '';
                 
@@ -938,7 +951,7 @@
                             rpTableHtml += `<tr class="border-b border-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                         } else if (r.isAP) { 
                             stats.apCount++; stats.apHours += h; stats.apStudies += s; 
-                            apTableHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
+                            apTableHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="window.db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
                         }
                     }
                 });
@@ -963,25 +976,25 @@
 
             renderPublishers: () => {
                 const tbody = document.getElementById('publisher-table-body'); if(!tbody) return;
-                const pubs = db.getPublishers(); tbody.innerHTML = '';
+                const pubs = window.db.getPublishers(); tbody.innerHTML = '';
                 pubs.sort((a,b)=> a.name.localeCompare(b.name)).forEach(p => {
                     let badges = [];
                     if(p.isElder) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">Elder</span>');
                     if(p.isMS) badges.push('<span class="bg-cyan-900/80 text-cyan-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-cyan-500/50 shadow-sm">MS</span>');
                     if(p.isRP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">RP</span>');
                     if(p.isSP) badges.push('<span class="bg-emerald-900/80 text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold border border-emerald-500/50 shadow-sm">SP</span>');
-                    const age = p.dob ? utils.calculateAge(p.dob) + ' yrs' : '-';
+                    const age = p.dob ? window.utils.calculateAge(p.dob) + ' yrs' : '-';
                     const bapText = !p.baptized ? '<span class="text-rose-300 font-semibold border border-rose-500/40 bg-rose-900/50 px-1.5 py-0.5 rounded text-[10px] uppercase">UBP</span>' : p.baptized;
-                    tbody.innerHTML += `<tr class="hover:bg-white/5 transition-colors border-b border-white/5"><td class="px-6 py-4"><div class="font-bold text-white text-base">${p.name}</div><div class="text-[11px] text-teal-300 mt-1 uppercase tracking-widest font-semibold">${p.group || 'UNASSIGNED'}</div></td><td class="px-6 py-4"><div class="flex flex-wrap gap-2">${badges.join('')}</div></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${age}<br><span class="text-[11px] font-sans text-teal-100/60 mt-1 block">${bapText}</span></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${p.phone || '-'}<div class="text-xs font-sans truncate max-w-[150px] text-teal-100/60 mt-1">${p.address || ''}</div></td><td class="px-6 py-4 text-right space-x-3"><button onclick="ui.editPublisher('${p.id}')" class="text-cyan-400 hover:text-cyan-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002-2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button onclick="db.deletePublisher('${p.id}')" class="text-rose-400 hover:text-rose-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+                    tbody.innerHTML += `<tr class="hover:bg-white/5 transition-colors border-b border-white/5"><td class="px-6 py-4"><div class="font-bold text-white text-base">${p.name}</div><div class="text-[11px] text-teal-300 mt-1 uppercase tracking-widest font-semibold">${p.group || 'UNASSIGNED'}</div></td><td class="px-6 py-4"><div class="flex flex-wrap gap-2">${badges.join('')}</div></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${age}<br><span class="text-[11px] font-sans text-teal-100/60 mt-1 block">${bapText}</span></td><td class="px-6 py-4 text-teal-100/90 font-mono text-sm">${p.phone || '-'}<div class="text-xs font-sans truncate max-w-[150px] text-teal-100/60 mt-1">${p.address || ''}</div></td><td class="px-6 py-4 text-right space-x-3"><button onclick="window.ui.editPublisher('${p.id}')" class="text-cyan-400 hover:text-cyan-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002-2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button onclick="window.db.deletePublisher('${p.id}')" class="text-rose-400 hover:text-rose-300 transition-colors p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
                 });
             },
 
             renderGroups: () => {
-                const pubs = db.getPublishers(); const groups = [...new Set(pubs.map(p => p.group).filter(g => g && g.trim() !== ''))].sort();
+                const pubs = window.db.getPublishers(); const groups = [...new Set(pubs.map(p => p.group).filter(g => g && g.trim() !== ''))].sort();
                 const sidebar = document.getElementById('groups-sidebar'); if(!sidebar) return;
                 if (groups.length === 0) { sidebar.innerHTML = '<div class="glass-panel p-4 text-center text-teal-100/60">No groups assigned.</div>'; document.getElementById('group-details').classList.add('hidden'); return; }
-                sidebar.innerHTML = groups.map(g => `<button onclick="ui.showGroup('${g}')" class="group-btn w-full glass-panel text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all font-medium flex justify-between items-center text-white mb-2">${g} <span class="bg-black/40 text-teal-300 text-xs px-2.5 py-1 rounded-full">${pubs.filter(p=>p.group===g).length}</span></button>`).join('');
-                ui.showGroup(groups[0]);
+                sidebar.innerHTML = groups.map(g => `<button onclick="window.ui.showGroup('${g}')" class="group-btn w-full glass-panel text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all font-medium flex justify-between items-center text-white mb-2">${g} <span class="bg-black/40 text-teal-300 text-xs px-2.5 py-1 rounded-full">${pubs.filter(p=>p.group===g).length}</span></button>`).join('');
+                window.ui.showGroup(groups[0]);
             },
 
             showGroup: (groupName) => {
@@ -989,8 +1002,8 @@
                 const btn = Array.from(document.querySelectorAll('.group-btn')).find(b => b.textContent.includes(groupName)); if(btn) btn.classList.add('bg-teal-600/50', 'border-teal-400/50');
                 const details = document.getElementById('group-details'); details.classList.remove('hidden');
                 
-                const pubs = db.getPublishers().filter(p => p.group === groupName);
-                const istInfo = utils.getISTPreviousMonthInfo(); const reports = db.getReports(istInfo.serviceYear, istInfo.month);
+                const pubs = window.db.getPublishers().filter(p => p.group === groupName);
+                const istInfo = window.utils.getISTPreviousMonthInfo(); const reports = window.db.getReports(istInfo.serviceYear, istInfo.month);
                 let stats = { elders: 0, rps: 0, aps: 0 }; let pending = [], membersList = [], tableHtml = '';
                 
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
@@ -1003,13 +1016,13 @@
                 });
                 
                 let pendingHtml = pending.length > 0 ? `<ol class="list-decimal pl-5 space-y-1 text-rose-300 text-sm">${pending.map(name => `<li>${name}</li>`).join('')}</ol>` : '<div class="text-emerald-400 text-sm">All submitted!</div>';
-                details.innerHTML = `<div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4"><div><h3 class="text-2xl font-bold text-white">${groupName}</h3><div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div></div><div class="flex gap-2"><button onclick="ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button></div></div><div class="grid grid-cols-4 gap-3 mb-6 text-center text-white"><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-cyan-300">${stats.elders}</div><div class="text-xs text-teal-100/60">Elders</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-teal-300">${stats.rps}</div><div class="text-xs text-teal-100/60">RPs</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-amber-300">${stats.aps}</div><div class="text-xs text-amber-100/60">APs</div></div></div><div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70">${membersList.join('<br>')}</div></div></div><div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2 text-center">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>`;
+                details.innerHTML = `<div class="flex justify-between items-start mb-6 pb-4 border-b border-white/10 flex-wrap gap-4"><div><h3 class="text-2xl font-bold text-white">${groupName}</h3><div class="text-sm text-teal-200/60 mt-1">Data for ${istInfo.displayString}</div></div><div class="flex gap-2"><button onclick="window.ui.copyGroupLink('${groupName}')" class="glass-panel hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm shadow flex items-center gap-2 transition-all">🔗 Copy S-4 Link</button></div></div><div class="grid grid-cols-4 gap-3 mb-6 text-center text-white"><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold">${pubs.length}</div><div class="text-xs text-teal-100/60">Members</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-cyan-300">${stats.elders}</div><div class="text-xs text-teal-100/60">Elders</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-teal-300">${stats.rps}</div><div class="text-xs text-teal-100/60">RPs</div></div><div class="bg-black/20 p-3 rounded-lg border border-white/5"><div class="text-2xl font-bold text-amber-300">${stats.aps}</div><div class="text-xs text-amber-100/60">APs</div></div></div><div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Pending Reports</h4>${pendingHtml}</div><div class="bg-black/20 p-4 rounded-lg border border-white/5"><h4 class="font-medium text-white mb-2 text-sm border-b border-white/10 pb-1">Members</h4><div class="text-sm text-teal-100/70">${membersList.join('<br>')}</div></div></div><div class="bg-black/30 rounded-lg border border-white/5 overflow-hidden overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-black/40 text-teal-100/60"><tr><th class="px-3 py-2">Publisher</th><th class="px-3 py-2 text-center">Shared</th><th class="px-3 py-2 text-center">Studies</th><th class="px-3 py-2 text-center">Hours</th><th class="px-3 py-2 text-center">Remarks</th></tr></thead><tbody class="divide-y divide-white/5">${tableHtml}</tbody></table></div>`;
             },
 
             copyGroupLink: (groupName) => {
                 const baseUrl = window.location.href.split('?')[0]; const url = `${baseUrl}?group=${encodeURIComponent(groupName)}`;
                 const textArea = document.createElement("textarea"); textArea.value = url; document.body.appendChild(textArea);
-                textArea.focus(); textArea.select(); try { document.execCommand('copy'); ui.showToast('Public Link Copied!'); } catch (err) { console.error(err); } document.body.removeChild(textArea);
+                textArea.focus(); textArea.select(); try { document.execCommand('copy'); window.ui.showToast('Public Link Copied!'); } catch (err) { console.error(err); } document.body.removeChild(textArea);
             },
 
             renderAnalytics: () => {
@@ -1021,12 +1034,12 @@
                 const year = month >= 8 ? sy - 1 : sy;
                 const selectedDate = new Date(year, month, 1);
                 
-                const pubs = db.getPublishers(); 
+                const pubs = window.db.getPublishers(); 
                 let html = '';
                 for(let i=0; i<6; i++) {
                     const targetDate = new Date(selectedDate.getTime()); targetDate.setMonth(selectedDate.getMonth() - i);
                     const tMonth = targetDate.getMonth(); const tYear = targetDate.getFullYear(); const tSy = tMonth >= 8 ? tYear + 1 : tYear;
-                    const displayMonth = `${utils.getMonthName(tMonth)} ${tYear}`; const reports = db.getReports(tSy, tMonth);
+                    const displayMonth = `${window.utils.getMonthName(tMonth)} ${tYear}`; const reports = window.db.getReports(tSy, tMonth);
                     let pubCount = 0, pubStudies = 0, apCount = 0, apStudies = 0, apHours = 0, rpCount = 0, rpStudies = 0, rpHours = 0, inactiveCount = 0;
                     
                     pubs.forEach(p => {
@@ -1038,14 +1051,12 @@
                                 else if (r.isAP) { apCount++; apStudies+=s; apHours+=h; }
                                 else { pubCount++; pubStudies+=s; }
                             } else {
-                                inactiveCount++; 
+                                inactiveCount++; // Publisher explicitly reported 'No' for ministry
                             }
-                        } else {
-                            inactiveCount++; 
                         }
                     });
                     
-                    html += `<div class="analytics-table"><div class="header-row py-2">Summary of ${displayMonth}</div><div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div><div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div><div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div><div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div><div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Inactive Publishers of the month</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div></div>`;
+                    html += `<div class="analytics-table"><div class="header-row py-2">Summary of ${displayMonth}</div><div class="sub-header py-1">Report of Publishers in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-24 text-center font-bold border-l border-black">Studies</div></div><div class="metric-row"><div class="flex-1 text-center">${pubCount}</div><div class="w-24 text-center border-l border-black">${pubStudies}</div></div><div class="sub-header py-1 mt-4">Report of Auxiliary Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${apCount}</div><div class="w-16 text-center border-l border-black">${apStudies}</div><div class="w-16 text-center border-l border-black">${apHours}</div></div><div class="sub-header py-1 mt-4">Report of Regular Pioneering in the Month of ${displayMonth}</div><div class="metric-row"><div class="flex-1 text-center font-bold">Number of Reports</div><div class="w-16 text-center font-bold border-l border-black">Studies</div><div class="w-16 text-center font-bold border-l border-black">Hours</div></div><div class="metric-row"><div class="flex-1 text-center">${rpCount}</div><div class="w-16 text-center border-l border-black">${rpStudies}</div><div class="w-16 text-center border-l border-black">${rpHours}</div></div><div class="metric-row mt-4 bg-gray-50 font-bold"><div class="flex-1 text-center py-1">Did Not Share in Ministry (Inactive)</div><div class="w-24 text-center border-l border-black py-1">${inactiveCount}</div></div></div>`;
                 }
                 grid.innerHTML = html;
             },
@@ -1053,7 +1064,7 @@
             renderDetailedRoster: () => {
                 const area = document.getElementById('analytics-roster'); if(!area) return;
                 const sy = parseInt(document.getElementById('analytics-year').value); const month = parseInt(document.getElementById('analytics-month').value);
-                const pubs = db.getPublishers(); const reports = db.getReports(sy, month); let rps=[], aps=[], normals=[], inactives=[];
+                const pubs = window.db.getPublishers(); const reports = window.db.getReports(sy, month); let rps=[], aps=[], normals=[], inactives=[];
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
                     if(r && r.sharedInMinistry) {
@@ -1068,7 +1079,7 @@
             setupS21Tab: () => {
                 const sel = document.getElementById('s21-publisher-select'); if(!sel) return;
                 sel.innerHTML = `<option value="ALL">-- All Publishers --</option><option value="BATCH_RP">All Regular Pioneers</option><option value="BATCH_AP">All Auxiliary Pioneers (Current)</option><option value="BATCH_ELDER">All Elders</option><option value="BATCH_MS">All Ministerial Servants</option><option value="BATCH_UBP">All Unbaptized</option><optgroup label="Individuals">`;
-                db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`); sel.innerHTML += `</optgroup>`;
+                window.db.getPublishers().sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`); sel.innerHTML += `</optgroup>`;
             },
 
             scaleS21Preview: () => {
@@ -1081,7 +1092,7 @@
 
             renderS21: () => {
                 const sy = parseInt(document.getElementById('s21-year-select').value); const filter = document.getElementById('s21-publisher-select').value;
-                let pubs = db.getPublishers(); const currentMonth = utils.getISTPreviousMonthInfo().month; const currentReports = db.getReports(sy, currentMonth);
+                let pubs = window.db.getPublishers(); const currentMonth = window.utils.getISTPreviousMonthInfo().month; const currentReports = window.db.getReports(sy, currentMonth);
                 
                 if (filter === 'BATCH_RP') pubs = pubs.filter(p => p.isRP);
                 else if (filter === 'BATCH_AP') pubs = pubs.filter(p => { const r = currentReports.find(x => x.pubId === p.id); return r && r.isAP; });
@@ -1091,7 +1102,7 @@
                 else if (filter !== 'ALL') pubs = pubs.filter(p => p.id === filter);
                 
                 const iframe = document.getElementById('s21-render-frame');
-                if(pubs.length === 0) { iframe.srcdoc = `<html><body style="font-family:sans-serif; text-align:center; padding: 50px;">No records found.</body></html>`; setTimeout(ui.scaleS21Preview, 50); return; }
+                if(pubs.length === 0) { iframe.srcdoc = `<html><body style="font-family:sans-serif; text-align:center; padding: 50px;">No records found.</body></html>`; setTimeout(window.ui.scaleS21Preview, 50); return; }
 
                 let pagesHtml = '';
                 const monthOrder = [8,9,10,11,0,1,2,3,4,5,6,7];
@@ -1099,11 +1110,11 @@
                 pubs.forEach(pub => {
                     let rowsHtml = '', totalHours = 0, totalRemarksNum = 0;
                     monthOrder.forEach(m => {
-                        const r = db.getReports(sy, m).find(x => x.pubId === pub.id) || {};
+                        const r = window.db.getReports(sy, m).find(x => x.pubId === pub.id) || {};
                         if(r.hours && !isNaN(parseFloat(r.hours))) totalHours += parseFloat(r.hours);
-                        if(r.comments) totalRemarksNum += utils.extractNumbers(r.comments);
+                        if(r.comments) totalRemarksNum += window.utils.extractNumbers(r.comments);
                         rowsHtml += `
-                            <div class="cell month">${utils.getMonthName(m)}</div>
+                            <div class="cell month">${window.utils.getMonthName(m)}</div>
                             <div class="cell center"><div class="month-check">${r.sharedInMinistry ? '✔' : ''}</div></div>
                             <div class="cell"><div class="cell-input">${r.studies||''}</div></div>
                             <div class="cell center"><div class="month-check">${r.isAP ? '✔' : ''}</div></div>
@@ -1161,13 +1172,13 @@
                 pagesHtml = pagesHtml.replace(/<\/div>\s*<div class="page">/g, '</div><div class="page">');
                 
                 iframe.srcdoc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><style>${S21_ENGINE_CSS}</style></head><body>${pagesHtml}</body></html>`;
-                iframe.onload = () => setTimeout(ui.scaleS21Preview, 100);
-                ui.showToast('Cards Compiled natively!');
+                iframe.onload = () => setTimeout(window.ui.scaleS21Preview, 100);
+                window.ui.showToast('Cards Compiled natively!');
             },
 
             printCards: () => {
                 const iframe = document.getElementById('s21-render-frame'); const wrapper = document.getElementById('s21-render-area');
-                if (!iframe.srcdoc || iframe.srcdoc.includes('No records found')) { ui.showToast('Compile the queue first.', 'error'); return; }
+                if (!iframe.srcdoc || iframe.srcdoc.includes('No records found')) { window.ui.showToast('Compile the queue first.', 'error'); return; }
                 
                 // CRITICAL: Remove CSS transform scale instantly so the browser prints 1448px pure HTML instead of a shrunken box
                 iframe.style.transform = 'none'; wrapper.style.height = 'auto';
@@ -1175,17 +1186,17 @@
                 setTimeout(() => {
                     iframe.contentWindow.focus(); iframe.contentWindow.print();
                     // Restore preview scale immediately after print dialog opens
-                    setTimeout(ui.scaleS21Preview, 1000);
+                    setTimeout(window.ui.scaleS21Preview, 1000);
                 }, 50);
             },
 
             setupS4Tab: () => {
-                const pubs = db.getPublishers(); const sel = document.getElementById('s4-pub-select'); if (!sel) return;
+                const pubs = window.db.getPublishers(); const sel = document.getElementById('s4-pub-select'); if (!sel) return;
                 sel.innerHTML = '<option value="">-- Please select your name --</option>';
-                let filtered = ui.publicGroup ? pubs.filter(p => p.group === ui.publicGroup) : pubs;
+                let filtered = window.ui.publicGroup ? pubs.filter(p => p.group === window.ui.publicGroup) : pubs;
                 filtered.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
-                document.getElementById('s4-month-display').value = utils.getISTPreviousMonthInfo().displayString;
-                setTimeout(ui.scaleS4, 50);
+                document.getElementById('s4-month-display').value = window.utils.getISTPreviousMonthInfo().displayString;
+                setTimeout(window.ui.scaleS4, 50);
             },
 
             scaleS4: () => {
@@ -1197,26 +1208,36 @@
 
             enforceS4Logic: () => {
                 const ministryCheckbox = document.getElementById('s4-ministry');
-                if (!ministryCheckbox.checked) { document.getElementById('s4-hours').value = ''; document.getElementById('s4-studies').value = ''; }
+                const h = document.getElementById('s4-hours');
+                const s = document.getElementById('s4-studies');
+                if (!ministryCheckbox.checked) { 
+                    h.value = ''; s.value = ''; 
+                    h.disabled = true; s.disabled = true;
+                    h.style.opacity = '0.3'; s.style.opacity = '0.3';
+                } else {
+                    h.disabled = false; s.disabled = false;
+                    h.style.opacity = '1'; s.style.opacity = '1';
+                }
             },
 
             loadS4: () => {
                 const pubId = document.getElementById('s4-pub-select').value; if(!pubId) return;
-                const pub = db.getPublishers().find(p => p.id === pubId); const istInfo = utils.getISTPreviousMonthInfo();
+                const pub = window.db.getPublishers().find(p => p.id === pubId); const istInfo = window.utils.getISTPreviousMonthInfo();
                 document.getElementById('s4-name').value = pub.name;
                 // Form stays blank/new for privacy, but we check if they previously unchecked ministry
                 document.getElementById('s4-ministry').checked = true; document.getElementById('s4-studies').value = ''; document.getElementById('s4-hours').value = ''; document.getElementById('s4-comments').value = '';
+                window.ui.enforceS4Logic(); // Enforce disabled state if needed immediately
             },
 
             saveS4: async () => {
-                const pubId = document.getElementById('s4-pub-select').value; if(!pubId) { ui.showToast('Please select your name.', 'error'); return; }
-                const pub = db.getPublishers().find(p => p.id === pubId); const istInfo = utils.getISTPreviousMonthInfo();
+                const pubId = document.getElementById('s4-pub-select').value; if(!pubId) { window.ui.showToast('Please select your name.', 'error'); return; }
+                const pub = window.db.getPublishers().find(p => p.id === pubId); const istInfo = window.utils.getISTPreviousMonthInfo();
                 const sharedInMinistry = document.getElementById('s4-ministry').checked;
                 let hours = parseFloat(document.getElementById('s4-hours').value) || 0; let studies = parseInt(document.getElementById('s4-studies').value) || 0; let isAP = false;
                 if (!sharedInMinistry) { hours = 0; studies = 0; } else if (hours > 0 && !pub.isRP && !pub.isSP && !pub.isFM) { isAP = true; }
                 const report = { pubId: pubId, serviceYear: istInfo.serviceYear, month: istInfo.month, sharedInMinistry: sharedInMinistry, studies: studies, hours: hours, comments: document.getElementById('s4-comments').value, isAP: isAP };
                 
-                await db.saveReport(report);
+                await window.db.saveReport(report);
                 
                 // Hide form area and show success message for absolute confidentiality
                 document.getElementById('s4-form-area').classList.add('hidden');
