@@ -928,31 +928,47 @@
             },
 
             downloadReports: () => {
-                const reps = window.db.getReports(); const pubs = window.db.getPublishers(); if (reps.length === 0) { window.ui.showToast('No reports to export', 'error'); return; }
+                const reps = db.getReports(); const pubs = db.getPublishers(); if (reps.length === 0) { ui.showToast('No reports to export', 'error'); return; }
                 let csv = 'Publisher Name,Service Year,Month,Shared In Ministry,Studies,Hours,Remarks,Is Auxiliary Pioneer\n';
-                reps.forEach(r => { const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown'; const monthName = window.utils.getMonthName(r.month); const cleanComments = (r.comments || '').replace(/"/g, '""'); csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`; });
+                reps.forEach(r => { const pubName = pubs.find(p => p.id === r.pubId)?.name || 'Unknown'; const monthName = utils.getMonthName(r.month); const cleanComments = (r.comments || '').replace(/"/g, '""'); csv += `"${pubName}",${r.serviceYear},"${monthName}",${r.sharedInMinistry?'TRUE':'FALSE'},${r.studies||0},${r.hours||0},"${cleanComments}",${r.isAP?'TRUE':'FALSE'}\n`; });
                 const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Historical_Reports_Backup.csv'; a.click();
             },
 
             renderDashboard: () => {
                 const dYear = document.getElementById('dash-year'); const dMonth = document.getElementById('dash-month'); if(!dYear || !dMonth) return;
                 const sy = parseInt(dYear.value); const month = parseInt(dMonth.value);
-                const pubs = window.db.getPublishers(); const reports = window.db.getReports(sy, month);
-                let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0 };
+                const pubs = db.getPublishers(); const reports = db.getReports(sy, month);
+                
+                let stats = { totalRep: 0, apCount: 0, apHours: 0, apStudies: 0, rpCount: 0, rpHours: 0, rpStudies: 0, pubCount: 0, pubStudies: 0 };
                 let rpTableHtml = '', apTableHtml = '';
                 
+                const tbody = document.getElementById('dash-reports-table'); tbody.innerHTML = '';
+
                 pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
                     const r = reports.find(x => x.pubId === p.id);
+                    let tagHtml = '';
+                    
                     if (r) {
                         stats.totalRep++;
                         let h = parseFloat(r.hours || 0), s = parseInt(r.studies || 0);
+                        
                         if (p.isRP || p.isSP || p.isFM) { 
-                            stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; 
+                            if(r.sharedInMinistry) { stats.rpCount++; stats.rpHours += h; stats.rpStudies += s; }
+                            tagHtml = '<span class="text-[10px] bg-cyan-900/80 text-cyan-200 border border-cyan-500/50 px-1.5 py-0.5 rounded ml-2 font-bold">RP</span>';
                             rpTableHtml += `<tr class="border-b border-white/5"><td class="px-5 py-2">${p.name}</td><td class="px-5 py-2 text-center font-mono">${h}</td><td class="px-5 py-2 text-center font-mono">${s}</td></tr>`;
                         } else if (r.isAP) { 
-                            stats.apCount++; stats.apHours += h; stats.apStudies += s; 
-                            apTableHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="window.db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
+                            if(r.sharedInMinistry) { stats.apCount++; stats.apHours += h; stats.apStudies += s; }
+                            tagHtml = '<span class="text-[10px] bg-emerald-900/80 text-emerald-200 border border-emerald-500/50 px-1.5 py-0.5 rounded ml-2 font-bold">AP</span>';
+                            apTableHtml += `<tr class="border-b border-white/5 bg-emerald-900/10"><td class="px-6 py-3 font-medium">${p.name}</td><td class="px-6 py-3 text-center font-mono">${h}</td><td class="px-6 py-3 text-center font-mono">${s}</td><td class="px-6 py-3 text-right"><button onclick="db.revokeAP('${r.id}')" class="bg-rose-900/50 text-rose-300 px-3 py-1 text-xs rounded border border-rose-500/50 hover:bg-rose-800 transition">Revoke AP</button></td></tr>`;
+                        } else {
+                            if(r.sharedInMinistry) { stats.pubCount++; stats.pubStudies += s; }
                         }
+                        
+                        const groupTag = p.group ? `<span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded whitespace-nowrap">${p.group}</span>` : '';
+                        
+                        tbody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium flex items-center">${p.name} ${groupTag} ${tagHtml}</td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-center text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
+                    } else {
+                        tbody.innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
                     }
                 });
 
@@ -960,18 +976,35 @@
                 document.getElementById('dash-ap-review-table').innerHTML = apTableHtml || `<tr><td colspan="4" class="px-6 py-4 text-center text-emerald-200/50 italic text-xs">No Auxiliary Pioneers logged for this month.</td></tr>`;
 
                 document.getElementById('dash-stats').innerHTML = `
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Total People</div><div class="text-4xl font-bold text-white mt-2">${pubs.length}</div></div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Regular Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.rpCount}</div></div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Auxiliary Pioneers</div><div class="text-4xl font-bold text-white mt-2">${stats.apCount}</div></div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400"><div class="text-teal-100/70 text-sm font-semibold uppercase tracking-wider">Reports Submitted</div><div class="text-4xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div><div class="text-xs text-amber-200/70 mt-1">${pubs.length - stats.totalRep} pending</div></div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-400">
+                        <div class="text-teal-100/70 text-xs font-semibold uppercase tracking-wider">Regular Pioneers</div>
+                        <div class="text-3xl font-bold text-white mt-2">${stats.rpCount}</div>
+                        <div class="flex gap-4 mt-3 text-xs text-cyan-200/80">
+                            <div><span class="font-bold text-cyan-100 text-sm">${stats.rpHours}</span> Hrs</div>
+                            <div><span class="font-bold text-cyan-100 text-sm">${stats.rpStudies}</span> Studies</div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-400">
+                        <div class="text-teal-100/70 text-xs font-semibold uppercase tracking-wider">Auxiliary Pioneers</div>
+                        <div class="text-3xl font-bold text-white mt-2">${stats.apCount}</div>
+                        <div class="flex gap-4 mt-3 text-xs text-emerald-200/80">
+                            <div><span class="font-bold text-emerald-100 text-sm">${stats.apHours}</span> Hrs</div>
+                            <div><span class="font-bold text-emerald-100 text-sm">${stats.apStudies}</span> Studies</div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-slate-300">
+                        <div class="text-teal-100/70 text-xs font-semibold uppercase tracking-wider">Publishers</div>
+                        <div class="text-3xl font-bold text-white mt-2">${stats.pubCount}</div>
+                        <div class="flex gap-4 mt-3 text-xs text-slate-300/80">
+                            <div><span class="font-bold text-white text-sm">${stats.pubStudies}</span> Studies</div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-amber-400 flex flex-col justify-center">
+                        <div class="text-teal-100/70 text-xs font-semibold uppercase tracking-wider">Reports Submitted</div>
+                        <div class="text-3xl font-bold text-white mt-2">${stats.totalRep} <span class="text-lg text-teal-100/40">/ ${pubs.length}</span></div>
+                        <div class="text-xs text-amber-200/70 mt-1">${pubs.length - stats.totalRep} pending</div>
+                    </div>
                 `;
-
-                const tbody = document.getElementById('dash-reports-table'); tbody.innerHTML = '';
-                pubs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
-                    const r = reports.find(x => x.pubId === p.id);
-                    if (r) tbody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-medium">${p.name} <span class="text-[10px] text-teal-400 ml-2 bg-teal-900/40 px-1.5 py-0.5 rounded">${p.group||'N/A'}</span></td><td class="px-6 py-4 text-center text-emerald-400 text-lg">${r.sharedInMinistry?'✔':'No'}</td><td class="px-6 py-4 text-center font-mono">${r.studies||'-'}</td><td class="px-6 py-4 text-center font-mono">${r.hours||'-'}</td><td class="px-6 py-4 text-xs max-w-[200px] truncate text-teal-100/70">${r.comments||''}</td></tr>`;
-                    else tbody.innerHTML += `<tr class="border-b border-white/5 bg-black/20 text-teal-100/30"><td class="px-6 py-4">${p.name}</td><td colspan="4" class="px-6 py-4 text-center italic text-xs uppercase tracking-widest">Awaiting Data</td></tr>`;
-                });
             },
 
             renderPublishers: () => {
